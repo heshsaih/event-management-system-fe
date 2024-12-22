@@ -24,9 +24,13 @@ import { Colors } from "../../../constants/styling";
 import UpdateOtherParamForm from "./UpdateOtherParamForm";
 import FilterParams from "../../../components/FilterParams";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const speakerTitleSchema = z.object({
-  name: z.string(),
+  name: z
+    .string()
+    .min(2, "otherPage.validation.speakerTitleTooShort")
+    .max(64, "otherPage.validation.speakerTitleTooLong"),
 });
 
 export type SpeakerTitleForm = z.infer<typeof speakerTitleSchema>;
@@ -46,6 +50,7 @@ export default function SpeakerTitlePage() {
     changeSpeakerTitleActive,
   } = useSpeakerTitle();
   const [speakerTitleId, setSpeakerTitleId] = useState<string>();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const { t } = useTranslation();
   const a = useForm<SpeakerTitleForm>({
     resolver: zodResolver(speakerTitleSchema),
@@ -58,12 +63,8 @@ export default function SpeakerTitlePage() {
     getAllSpeakerTitles();
   }, []);
 
-  const submit = a.handleSubmit(async function(data) {
-    const success = await createSpeakerTitle([data]);
-    if (success) {
-      getAllSpeakerTitles();
-      a.reset();
-    }
+  const submit = a.handleSubmit(async function() {
+    setOpenConfirm(true);
   });
 
   return (
@@ -82,6 +83,7 @@ export default function SpeakerTitlePage() {
           onSubmit={submit}
           style={{
             flexDirection: "row",
+            alignItems: "start",
           }}
         >
           <TextInput
@@ -90,7 +92,6 @@ export default function SpeakerTitlePage() {
             label={t("speakerTitlePage.labels.speakerTitleName")}
             aria-label={t("speakerTitlePage.ariaLabels.speakerTitleName")}
           ></TextInput>
-          <Typography flexGrow={1}></Typography>
           <Tooltip
             title={t("speakerTitlePage.addNewSpeakerTitleButtonTooltip")}
           >
@@ -116,12 +117,12 @@ export default function SpeakerTitlePage() {
           sx={{ color: Colors.RED }}
         ></CircularProgress>
       )}
-      {!isFetching && speakers && speakers.length === 0 && (
+      {!isFetching && speakers && speakers.content.length === 0 && (
         <Typography>{t("speakerTitlePage.noSpeakerTitles")}</Typography>
       )}
       <TableContainer>
         <Table>
-          {!isFetching && speakers && speakers.length > 0 && (
+          {!isFetching && speakers && speakers.content.length > 0 && (
             <>
               <TableHead>
                 <TableCell>{t("speakerTitlePage.tableColumns.name")}</TableCell>
@@ -136,9 +137,10 @@ export default function SpeakerTitlePage() {
                 </TableCell>
               </TableHead>
               <TableBody>
-                {speakers.map(function(e) {
+                {speakers.content.map(function(e) {
                   return (
                     <Tooltip
+                      key={e.id}
                       tabIndex={0}
                       title={t("speakerTitlePage.speakerTitleRowTooltip")}
                       onClick={function() {
@@ -175,7 +177,7 @@ export default function SpeakerTitlePage() {
             </>
           )}
           <TablePagination
-            count={10}
+            count={speakers?.totalElements ?? 10}
             rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
             onRowsPerPageChange={function(e) {
               const cast = Number(e.target.value);
@@ -207,6 +209,20 @@ export default function SpeakerTitlePage() {
         getAll={getAllSpeakerTitles}
         isUpdating={isUpdating}
       ></UpdateOtherParamForm>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={async function() {
+          setOpenConfirm(false);
+          const success = await createSpeakerTitle([a.getValues()]);
+          if (success) {
+            getAllSpeakerTitles();
+            a.reset();
+          }
+        }}
+      ></ConfirmActionModal>
     </StyledContainer>
   );
 }

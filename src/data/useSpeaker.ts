@@ -11,12 +11,10 @@ import {
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { SpeakerTitle, SpeakerTitleDto } from "./useSpeakerTitle";
 import { Organization, OrganizationDto } from "./useOrganization";
+import { EntityDto, Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type SpeakerBriefDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
+export type SpeakerBriefDto = Omit<EntityDto, "name"> & {
   firstName: string;
   lastName: string;
   titleName: string;
@@ -30,19 +28,18 @@ export type SpeakerBrief = Omit<SpeakerBriefDto, "createdAt" | "updatedAt"> & {
   updatedAt: Dayjs;
 };
 
-export type SpeakerDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
+export type SpeakerDto = Omit<EntityDto, "name"> & {
   firstName: string;
   lastName: string;
   speakerTitle: SpeakerTitleDto | null;
   email: string;
   backupEmail: string;
   organization: OrganizationDto | null;
-}
-export type Speaker = Omit<SpeakerBriefDto, "createdAt" | "updatedAt" | "titleName" | "organizationName"> & {
+};
+export type Speaker = Omit<
+  SpeakerBriefDto,
+  "createdAt" | "updatedAt" | "titleName" | "organizationName"
+> & {
   createdAt: Dayjs;
   updatedAt: Dayjs;
   titleName: SpeakerTitle | null;
@@ -56,16 +53,15 @@ export type CreateSpeakerDto = {
   backupEmail?: string;
   speakerTitleId?: string;
   organizationId?: string;
-}
+};
 
 export type UpdateSpeakerDto = CreateSpeakerDto;
-
 
 export default function useSpeaker() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
-  const [speakers, setSpeakers] = useState<SpeakerBrief[]>();
+  const [speakers, setSpeakers] = useState<Pageable<SpeakerBrief>>();
   const [speaker, setSpeaker] = useState<Speaker>();
   const [params, setParams] = useState<FilterOptions>();
 
@@ -78,15 +74,7 @@ export default function useSpeaker() {
       toast.success(`Podani prelegenci zostali utworzeni`);
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się utworzyć prelegentów: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsCreating(false);
@@ -100,22 +88,23 @@ export default function useSpeaker() {
     };
 
     if (newParams.orderBy === "name") {
-      newParams.orderBy = "firstName"
+      newParams.orderBy = "firstName";
     }
 
     const uri = mapFilterParamsToUri(newParams);
 
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<SpeakerBriefDto[]>(
+      const response = await apiWithToken.get<Pageable<SpeakerBriefDto>>(
         `/manager/speakers?${uri}`,
       );
-      setSpeakers(response.data.map(mapSpeakerBriefDtoToSpeakerBrief));
+      setSpeakers({
+        ...response.data,
+        content: response.data.content.map(mapSpeakerBriefDtoToSpeakerBrief),
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać prelegentów: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -129,9 +118,7 @@ export default function useSpeaker() {
       );
       setSpeaker(mapSpeakerDtoToSpeaker(response.data));
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać prelegenta: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -144,35 +131,28 @@ export default function useSpeaker() {
       toast.success("Prelegent został zaktualizowany");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zaktualizować prelegenta: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const setSpeakerActive = async function (id: string, active: boolean) {
+  const setSpeakerActive = async function(id: string, active: boolean) {
     try {
       setIsUpdating(true);
-      await apiWithEtag.patch(`/manager/speakers/${id}/set-active?active=${active}`);
+      await apiWithEtag.patch(
+        `/manager/speakers/${id}/set-active?active=${active}`,
+      );
       toast.success("Prelegent został zaktualizowany");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zaktualizować prelegenta: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
-
-  }
+  };
 
   return {
     isFetching,
@@ -185,6 +165,6 @@ export default function useSpeaker() {
     speaker,
     isUpdating,
     isCreating,
-    setSpeakerActive
+    setSpeakerActive,
   };
 }

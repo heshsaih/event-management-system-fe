@@ -1,4 +1,10 @@
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,12 +13,13 @@ import TextInput from "./TextInput";
 import { useState } from "react";
 import useSpeaker from "../data/useSpeaker";
 import StyledModal from "./StyledModal";
-import ControlledAutocomplete, {
-} from "./ControlledAutocomplete";
+import ControlledAutocomplete from "./ControlledAutocomplete";
 import { useSpeakerTitle } from "../data/useSpeakerTitle";
 import { useOrganization } from "../data/useOrganization";
 import useAsyncSpeakerTitle from "../data/useAsyncSpeakerTitle";
 import useAsyncOrganization from "../data/useAsyncOrganization";
+import ConfirmActionModal from "./ConfirmActionModal";
+import { useTranslation } from "react-i18next";
 
 type AddSpeakerFormProps = {
   open: boolean;
@@ -20,21 +27,29 @@ type AddSpeakerFormProps = {
 };
 
 const addSpeakerSchema = z.object({
-  firstName: z.string().min(3, "Imię musi mieć min. 3 znaki"),
-  lastName: z.string().min(3, "Nazwisko musi mieć min. 3 znaki"),
-  speakerTitle: z
-    .object({
-      label: z.string().min(1),
-      value: z.string().min(1),
-    })
-    .optional(),
-  organization: z
-    .object({
-      label: z.string().min(1),
-      value: z.string().min(1),
-    })
-    .optional(),
-  email: z.string().email("Podany adres e-mail nie jest poprawnym adresem"),
+  firstName: z
+    .string()
+    .min(2, "addSpeakerForm.validation.firstNameTooShort")
+    .max(64, "addSpeakerForm.validation.firstNameTooLong"),
+  lastName: z
+    .string()
+    .min(2, "addSpeakerForm.validation.lastNameTooShort")
+    .max(64, "addSpeakerForm.validation.lastNameTooLong"),
+  speakerTitle: z.object({
+    label: z.string(),
+    value: z
+      .string()
+      .min(1, "addSpeakerForm.validation.speakerTitleRequired"),
+  }),
+  organization: z.object({
+    label: z.string(),
+    value: z
+      .string()
+      .min(1, "addSpeakerForm.validation.organizaitonRequired"),
+  }),
+  email: z
+    .string()
+    .email("addSpeakerForm.validation.emailWrongFormat"),
   backupEmail: z.string().optional(),
 });
 
@@ -48,6 +63,8 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
   const { isCreating, createSpeaker, getAllSpeakers } = useSpeaker();
   const speakerTitles = useAsyncSpeakerTitle();
   const organizations = useAsyncOrganization();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   const a = useForm<AddSpeakerFormType>({
     resolver: zodResolver(addSpeakerSchema),
@@ -67,36 +84,14 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
     },
   });
 
-  const submit = a.handleSubmit(async function (data) {
-    const success = await createSpeaker([
-      {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        backupEmail: data.backupEmail,
-        speakerTitleId: data.speakerTitle?.value,
-        organizationId: data.organization?.value,
-      },
-    ]);
-    if (success) {
-      await getAllSpeakers();
-      a.reset();
-      speakerTitles.setComponentState({
-        label: "",
-        value: "",
-      });
-      organizations.setComponentState({
-        label: "",
-        value: "",
-      });
-      props.onClose();
-    }
+  const submit = a.handleSubmit(function() {
+    setOpenConfirm(true);
   });
 
   return (
     <StyledModal open={props.open} onClose={props.onClose}>
       <>
-        <Typography variant="h4">Dodaj prelegenta</Typography>
+        <Typography variant="h4">{t("addSpeakerForm.pageHeading")}</Typography>
         <FormProvider {...a}>
           <Form onSubmit={submit}>
             <Box
@@ -105,9 +100,18 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
                 width: "100%",
               }}
             >
-              <TextInput name="firstName" label="Imię*"></TextInput>
+              <TextInput
+                autoFocus
+                name="firstName"
+                label={t("addSpeakerForm.labels.firstName")}
+                aria-label={t("addSpeakerForm.ariaLabels.firstName")}
+              ></TextInput>
               <Typography marginX={2}></Typography>
-              <TextInput name="lastName" label="Nazwisko*"></TextInput>
+              <TextInput
+                name="lastName"
+                label={t("addSpeakerForm.labels.lastName")}
+                aria-label={t("addSpeakerForm.ariaLabels.lastName")}
+              ></TextInput>
             </Box>
             <ControlledAutocomplete
               async
@@ -115,11 +119,12 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
               options={speakerTitles.options ?? []}
               componentState={speakerTitles.componentState}
               setComponentState={speakerTitles.setComponentState}
-              label="Tytuł naukowy"
+              label={t("addSpeakerForm.labels.speakerTitle")}
+              aria-label={t("addSpeakerForm.ariaLabels.speakerTitle")}
               createable
-              createLabel="Taki tytuł nie istnieje, kliknij aby go utworzyć"
+              createLabel={t("addSpeakerForm.createLabels.speakerTitle")}
               createValue={crypto.randomUUID()}
-              onCreateCallback={async function () {
+              onCreateCallback={async function() {
                 const result = await createSpeakerTitle([
                   {
                     name: newSpeakerTitle,
@@ -132,23 +137,23 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
                   });
                 }
               }}
-              filterCallback={function (phrase) {
+              filterCallback={function(phrase) {
                 setNewSpeakerTitle(phrase);
                 speakerTitles.setInput(phrase);
               }}
             ></ControlledAutocomplete>
             <ControlledAutocomplete
-              loading
               async
               name="organization"
               options={organizations.options ?? []}
               componentState={organizations.componentState}
               setComponentState={organizations.setComponentState}
-              label="Organizacja"
+              label={t("addSpeakerForm.labels.organization")}
+              aria-label={t("addSpeakerForm.ariaLabels.organization")}
               createable
-              createLabel="Taka organizacja nie istnieje, kliknij aby ją utworzyć"
+              createLabel={t("addSpeakerForm.createLabels.organizaiton")}
               createValue={crypto.randomUUID()}
-              onCreateCallback={async function () {
+              onCreateCallback={async function() {
                 const result = await createOrganization([
                   {
                     name: newOrganization,
@@ -161,21 +166,68 @@ export default function AddSpeakerForm(props: AddSpeakerFormProps) {
                   });
                 }
               }}
-              filterCallback={function (phrase) {
+              filterCallback={function(phrase) {
                 setNewOrganization(phrase);
                 organizations.setInput(phrase);
               }}
             ></ControlledAutocomplete>
-            <TextInput name="email" label="Adres e-mail*"></TextInput>
+            <TextInput
+              name="email"
+              label={t("addSpeakerForm.labels.email")}
+              aria-label={t("addSpeakerForm.ariaLabels.email")}
+            ></TextInput>
             <TextInput
               name="backupEmail"
-              label="Zapasowy adres e-mail"
+              label={t("addSpeakerForm.labels.backupEmail")}
+              aria-label={t("addSpeakerForm.ariaLabels.backupEmail")}
             ></TextInput>
-            <Button type="submit">
-              {isCreating ? <CircularProgress></CircularProgress> : "Utwórz"}
-            </Button>
+            <Tooltip title={t("addSpeakerForm.submitButtonTooltip")}>
+              <Button
+                type="submit"
+                aria-label={t("addSpeakerForm.ariaLabels.submitButton")}
+              >
+                {isCreating ? (
+                  <CircularProgress></CircularProgress>
+                ) : (
+                  t("addSpeakerForm.submitButtonText")
+                )}
+              </Button>
+            </Tooltip>
           </Form>
         </FormProvider>
+        <ConfirmActionModal
+          open={openConfirm}
+          onClose={function() {
+            setOpenConfirm(false);
+          }}
+          confirmAction={async function() {
+            setOpenConfirm(false);
+            const data = a.getValues();
+            const success = await createSpeaker([
+              {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                backupEmail: data.backupEmail,
+                speakerTitleId: data.speakerTitle?.value,
+                organizationId: data.organization?.value,
+              },
+            ]);
+            if (success) {
+              await getAllSpeakers();
+              a.reset();
+              speakerTitles.setComponentState({
+                label: "",
+                value: "",
+              });
+              organizations.setComponentState({
+                label: "",
+                value: "",
+              });
+              props.onClose();
+            }
+          }}
+        ></ConfirmActionModal>
       </>
     </StyledModal>
   );

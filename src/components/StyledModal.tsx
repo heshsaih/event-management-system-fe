@@ -4,15 +4,16 @@ import {
   IconButton,
   Modal,
   ModalProps,
+  SxProps,
   Tooltip,
 } from "@mui/material";
 import StyledContainer from "./StyledContainer";
 import { defaultTheme } from "../style/defaultTheme";
 import CloseIcon from "@mui/icons-material/Close";
-import FocusTrap from "@mui/material/Unstable_TrapFocus";
 
 type StyledModalProps = Omit<ModalProps, "onClose"> & {
   onClose: () => void;
+  innerContainerSx?: SxProps;
 };
 
 export default function StyledModal(props: StyledModalProps) {
@@ -27,34 +28,33 @@ export default function StyledModal(props: StyledModalProps) {
       }}
       {...rest}
     >
-      <FocusTrap open>
-        <StyledContainer
+      <StyledContainer
+        sx={{
+          position: "absolute",
+          backgroundColor: alpha(defaultTheme.palette.background.default, 1),
+          maxWidth: "60rem",
+          maxHeight: "90%",
+          paddingTop: 0,
+          overflow: "auto",
+          ...props.innerContainerSx,
+        }}
+      >
+        <Box
           sx={{
-            position: "absolute",
-            backgroundColor: alpha(defaultTheme.palette.background.default, 1),
-            maxWidth: "60rem",
-            maxHeight: "50rem",
-            paddingTop: 0,
-            overflow: "auto",
+            position: "relative",
+            alignSelf: "end",
+            top: 0,
+            right: 0,
           }}
         >
-          <Box
-            sx={{
-              position: "relative",
-              alignSelf: "end",
-              top: 0,
-              right: 0,
-            }}
-          >
-            <Tooltip title="Zamknij okno">
-              <IconButton onClick={props.onClose}>
-                <CloseIcon></CloseIcon>
-              </IconButton>
-            </Tooltip>
-          </Box>
-          {children}
-        </StyledContainer>
-      </FocusTrap>
+          <Tooltip title="Zamknij okno">
+            <IconButton onClick={props.onClose}>
+              <CloseIcon></CloseIcon>
+            </IconButton>
+          </Tooltip>
+        </Box>
+        {children}
+      </StyledContainer>
     </Modal>
   );
 }

@@ -112,7 +112,7 @@ export default function EventPageSummaryManager({
               </TableBody>
             </Table>
           </TableContainer>
-          <Typography variant="h4" marginTop={3}>
+          <Typography variant="h4" marginTop={3} marginBottom={2}>
             {t("eventPageManager.summary.eventImageHeading")}
           </Typography>
           <EventImage data={event.image.data}></EventImage>

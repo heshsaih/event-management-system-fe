@@ -3,32 +3,36 @@ import { AutocompleteOption } from "../components/ControlledAutocomplete";
 import { apiWithToken } from "../api/config";
 import { LocationBriefDto } from "./useLocation";
 import { mapFilterParamsToUri } from "../util/converters";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import { Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
 export default function useAsyncLocations(initialState?: AutocompleteOption) {
   const [input, setInput] = useState<string>("");
-  const [componentState, setComponentState] = useState<AutocompleteOption>(initialState ?? {
-    label: "",
-    value: ""
-  });
+  const [componentState, setComponentState] = useState<AutocompleteOption>(
+    initialState ?? {
+      label: "",
+      value: "",
+    },
+  );
   const [options, setOptions] = useState<AutocompleteOption[]>();
   const [isFetching, setIsFetching] = useState<boolean>();
 
   useEffect(
-    function () {
+    function() {
       const controller = new AbortController();
       const signal = controller.signal;
       async function fetch() {
         try {
           setIsFetching(true);
-          const response = await apiWithToken.get<LocationBriefDto[]>(
-            `/manager/locations?${mapFilterParamsToUri({ phrase: input, size: 5 })}`,
+          const response = await apiWithToken.get<Pageable<LocationBriefDto>>(
+            `/manager/locations?${mapFilterParamsToUri({ phrase: input, size: 5, showInactive: false })}`,
             {
               signal: signal,
             },
           );
           setOptions(
-            response.data.map(function (e) {
+            response.data.content.map(function(e) {
               return {
                 label: e.name,
                 value: e.id,
@@ -36,12 +40,7 @@ export default function useAsyncLocations(initialState?: AutocompleteOption) {
             }),
           );
         } catch (e) {
-          if (axios.isCancel(e)) {
-            return;
-          }
-          if (e instanceof AxiosError && e.status) {
-            console.error(e);
-          }
+          handleBackendError(e as AxiosError<BackendError | undefined>);
         } finally {
           setIsFetching(false);
         }
@@ -49,7 +48,7 @@ export default function useAsyncLocations(initialState?: AutocompleteOption) {
 
       fetch();
 
-      return function () {
+      return function() {
         controller.abort();
       };
     },
@@ -62,6 +61,6 @@ export default function useAsyncLocations(initialState?: AutocompleteOption) {
     componentState,
     setComponentState,
     setInput,
-    input
+    input,
   };
 }

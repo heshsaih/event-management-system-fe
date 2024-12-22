@@ -7,21 +7,13 @@ import {
   mapFilterParamsToUri,
   mapOtherParamDtoToOtherParam,
 } from "../util/converters";
-import { Dayjs } from "dayjs";
 import { apiWithEtag, apiWithToken } from "../api/config";
+import { Pageable, OtherParam, OtherParamDto } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type SpeakerTitleDto = {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-};
+export type SpeakerTitleDto = OtherParamDto;
 
-export type SpeakerTitle = Omit<SpeakerTitleDto, "createdAt" | "updatedAt"> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
-};
+export type SpeakerTitle = OtherParam;
 
 export type UpdateSpeakerTitleDto = {
   name: string;
@@ -32,10 +24,10 @@ export function useSpeakerTitle() {
   const [isFetchingSingle, setIsFetchingSingle] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [speakers, setSpeakers] = useState<SpeakerTitle[]>();
+  const [speakers, setSpeakers] = useState<Pageable<SpeakerTitle>>();
   const [params, setParams] = useState<FilterOptions>();
 
-  const createSpeakerTitle = async function (
+  const createSpeakerTitle = async function(
     data: SpeakerTitleForm[],
   ): Promise<SpeakerTitleDto | undefined> {
     try {
@@ -47,21 +39,13 @@ export function useSpeakerTitle() {
       toast.success(`Podane tytuły prelegentów zostały utworzone pomyślnie`);
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się utworzyć tytułu prelegenta: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const getAllSpeakerTitles = async function (filterParams?: FilterOptions) {
+  const getAllSpeakerTitles = async function(filterParams?: FilterOptions) {
     const newParams = {
       ...params,
       ...filterParams,
@@ -71,25 +55,24 @@ export function useSpeakerTitle() {
 
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<SpeakerTitleDto[]>(
+      const response = await apiWithToken.get<Pageable<SpeakerTitleDto>>(
         `/manager/speaker-titles?${uri}`,
       );
-      setSpeakers(
-        response.data.map(mapOtherParamDtoToOtherParam) as SpeakerTitle[],
-      );
+      setSpeakers({
+        ...response.data,
+        content: response.data.content.map(
+          mapOtherParamDtoToOtherParam,
+        ) as SpeakerTitle[],
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się pobrać tytułów prelegentów: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const updateSpeakerTitle = async function (
+  const updateSpeakerTitle = async function(
     id: string,
     data: UpdateSpeakerTitleDto,
   ): Promise<boolean> {
@@ -99,18 +82,14 @@ export function useSpeakerTitle() {
       toast.success("Tytuł prelegenta został zaktualizowany");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zaktualizować tytułu prelegenta: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const getSpeakerTitle = async function (
+  const getSpeakerTitle = async function(
     id: string,
   ): Promise<SpeakerTitle | undefined> {
     try {
@@ -120,17 +99,13 @@ export function useSpeakerTitle() {
       );
       return mapOtherParamDtoToOtherParam(response.data) as SpeakerTitle;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się pobrać tytułu prelegenta: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetchingSingle(false);
     }
   };
 
-  const changeSpeakerTitleActive = async function (
+  const changeSpeakerTitleActive = async function(
     id: string,
     active: boolean,
   ) {
@@ -142,11 +117,7 @@ export function useSpeakerTitle() {
       toast.success("Status tytułu prelegenta został zmieniony");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zmienić statusu tytułu prelegenta: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);

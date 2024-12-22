@@ -37,6 +37,8 @@ function mapSessionData(data: Session | undefined, t: TFunction<"pl">) {
         : t("eventPageManager.sessionsPage.sessionDataColumns.noEndDate"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.maxSeats")]:
       data?.maxSeats,
+    [t("eventPageManager.sessionsPage.sessionDataColumns.minutesBeforeSignUpCloses")]:
+      data?.minutesBeforeSignUpCloses,
     [t("eventPageManager.sessionsPage.sessionDataColumns.speaker")]:
       `${data?.speaker.titleName ?? ""} ${data?.speaker.firstName} ${data?.speaker.lastName}`,
     [t("eventPageManager.sessionsPage.sessionDataColumns.address")]:
@@ -132,6 +134,7 @@ export default function SessionsPageManager({
                 {t("eventPageManager.sessionsPage.sessionViewerHeading")}
               </Typography>
               <SessionViewer
+                initialState={true}
                 selectedDate={event?.startDate.toDate() as Date}
                 events={(event as Event).sessions
                   .filter(function (e) {
@@ -183,14 +186,6 @@ export default function SessionsPageManager({
       )}
       {openCreateSessionForm && (
         <AddSessionForm
-          eventBlocks={
-            event?.eventBlocks.map(function (e) {
-              return {
-                label: e.name,
-                value: e.id,
-              };
-            }) ?? []
-          }
           eventStartDate={event?.startDate ?? dayjs()}
           eventEndDate={event?.endDate ?? dayjs()}
           open={openCreateSessionForm}

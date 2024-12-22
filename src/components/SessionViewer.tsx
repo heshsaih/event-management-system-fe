@@ -13,6 +13,8 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRef, useState } from "react";
 import { Colors, Styling } from "../constants/styling";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const muiDefaultTheme = createTheme({
   palette: {
@@ -22,56 +24,60 @@ const muiDefaultTheme = createTheme({
   },
 });
 
-const translations = {
-  navigation: {
-    month: "Miesiąc",
-    week: "Tydzień",
-    day: "Dzień",
-    today: "Dzisiaj",
-    agenda: "Podsumowanie",
-  },
-  form: {
-    addTitle: "Add Event",
-    editTitle: "Edit Event",
-    confirm: "Confirm",
-    delete: "Delete",
-    cancel: "Cancel",
-  },
-  event: {
-    title: "Tytuł",
-    subtitle: "Podtytuł",
-    start: "Czas rozpoczęcia",
-    end: "Czas zakończenia",
-    allDay: "Cały dzień",
-  },
-  validation: {
-    required: "Required",
-    invalidEmail: "Invalid Email",
-    onlyNumbers: "Only Numbers Allowed",
-    min: "Minimum {{min}} letters",
-    max: "Maximum {{max}} letters",
-  },
-  moreEvents: "More...",
-  noDataToDisplay: "Żadna sesja nie dzieje się tego dnia",
-  loading: "Loading...",
+const translations = function(t: TFunction) {
+  return {
+    navigation: {
+      month: t("sessionViewer.translations.navigation.month"),
+      week: t("sessionViewer.translations.navigation.week"),
+      day: t("sessionViewer.translations.navigation.day"),
+      today: t("sessionViewer.translations.navigation.today"),
+      agenda: t("sessionViewer.translations.navigation.agenda"),
+    },
+    form: {
+      addTitle: t("sessionViewer.translations.form.addTitle"),
+      editTitle: t("sessionViewer.translations.form.editTitle"),
+      confirm: t("sessionViewer.translations.form.confirm"),
+      delete: t("sessionViewer.translations.form.delete"),
+      cancel: t("sessionViewer.translations.form.cancel"),
+    },
+    event: {
+      title: t("sessionViewer.translations.event.title"),
+      subtitle: t("sessionViewer.translations.event.subtitle"),
+      start: t("sessionViewer.translations.event.start"),
+      end: t("sessionViewer.translations.event.end"),
+      allDay: t("sessionViewer.translations.event.allDay"),
+    },
+    validation: {
+      required: t("sessionViewer.translations.validation.required"),
+      invalidEmail: t("sessionViewer.translations.validation.invalidEmail"),
+      onlyNumbers: t("sessionViewer.translations.validation.onlyNumbers"),
+      min: t("sessionViewer.translations.validation.min"),
+      max: t("sessionViewer.translations.validation.max"),
+    },
+    moreEvents: "More...",
+    noDataToDisplay: "Żadna sesja nie dzieje się tego dnia",
+    loading: "Loading...",
+  };
 };
 
 type SessionViewerProps = {
   events: SchedulerProps["events"];
   selectedDate: SchedulerProps["selectedDate"];
   scrollOnClose?: () => void;
-  expandable?: boolean;
+  initialState?: boolean;
 };
 
 export default function SessionViewer({
   events,
   selectedDate,
   scrollOnClose,
+  initialState
 }: SessionViewerProps) {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(initialState ?? false);
   const ref = useRef<HTMLDivElement>(null);
+  const {t} = useTranslation();
 
-  const openAccordion = function () {
+  const openAccordion = function() {
     setOpen(true);
     const currentRect = ref.current?.getBoundingClientRect() as DOMRect;
     const scrollValue = currentRect.top + window.scrollY - 250;
@@ -81,7 +87,7 @@ export default function SessionViewer({
     });
   };
 
-  const closeAccordion = function () {
+  const closeAccordion = function() {
     setOpen(false);
     if (scrollOnClose) {
       scrollOnClose();
@@ -99,17 +105,17 @@ export default function SessionViewer({
         width: "100%",
         margin: "0.5rem",
         borderRadius: Styling.BORDER_RADIUS,
-        border: `1px solid ${Colors.GREY_BORDER}`
+        border: `1px solid ${Colors.GREY_BORDER}`,
       }}
     >
-      <Tooltip title="Kliknij, aby rozwinąć">
-      <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
-        Kliknij, aby wyświetlić sesje w kalendarzu
-      </AccordionSummary>
+      <Tooltip title={t("sessionViewer.accordionTooltip")}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
+          {t("sessionViewer.accordionText")}
+        </AccordionSummary>
       </Tooltip>
       <AccordionDetails>
         <Typography marginY={"1rem"} variant="h4">
-          Aktualnie dodane konferencje
+          {t("sessionViewer.componentHeading")}
         </Typography>
         <Box
           sx={{
@@ -120,13 +126,15 @@ export default function SessionViewer({
         >
           <ThemeProvider theme={muiDefaultTheme}>
             <Scheduler
-              selectedDate={new Date(selectedDate.setDate(selectedDate.getDate() + 1))}
+              selectedDate={
+                new Date(selectedDate.setDate(selectedDate.getDate()))
+              }
               view="week"
               week={{
                 /*@ts-ignore*/
                 weekDays: [1, 2, 3, 4, 5, 6, 7],
-                startHour: 8,
-                endHour: 21,
+                startHour: 0,
+                endHour: 24,
                 step: 60,
                 weekStartOn: 0,
               }}
@@ -134,13 +142,13 @@ export default function SessionViewer({
               editable={false}
               deletable={false}
               stickyNavigation
-              events={events.map(function (e) {
+              events={events.map(function(e) {
                 return {
                   color: Colors.RED,
                   ...e,
                 };
               })}
-              translations={translations}
+              translations={translations(t)}
             ></Scheduler>
           </ThemeProvider>
         </Box>

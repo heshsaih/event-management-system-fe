@@ -8,7 +8,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useSession from "../../../data/useSession";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   CircularProgress,
@@ -30,6 +29,10 @@ import useEventBlock from "../../../data/useEventBlock";
 import { mapUpdateSessionSchemaToUpdateSessionDto } from "../../../util/converters";
 import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
+import AddLocationForm from "../../../components/AddLocationForm";
+import AddRoomForm from "../location-page/AddRoomForm";
+import AddSpeakerForm from "../../../components/AddSpeakerForm";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 type UpdateSessionFormProps = {
   eventStartDate: Dayjs;
@@ -50,34 +53,110 @@ const breakpoints: GridBaseProps["columns"] = {
   xl: 6,
 };
 
-const updateSessionSchema = z.object({
-  sessionName: z.string().min(1),
-  sessionType: z.object({
-    label: z.string(),
-    value: z.string().min(1),
-  }),
-  speaker: z.object({
-    label: z.string(),
-    value: z.string().min(1),
-  }),
-  location: z.object({
-    label: z.string(),
-    value: z.string().min(1),
-  }),
-  room: z.object({
-    label: z.string(),
-    value: z.string().min(1),
-  }),
-  eventBlock: z.object({
-    label: z.string(),
-    value: z.string().min(1),
-  }),
-  descriptionPl: z.string().min(1),
-  descriptionEn: z.string().optional(),
-  startDate: z.instanceof(dayjs as unknown as typeof Dayjs),
-  endDate: z.instanceof(dayjs as unknown as typeof Dayjs),
-  maxSeats: z.number().min(1),
-});
+const updateSessionSchema = z
+  .object({
+    minutesBeforeSignUpCloses: z.number().min(
+      1,
+
+      "eventPageManager.updateSessionForm.validation.minutesBeforeSignUpClosesTooLow",
+    ),
+    sessionName: z
+      .string()
+      .min(2, "eventPageManager.updateSessionForm.validation.nameTooShort")
+      .max(64, "eventPageManager.updateSessionForm.validation.nameTooLong"),
+    sessionType: z.object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          "eventPageManager.updateSessionForm.validation.sessionTypeRequired",
+        ),
+    }),
+    speaker: z.object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          "eventPageManager.updateSessionForm.validation.speakerRequired",
+        ),
+    }),
+    location: z.object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          "eventPageManager.updateSessionForm.validation.locationRequired",
+        ),
+    }),
+    room: z.object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(1, "eventPageManager.updateSessionForm.validation.roomRequired"),
+    }),
+    eventBlock: z.object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          "eventPageManager.updateSessionForm.validation.eventBlockRequired",
+        ),
+    }),
+    descriptionPl: z
+      .string()
+      .min(
+        2,
+        "eventPageManager.updateSessionForm.validation.descriptionPlTooShort",
+      )
+      .max(
+        2000,
+        "eventPageManager.updateSessionForm.validation.descriptionPlTooLong",
+      ),
+    descriptionEn: z
+      .string()
+      .optional()
+      .or(
+        z
+          .string()
+          .min(
+            2,
+            "eventPageManager.updateSessionForm.validation.descriptionEnTooShort",
+          )
+          .max(
+            2000,
+            "eventPageManager.updateSessionForm.validation.descriptionEnTooLong",
+          ),
+      ),
+    startDate: z.instanceof(dayjs as unknown as typeof Dayjs),
+    endDate: z.instanceof(dayjs as unknown as typeof Dayjs),
+    maxSeats: z
+      .number()
+      .min(1, "eventPageManager.updateSessionForm.validation.maxSeatsTooLow"),
+  })
+  .refine(
+    function(e) {
+      return !e.startDate.isAfter(e.endDate);
+    },
+    {
+      message:
+        "eventPageManager.updateSessionForm.validation.startDateBeforeEndDate",
+      path: ["startDate"],
+    },
+  )
+  .refine(
+    function(e) {
+      return !e.endDate.isBefore(e.startDate);
+    },
+    {
+      message:
+        "eventPageManager.updateSessionForm.validation.endDateAfterStartDate",
+      path: ["endDate"],
+    },
+  );
 
 export type UpdateSessionSchema = z.infer<typeof updateSessionSchema>;
 
@@ -94,6 +173,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
   const a = useForm<UpdateSessionSchema>({
     resolver: zodResolver(updateSessionSchema),
     values: {
+      minutesBeforeSignUpCloses: session?.minutesBeforeSignUpCloses ?? 15,
       sessionName: session?.sessionName ?? "",
       sessionType: {
         label: session?.sessionType.name ?? "",
@@ -122,7 +202,6 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
       maxSeats: session?.maxSeats ?? 1,
     },
   });
-  const navigate = useNavigate();
   const [roomComponentState, setRoomComponentState] =
     useState<AutocompleteOption>(a.getValues().room);
   const locations = useAsyncLocations();
@@ -137,6 +216,11 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
   const [chosenLocationId, setChosenLocationId] = useState<string | undefined>(
     session?.room.locationId ? session.room.locationId : undefined,
   );
+  const [openLocationForm, setOpenLocationForm] = useState<boolean>(false);
+  const [openRoomForm, setOpenRoomForm] = useState<boolean>(false);
+  const [openSpeakerForm, setOpenSpeakerForm] = useState<boolean>(false);
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>();
   const [eventBlockAutocompleteState, setEventBlockAutocompleteState] =
     useState<AutocompleteOption>({
       label: session?.eventBlock.name ?? "",
@@ -144,7 +228,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
     });
 
   useEffect(
-    function () {
+    function() {
       if (props.open) {
         getSession(props.sessionId ?? "");
       }
@@ -153,7 +237,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
   );
 
   useEffect(
-    function () {
+    function() {
       if (session) {
         setChosenLocationId(session.room.locationId);
         locations.setComponentState({
@@ -181,29 +265,36 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
     [session],
   );
 
+  async function fetchRooms() {
+    if (chosenLocationId) {
+      setRoomOptions(await retrieveRoomOptions(chosenLocationId));
+    } else {
+      setRoomOptions(undefined);
+    }
+  }
+
   useEffect(
-    function () {
-      async function setState() {
-        if (chosenLocationId) {
-          setRoomOptions(await retrieveRoomOptions(chosenLocationId));
-        } else {
-          setRoomOptions(undefined);
-        }
-      }
-      setState();
+    function() {
+      fetchRooms();
     },
     [chosenLocationId],
   );
 
-  const submit = a.handleSubmit(async function (data) {
-    const response = await updateSession(
-      session?.id ?? "",
-      mapUpdateSessionSchemaToUpdateSessionDto(data),
-    );
-    if (response) {
-      props.refresh(props.eventId);
-      props.onClose();
-    }
+  const submit = a.handleSubmit(function() {
+    setConfirmAction(function() {
+      return async function() {
+        setOpenConfirm(false);
+        const response = await updateSession(
+          session?.id ?? "",
+          mapUpdateSessionSchemaToUpdateSessionDto(a.getValues()),
+        );
+        if (response) {
+          props.refresh(props.eventId);
+          props.onClose();
+        }
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
@@ -225,6 +316,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
           <FormProvider {...a}>
             <Form onSubmit={submit}>
               <TextInput
+                autoFocus
                 aria-label={t(
                   "eventPageManager.updateSessionForm.ariaLabels.name",
                 )}
@@ -272,7 +364,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                   "eventPageManager.updateSessionForm.labels.sessionType",
                 )}
                 createable
-                onCreateCallback={async function () {
+                onCreateCallback={async function() {
                   const result = await createSessionType([
                     {
                       name: newSessionType,
@@ -290,7 +382,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                   "eventPageManager.updateSessionForm.createSessionTypeMessage",
                 )}
                 createValue={crypto.randomUUID()}
-                filterCallback={function (phrase) {
+                filterCallback={function(phrase) {
                   sessionTypes.setInput(phrase);
                   setNewSessionType(phrase);
                 }}
@@ -304,7 +396,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                   "eventPageManager.updateSessionForm.createBlockMessage",
                 )}
                 createValue={crypto.randomUUID()}
-                onCreateCallback={async function () {
+                onCreateCallback={async function() {
                   const result = await createBlock([
                     {
                       eventId: props.eventId,
@@ -351,14 +443,14 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                       "eventPageManager.updateSessionForm.labels.location",
                     )}
                     createable
-                    onCreateCallback={function () {
-                      navigate("/manager/locations");
+                    onCreateCallback={function() {
+                      setOpenLocationForm(true);
                     }}
                     createLabel={t(
                       "eventPageManager.updateSessionForm.createLocationMessage",
                     )}
                     createValue={crypto.randomUUID()}
-                    onChangeCallback={function (id) {
+                    onChangeCallback={function(id) {
                       setChosenLocationId(id);
                       setRoomComponentState({
                         label: "",
@@ -369,7 +461,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                         value: "",
                       });
                     }}
-                    filterCallback={function (phrase) {
+                    filterCallback={function(phrase) {
                       locations.setInput(phrase);
                     }}
                   ></ControlledAutocomplete>
@@ -395,8 +487,8 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                     options={roomOptions ?? []}
                     label={t("eventPageManager.updateSessionForm.labels.room")}
                     createable
-                    onCreateCallback={function () {
-                      navigate(`/manager/locations/${chosenLocationId}`);
+                    onCreateCallback={function() {
+                      setOpenRoomForm(true);
                     }}
                     createLabel={t(
                       "eventPageManager.updateSessionForm.createRoomMessage",
@@ -416,14 +508,14 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                 options={speakers.options ?? []}
                 label={t("eventPageManager.updateSessionForm.labels.speaker")}
                 createable
-                onCreateCallback={function () {
-                  navigate("/manager/speakers");
+                onCreateCallback={function() {
+                  setOpenSpeakerForm(true);
                 }}
                 createLabel={t(
                   "eventPageManager.updateSessionForm.createSpeakerMessage",
                 )}
                 createValue={crypto.randomUUID()}
-                filterCallback={function (phrase) {
+                filterCallback={function(phrase) {
                   speakers.setInput(phrase);
                 }}
               ></ControlledAutocomplete>
@@ -434,6 +526,16 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                 label={t("eventPageManager.updateSessionForm.labels.maxSeats")}
                 type="number"
                 name="maxSeats"
+              ></TextInput>
+              <TextInput
+                aria-label={t(
+                  "eventPageManager.updateSessionForm.ariaLabels.minutesBeforeSignUpCloses",
+                )}
+                label={t(
+                  "eventPageManager.updateSessionForm.labels.minutesBeforeSignUpCloses",
+                )}
+                type="number"
+                name="minutesBeforeSignUpCloses"
               ></TextInput>
               <Grid2 container>
                 <Grid2
@@ -455,7 +557,7 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                       "eventPageManager.updateSessionForm.labels.startDate",
                     )}
                     name="startDate"
-                    triggerCallback={function () {
+                    triggerCallback={function() {
                       a.trigger(["startDate", "endDate"]);
                     }}
                   ></ControlledDateTimePicker>
@@ -479,30 +581,12 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                     label={t(
                       "eventPageManager.updateSessionForm.labels.endDate",
                     )}
-                    triggerCallback={function () {
+                    triggerCallback={function() {
                       a.trigger(["startDate", "endDate"]);
                     }}
                   ></ControlledDateTimePicker>
                 </Grid2>
               </Grid2>
-              <Typography variant="h5">
-                {t("eventPageManager.updateSessionForm.activeHeading")}
-              </Typography>
-              <StyledSwitch
-                aria-label={t(
-                  "eventPageManager.updateSessionForm.ariaLabels.active",
-                )}
-                checked={session.active}
-                onChange={async function () {
-                  const response = await setSessionActive(
-                    session.id,
-                    !session.active,
-                  );
-                  if (response) {
-                    getSession(props.sessionId);
-                  }
-                }}
-              ></StyledSwitch>
               <Tooltip
                 title={t(
                   "eventPageManager.updateSessionForm.saveSessionButtonTooltip",
@@ -524,9 +608,60 @@ export default function UpdateSessionForm(props: UpdateSessionFormProps) {
                   )}
                 </Button>
               </Tooltip>
+              <Typography variant="h5">
+                {t("eventPageManager.updateSessionForm.activeHeading")}
+              </Typography>
+              <StyledSwitch
+                aria-label={t(
+                  "eventPageManager.updateSessionForm.ariaLabels.active",
+                )}
+                checked={session.active}
+                onChange={function() {
+                  setConfirmAction(function() {
+                    return async function() {
+                      setOpenConfirm(false);
+                      const response = await setSessionActive(
+                        session.id,
+                        !session.active,
+                      );
+                      if (response) {
+                        getSession(props.sessionId);
+                      }
+                    };
+                  });
+                  setOpenConfirm(true);
+                }}
+              ></StyledSwitch>
             </Form>
           </FormProvider>
         )}
+        <AddLocationForm
+          open={openLocationForm}
+          setOpen={setOpenLocationForm}
+          fetchLocations={function() {
+            locations.setInput("");
+          }}
+        ></AddLocationForm>
+        <AddRoomForm
+          open={openRoomForm}
+          onClose={function() {
+            setOpenRoomForm(false);
+          }}
+          locationId={chosenLocationId as string}
+        ></AddRoomForm>
+        <AddSpeakerForm
+          open={openSpeakerForm}
+          onClose={function() {
+            setOpenSpeakerForm(false);
+          }}
+        ></AddSpeakerForm>
+        <ConfirmActionModal
+          open={openConfirm}
+          onClose={function() {
+            setOpenConfirm(false);
+          }}
+          confirmAction={confirmAction as () => void}
+        ></ConfirmActionModal>
       </>
     </StyledModal>
   );

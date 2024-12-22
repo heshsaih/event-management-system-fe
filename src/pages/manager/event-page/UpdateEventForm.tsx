@@ -25,6 +25,7 @@ import { mapUpdateEventSchemaToUpdateEventDto } from "../../../util/converters";
 import ControlledSwitch from "../../../components/ControlledSwitch";
 import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const breakpoints: GridBaseProps["columns"] = {
   xs: 12,
@@ -50,7 +51,7 @@ const updateEventSchema = z
     }),
   })
   .refine(
-    function (e) {
+    function(e) {
       return !e.startDate.isAfter(e.endDate);
     },
     {
@@ -59,7 +60,7 @@ const updateEventSchema = z
     },
   )
   .refine(
-    function (e) {
+    function(e) {
       return !e.endDate.isBefore(e.startDate);
     },
     {
@@ -68,7 +69,7 @@ const updateEventSchema = z
     },
   )
   .refine(
-    function (e) {
+    function(e) {
       return e.registrationStartDate.isBefore(e.startDate);
     },
     {
@@ -96,15 +97,17 @@ export default function UpdateEventForm({
     isUpdating,
     changeEventActive,
   } = useEvent();
+  const [confrimAction, setConfirmAction] = useState<() => void>();
   const { t } = useTranslation();
   const { id } = useParams();
   const [image, setImage] = useState<{ imageName: string; data: string }>({
     imageName: event?.image.imageName ?? "",
     data: event?.image.data ?? "",
   });
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
 
   useEffect(
-    function () {
+    function() {
       async function get() {
         await getEvent(id ?? "");
       }
@@ -114,7 +117,7 @@ export default function UpdateEventForm({
   );
 
   useEffect(
-    function () {
+    function() {
       setImage(
         event?.image || {
           imageName: "",
@@ -144,18 +147,24 @@ export default function UpdateEventForm({
     mode: "all",
   });
 
-  const submit = a.handleSubmit(async function (data) {
-    const result = await updateEvent(
-      id ?? "",
-      mapUpdateEventSchemaToUpdateEventDto({
-        ...data,
-        image: image,
-      }),
-    );
-    if (result) {
-      refresh();
-      closeForm();
-    }
+  const submit = a.handleSubmit(function() {
+    setConfirmAction(function() {
+      return async function() {
+        setOpenConfirm(false);
+        const result = await updateEvent(
+          id ?? "",
+          mapUpdateEventSchemaToUpdateEventDto({
+            ...a.getValues(),
+            image: image,
+          }),
+        );
+        if (result) {
+          refresh();
+          closeForm();
+        }
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
@@ -235,7 +244,7 @@ export default function UpdateEventForm({
                       "eventPageManager.updateEventForm.labels.startDate",
                     )}
                     name="startDate"
-                    triggerCallback={function () {
+                    triggerCallback={function() {
                       a.trigger("endDate");
                       a.trigger("registrationStartDate");
                     }}
@@ -257,7 +266,7 @@ export default function UpdateEventForm({
                     name="endDate"
                     label={t("eventPageManager.updateEventForm.labels.endDate")}
                     minDate={a.getValues().startDate.add(1, "day")}
-                    triggerCallback={function () {
+                    triggerCallback={function() {
                       a.trigger("startDate");
                       a.trigger("registrationStartDate");
                     }}
@@ -273,7 +282,7 @@ export default function UpdateEventForm({
                 )}
                 name="registrationStartDate"
                 maxDate={a.getValues().startDate.subtract(1, "day")}
-                triggerCallback={function () {
+                triggerCallback={function() {
                   a.trigger("endDate");
                   a.trigger("registrationStartDate");
                 }}
@@ -288,21 +297,6 @@ export default function UpdateEventForm({
                 )}
               ></ControlledSwitch>
               <Typography variant="h5" marginTop={3}>
-                {t("eventPageManager.updateEventForm.activeHeading")}
-              </Typography>
-              <StyledSwitch
-                checked={event.active}
-                onChange={async function () {
-                  const response = await changeEventActive(
-                    event.id,
-                    !event.active,
-                  );
-                  if (response) {
-                    refresh();
-                  }
-                }}
-              ></StyledSwitch>
-              <Typography variant="h5" marginTop={3}>
                 {t("eventPageManager.updateEventForm.eventImageHeading")}
               </Typography>
               <EventImage data={image.data}></EventImage>
@@ -311,8 +305,8 @@ export default function UpdateEventForm({
                 aria-label={t(
                   "eventPageManager.updateEventForm.ariaLabels.uploadImageButton",
                 )}
-                callback={function (e) {
-                  readFile(e, function (name, data) {
+                callback={function(e) {
+                  readFile(e, function(name, data) {
                     setImage({
                       imageName: name,
                       data: data,
@@ -357,10 +351,37 @@ export default function UpdateEventForm({
                   </Button>
                 </Tooltip>
               </Box>
+              <Typography variant="h4" marginTop={3}>
+                {t("eventPageManager.updateEventForm.activeHeading")}
+              </Typography>
+              <StyledSwitch
+                checked={event.active}
+                onChange={function() {
+                  setConfirmAction(function() {
+                    return async function() {
+                      const response = await changeEventActive(
+                        event.id,
+                        !event.active,
+                      );
+                      if (response) {
+                        refresh();
+                      }
+                    };
+                  });
+                  setOpenConfirm(true);
+                }}
+              ></StyledSwitch>
             </>
           )}
         </Form>
       </FormProvider>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={confrimAction as () => void}
+      ></ConfirmActionModal>
     </>
   );
 }

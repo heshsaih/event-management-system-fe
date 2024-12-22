@@ -25,12 +25,34 @@ import OtherPage from "../pages/manager/other-page";
 import { Colors } from "../constants/styling";
 import NotFoundPage from "../pages/public/not-found-page";
 const CreateEventPageComp = lazy(
-  () => import("../pages/manager/create-event-page/index")
+  () => import("../pages/manager/create-event-page/index"),
 );
+//const EventsPageComp = lazy(() => import("../pages/manager/events-page/index"));
+//const EventPageComp = lazy(() => import("../pages/manager/event-page/index"));
+//const SpeakersPageComp = lazy(
+//  () => import("../pages/manager/speakers-page/index"),
+//);
+//const SpeakerPageComp = lazy(
+//  () => import("../pages/manager/speaker-page/index"),
+//);
+//const LocationsPageComp = lazy(
+//  () => import("../pages/manager/locations-page/index"),
+//);
+//const LocationPageComp = lazy(
+//  () => import("../pages/manager/location-page/index"),
+//);
+//const OtherPageComp = lazy(() => import("../pages/manager/other-page/index"));
 
 function CreateEventPage() {
   return (
-    <Suspense fallback={<CircularProgress size={"3rem"} sx={{ color: Colors.RED }}></CircularProgress>}>
+    <Suspense
+      fallback={
+        <CircularProgress
+          size={"3rem"}
+          sx={{ color: Colors.RED }}
+        ></CircularProgress>
+      }
+    >
       <CreateEventPageComp></CreateEventPageComp>
     </Suspense>
   );
@@ -73,7 +95,7 @@ const routes: RouteObject[] = [
           },
           {
             path: "*",
-            Component: NotFoundPage
+            Component: NotFoundPage,
           },
         ],
       },

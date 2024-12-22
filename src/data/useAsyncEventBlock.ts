@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { AutocompleteOption } from "../components/ControlledAutocomplete";
 import { apiWithToken } from "../api/config";
 import { EventBlockDto } from "./useEvent";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import { Pageable } from "../types";
+import { mapFilterParamsToUri } from "../util/converters";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
 export default function useAsyncEventBlock(
   eventId: string,
@@ -17,30 +20,37 @@ export default function useAsyncEventBlock(
     },
   );
 
-  useEffect(function () {
-    if (initialState) {
-      setComponentState(initialState);
-    }
-  }, [initialState])
+  useEffect(
+    function() {
+      if (initialState) {
+        setComponentState(initialState);
+      }
+    },
+    [initialState],
+  );
 
   const [options, setOptions] = useState<AutocompleteOption[]>();
 
   useEffect(
-    function () {
+    function() {
       const controller = new AbortController();
       const signal = controller.signal;
 
       async function fetch() {
         try {
           setIsFetching(true);
-          const response = await apiWithToken.get<EventBlockDto[]>(
-            `/manager/event-blocks/event/${eventId}`,
+          const response = await apiWithToken.get<Pageable<EventBlockDto>>(
+            `/manager/event-blocks/event/${eventId}?${mapFilterParamsToUri({
+              size: 5,
+              showInactive: false,
+              phrase: input,
+            })}`,
             {
               signal: signal,
             },
           );
           setOptions(
-            response.data.map(function (e) {
+            response.data.content.map(function(e) {
               return {
                 label: e.name,
                 value: e.id,
@@ -48,12 +58,7 @@ export default function useAsyncEventBlock(
             }),
           );
         } catch (e) {
-          if (axios.isCancel(e)) {
-            return;
-          }
-          if (e instanceof AxiosError && e.status) {
-            console.error(e);
-          }
+          handleBackendError(e as AxiosError<BackendError | undefined>);
         } finally {
           setIsFetching(false);
         }
@@ -61,7 +66,7 @@ export default function useAsyncEventBlock(
 
       fetch();
 
-      return function () {
+      return function() {
         controller.abort();
       };
     },

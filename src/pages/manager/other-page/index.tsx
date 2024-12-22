@@ -5,6 +5,9 @@ import SpeakerTitlePage from "./SpeakerTitlePage";
 import SpeakerOrganizationPage from "./SpeakerOrganizationPage";
 import SessionTypePage from "./SessionTypePage";
 import { useTranslation } from "react-i18next";
+import OtherEmailNotificationsPage from "./OtherEmailNotificationsPage";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 export default function OtherPage() {
   const [tab, setTab] = useState<number>(0);
@@ -25,7 +28,13 @@ export default function OtherPage() {
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer sx={{
+      paddingTop: 0
+    }}>
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb current navigateTo="#">{t("breadcrumbsLabels.other")}</Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3">{t("otherPage.pageHeading")}</Typography>
       <Tabs
         sx={{ maxWidth: "100%", overflow: "auto" }}
@@ -43,7 +52,7 @@ export default function OtherPage() {
       {tab === 0 && <SpeakerTitlePage></SpeakerTitlePage>}
       {tab === 1 && <SpeakerOrganizationPage></SpeakerOrganizationPage>}
       {tab === 2 && <SessionTypePage></SessionTypePage>}
-      {tab === 3 && <div>amogus</div>}
+      {tab === 3 && <OtherEmailNotificationsPage></OtherEmailNotificationsPage>}
     </StyledContainer>
   );
 }

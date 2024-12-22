@@ -18,51 +18,58 @@ import FileButton from "../../../components/FileButton";
 import ControlledSwitch from "../../../components/ControlledSwitch";
 import { readFile } from "./fileReader";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 const eventSchema = z
   .object({
     name: z
       .string()
-      .min(3, "Nazwa jest za krótka (min. 3 znaki)")
-      .max(128, "Nazwa jest za długa (maks. 128 znaków)"),
+      .min(2, "createEventPage.eventForm.validation.nameTooShort")
+      .max(64, "createEventPage.eventForm.validation.nameTooLong"),
     descriptionPL: z
       .string()
-      .min(3, "Opis jest za krótki (min. 3 znaki)")
-      .max(1024, "Opis jest za długi (maks. 1024 znaki)"),
+      .min(2, "createEventPage.eventForm.validation.descriptionPlTooShort")
+      .max(2000, "createEventPage.eventForm.validation.descriptionPlTooLong"),
     descriptionEN: z.string().optional(),
     imageName: z.string().optional(),
     startDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     endDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     registrationStartDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     outsidersAllowed: z.boolean(),
-    minutesBetweenSessions: z.number().min(1),
+    minutesBetweenSessions: z
+      .number()
+      .min(
+        1,
+        "createEventPage.eventForm.validation.minutesBetweenSessionsTooLow",
+      ),
   })
   .refine(
-    function (e) {
+    function(e) {
       return !e.startDate.isAfter(e.endDate);
     },
     {
-      message: "Data rozpoczęcia musi być przed datą zakończenia",
+      message: "createEventPage.eventForm.validation.startDateBeforeEndDate",
       path: ["startDate"],
     },
   )
   .refine(
-    function (e) {
+    function(e) {
       return !e.endDate.isBefore(e.startDate);
     },
     {
-      message: "Data zakończenia musi być po dacie rozpoczęcia",
+      message: "createEventPage.eventForm.validation.endDateAfterStartDate",
       path: ["endDate"],
     },
   )
   .refine(
-    function (e) {
+    function(e) {
       const threshold = e.startDate.date(e.startDate.date());
       return e.registrationStartDate.isBefore(threshold);
     },
     {
-      message:
-        "Data rozpoczęcia zapisów musi być przed rozpoczęciem wydarzenia",
+      message: i18next.t(
+        "createEventPage.eventForm.validation.registrationStartDateBeforeStartDate",
+      ),
       path: ["registrationStartDate"],
     },
   );
@@ -82,8 +89,8 @@ type EventFormProps = {
 };
 
 export default function EventForm(props: EventFormProps) {
-  const {t} = useTranslation();
-  const state = useCreateEventStore(function (state) {
+  const { t } = useTranslation();
+  const state = useCreateEventStore(function(state) {
     return state;
   });
 
@@ -103,7 +110,7 @@ export default function EventForm(props: EventFormProps) {
     mode: "all",
   });
 
-  const submit = a.handleSubmit(function (data) {
+  const submit = a.handleSubmit(function(data) {
     state.updateEvent(data);
     props.nextStep();
   });
@@ -111,17 +118,21 @@ export default function EventForm(props: EventFormProps) {
   return (
     <StyledContainer inner>
       <Typography variant="h3" marginBottom={4}>
-         {t("createEventPage.eventForm.pageHeader")} 
+        {t("createEventPage.eventForm.pageHeader")}
       </Typography>
       <FormProvider {...a}>
         <Form onSubmit={submit}>
           <TextInput
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventNameInput")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventNameInput",
+            )}
             name="name"
             label={t("createEventPage.eventForm.labels.eventName")}
           ></TextInput>
           <TextInput
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventDescriptionPl")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventDescriptionPl",
+            )}
             name="descriptionPL"
             multiline
             minRows={6}
@@ -129,7 +140,9 @@ export default function EventForm(props: EventFormProps) {
             label={t("createEventPage.eventForm.labels.descriptionPl")}
           ></TextInput>
           <TextInput
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventDescriptionEn")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventDescriptionEn",
+            )}
             name="descriptionEN"
             multiline
             minRows={6}
@@ -137,7 +150,9 @@ export default function EventForm(props: EventFormProps) {
             label={t("createEventPage.eventForm.labels.descriptionEn")}
           ></TextInput>
           <TextInput
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventMinutesBetweenSessions")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventMinutesBetweenSessions",
+            )}
             type="number"
             name="minutesBetweenSessions"
             label={t("createEventPage.eventForm.labels.minutesBetweenSessions")}
@@ -153,10 +168,12 @@ export default function EventForm(props: EventFormProps) {
               }}
             >
               <ControlledDatePicker
-                aria-label={t("createEventPage.eventForm.ariaLabels.eventStartDate")}
+                aria-label={t(
+                  "createEventPage.eventForm.ariaLabels.eventStartDate",
+                )}
                 label={t("createEventPage.eventForm.labels.startDate")}
                 name="startDate"
-                triggerCallback={function () {
+                triggerCallback={function() {
                   a.trigger("endDate");
                   a.trigger("registrationStartDate");
                 }}
@@ -172,10 +189,12 @@ export default function EventForm(props: EventFormProps) {
               }}
             >
               <ControlledDatePicker
-                aria-label={t("createEventPage.eventForm.ariaLabels.eventEndDate")}
+                aria-label={t(
+                  "createEventPage.eventForm.ariaLabels.eventEndDate",
+                )}
                 name="endDate"
                 label={t("createEventPage.eventForm.labels.endDate")}
-                triggerCallback={function () {
+                triggerCallback={function() {
                   a.trigger("startDate");
                   a.trigger("registrationStartDate");
                 }}
@@ -183,28 +202,38 @@ export default function EventForm(props: EventFormProps) {
             </Grid2>
           </Grid2>
           <ControlledDatePicker
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventRegistrationStartDate")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventRegistrationStartDate",
+            )}
             name="registrationStartDate"
             label={t("createEventPage.eventForm.labels.registrationStartDate")}
             maxDate={a.getValues().startDate}
           ></ControlledDatePicker>
           <ControlledSwitch
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventOutsidersAllowed")}
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventOutsidersAllowed",
+            )}
             name="outsidersAllowed"
             label={t("createEventPage.eventForm.labels.outsidersAllowed")}
           ></ControlledSwitch>
           <FileButton
-            aria-label={t("createEventPage.eventForm.ariaLabels.eventImageButton")}
-            callback={function (data) {
+            aria-label={t(
+              "createEventPage.eventForm.ariaLabels.eventImageButton",
+            )}
+            callback={function(data) {
               readFile(data, state.setImage);
             }}
           >
             {t("createEventPage.eventForm.imageButtonText")}
           </FileButton>
           {state.image && <Typography>{state.image.name}</Typography>}
-          <Tooltip title={t("createEventPage.createSessions.nextStepButtonTooltip")}>
+          <Tooltip
+            title={t("createEventPage.createSessions.nextStepButtonTooltip")}
+          >
             <Button
-              aria-label={t("createEventPage.eventForm.ariaLabels.eventNextStep")}
+              aria-label={t(
+                "createEventPage.eventForm.ariaLabels.eventNextStep",
+              )}
               disabled={Object.keys(a.formState.errors).length > 0}
               type="submit"
             >

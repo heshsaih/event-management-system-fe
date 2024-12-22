@@ -1,22 +1,21 @@
 import { AxiosError } from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { apiWithEtag, apiWithToken } from "../api/config";
+import { Entity, EntityDto } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type RoomDto = {
-  id: string;
+export type RoomDto = Omit<EntityDto, "name"> & {
   roomNumber: string;
   locationId: string;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
   capacity: number;
 };
 
-export type Room = Omit<RoomDto, "createdAt" | "updatedAt"> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
+export type Room = Omit<Entity, "name"> & {
+  roomNumber: string;
+  locationId: string;
+  capacity: number;
 };
 
 export type UpdateRoomDto = {
@@ -36,7 +35,7 @@ export default function useRoom() {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  const getRoom = async function (id: string) {
+  const getRoom = async function(id: string) {
     try {
       setIsFetching(true);
       const response = await apiWithEtag.get<RoomDto>(`/manager/rooms/${id}`);
@@ -46,33 +45,27 @@ export default function useRoom() {
         updatedAt: dayjs(response.data.updatedAt),
       });
     } catch (e) {
-      if (e instanceof AxiosError) {
-        toast.error(`Nie udało się pobrać pomieszczenia: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const updateRoom = async function (id: string, data: UpdateRoomDto) {
+  const updateRoom = async function(id: string, data: UpdateRoomDto) {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/rooms/${id}`, data);
       toast.success("Pomieszczenie zostało zaktualizowane pomyślnie");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError) {
-        toast.error(
-          `Nie udało się zaktualizować pomieszczenia: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const changeRoomActive = async function (id: string, active: boolean) {
+  const changeRoomActive = async function(id: string, active: boolean) {
     try {
       setIsFetching(true);
       await apiWithEtag.patch(
@@ -81,29 +74,25 @@ export default function useRoom() {
       toast.success("Status pomieszczenia został zmieniony");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError) {
-        toast.error(
-          `Nie udało się zmienić statusu pomieszczenia: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsFetching(false);
     }
   };
 
-  const createRoom = async function (data: CreateRoomDto[]): Promise<RoomDto | undefined> {
+  const createRoom = async function(
+    data: CreateRoomDto[],
+  ): Promise<RoomDto | undefined> {
     try {
       setIsCreating(true);
       const response = await apiWithToken.post<RoomDto>(`/manager/rooms`, data);
       toast.success("Podane pomieszczenia zostały utworzone");
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError) {
-        toast.error(`Nie udało się utworzyć pomieszczeń: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
-      setIsFetching(false);
+      setIsCreating(false);
     }
   };
 
@@ -115,6 +104,6 @@ export default function useRoom() {
     isUpdating,
     room,
     createRoom,
-    isCreating
+    isCreating,
   };
 }

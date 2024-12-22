@@ -1,6 +1,7 @@
 import { Autocomplete, Box, TextField, Typography } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 export type AutocompleteOption = {
   label: string;
@@ -46,7 +47,7 @@ export default function ControlledAutocomplete(
   const { field, fieldState } = useController({
     name: props.name,
   });
-
+  const { t } = useTranslation();
   const [state, setState] = useState<AutocompleteOption>(
     props.initialState
       ? props.initialState
@@ -146,12 +147,15 @@ export default function ControlledAutocomplete(
       ></Autocomplete>
       {fieldState.error && (
         <Typography
-          textAlign={"center"}
+          textAlign={"start"}
           marginBottom={"0.5rem"}
           variant="body2"
           color="error"
         >
-          {fieldState.error.message}
+          {
+            //@ts-ignore
+            t(fieldState.error["value"].message)
+          }
         </Typography>
       )}
     </Box>

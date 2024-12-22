@@ -1,16 +1,7 @@
 import { z } from "zod";
-import {
-  Organization,
-  UpdateOrganizationDto,
-} from "../../../data/useOrganization";
-import {
-  SessionType,
-  UpdateSessionTypeDto,
-} from "../../../data/useSessionType";
-import {
-  SpeakerTitle,
-  UpdateSpeakerTitleDto,
-} from "../../../data/useSpeakerTitle";
+import { Organization } from "../../../data/useOrganization";
+import { SessionType } from "../../../data/useSessionType";
+import { SpeakerTitle } from "../../../data/useSpeakerTitle";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Form from "../../../components/Form";
@@ -21,9 +12,14 @@ import { useEffect, useState } from "react";
 import { Colors } from "../../../constants/styling";
 import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
+import { OtherParam, UpdateOtherParamDto } from "../../../types";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const updateOtherParamForm = z.object({
-  name: z.string(),
+  name: z
+    .string()
+    .min(2, "updateOtherParamForm.validation.nameTooShort")
+    .max(64, "updateOtherParamForm.validation.nameTooLong"),
 });
 
 type UpdateOtherParamFormType = z.infer<typeof updateOtherParamForm>;
@@ -31,16 +27,8 @@ type UpdateOtherParamFormType = z.infer<typeof updateOtherParamForm>;
 type UpdateOtherParamFormProps = {
   open: boolean;
   paramId: string | undefined;
-  get: (
-    id: string,
-  ) =>
-    | Promise<SpeakerTitle | undefined>
-    | Promise<Organization | undefined>
-    | Promise<SessionType | undefined>;
-  update:
-  | ((id: string, data: UpdateSpeakerTitleDto) => Promise<boolean>)
-  | ((id: string, data: UpdateOrganizationDto) => Promise<boolean>)
-  | ((id: string, data: UpdateSessionTypeDto) => Promise<boolean>);
+  get: (id: string) => Promise<OtherParam | undefined>;
+  update: (id: string, data: UpdateOtherParamDto) => Promise<boolean>;
   changeActive: (id: string, active: boolean) => Promise<boolean>;
   close: () => void;
   getAll: () => void;
@@ -54,6 +42,8 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
     SpeakerTitle | Organization | SessionType
   >();
   const { t } = useTranslation();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>();
 
   const getOtherParam = async function() {
     if (props.paramId) {
@@ -78,11 +68,17 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
     },
   });
 
-  const submit = a.handleSubmit(async function(data) {
-    const result = await props.update(props.paramId ?? "", data);
-    if (result) {
-      getOtherParam();
-    }
+  const submit = a.handleSubmit(function() {
+    setConfirmAction(function() {
+      return async function() {
+        setOpenConfirm(false);
+        const result = await props.update(props.paramId ?? "", a.getValues());
+        if (result) {
+          getOtherParam();
+        }
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
@@ -136,18 +132,31 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
             </Typography>
             <StyledSwitch
               checked={param?.active ?? true}
-              onChange={async function() {
-                const result = await props.changeActive(
-                  param?.id ?? "",
-                  !param?.active,
-                );
-                if (result) {
-                  getOtherParam();
-                }
+              onChange={function() {
+                setConfirmAction(function() {
+                  setOpenConfirm(false);
+                  return async function() {
+                    const result = await props.changeActive(
+                      param?.id ?? "",
+                      !param?.active,
+                    );
+                    if (result) {
+                      getOtherParam();
+                    }
+                  };
+                });
+                setOpenConfirm(true);
               }}
             ></StyledSwitch>
           </>
         )}
+        <ConfirmActionModal
+          open={openConfirm}
+          onClose={function() {
+            setOpenConfirm(false);
+          }}
+          confirmAction={confirmAction as () => void}
+        ></ConfirmActionModal>
       </>
     </StyledModal>
   );

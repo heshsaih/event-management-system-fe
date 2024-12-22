@@ -3,6 +3,7 @@ import { apiWithToken } from "../api/config";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { EventBlockDto } from "./useEvent";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
 export type CreateEventBlockDto = {
   eventId: string;
@@ -24,9 +25,7 @@ export default function useEventBlock() {
       toast.success("Blok wydarzenia został utworzony");
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się utworzyć bloku wydarzenia: ${e.name}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }

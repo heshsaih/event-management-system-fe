@@ -20,6 +20,8 @@ import { mapEventDataToCreateEventDto } from "../../../util/converters";
 import useEvent from "../../../data/useEvent";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { useState } from "react";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 type SummaryProps = {
   previousStep: () => void;
@@ -54,14 +56,27 @@ function mapStateToTable(state: CreateEventForm, t: TFunction<"pl">) {
         month: "2-digit",
         year: "numeric",
       }),
+    [t("createEventPage.summary.eventTableColumns.registrationStartDate")]:
+      state.registrationStartDate.toDate().toLocaleString("pl-PL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+    [t("createEventPage.summary.eventTableColumns.outsidersAllowed")]:
+      state.outsidersAllowed
+        ? t("createEventPage.summary.eventTableColumns.yes")
+        : t("createEventPage.summary.eventTableColumns.no"),
+    [t("createEventPage.summary.eventTableColumns.minutesBetweenSessions")]:
+      state.minutesBetweenSessions,
   };
 }
 
 export default function Summary({ previousStep }: SummaryProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const { isCreating, createEvent } = useEvent();
-  const state = useCreateEventStore(function (state) {
+  const state = useCreateEventStore(function(state) {
     return state;
   });
 
@@ -71,14 +86,8 @@ export default function Summary({ previousStep }: SummaryProps) {
 
   const eventDetailsMap = mapStateToTable(state, t);
 
-  const submit = async function () {
-    const mappedData = mapEventDataToCreateEventDto(state);
-    const id = await createEvent(mappedData);
-
-    if (id) {
-      navigate(`/manager/events/${id}`);
-      state.clearStore();
-    }
+  const submit = async function() {
+    setOpenConfirm(true);
   };
 
   return (
@@ -95,7 +104,7 @@ export default function Summary({ previousStep }: SummaryProps) {
       <TableContainer>
         <Table>
           <TableBody>
-            {Object.keys(eventDetailsMap).map(function (e) {
+            {Object.keys(eventDetailsMap).map(function(e) {
               return (
                 <TableRow>
                   <TableCell>{e}</TableCell>
@@ -147,7 +156,7 @@ export default function Summary({ previousStep }: SummaryProps) {
             <TableCell align="right"></TableCell>
           </TableHead>
           <TableBody>
-            {state.sessions.map(function (e) {
+            {state.sessions.map(function(e) {
               return (
                 <TableRow>
                   <TableCell>{e.name}</TableCell>
@@ -230,6 +239,22 @@ export default function Summary({ previousStep }: SummaryProps) {
           </Tooltip>
         </Grid2>
       </Grid2>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={async function() {
+          const mappedData = mapEventDataToCreateEventDto(state);
+          const id = await createEvent(mappedData);
+
+          if (id) {
+            navigate(`/manager/events/${id}`);
+            state.clearStore();
+          }
+          setOpenConfirm(false);
+        }}
+      ></ConfirmActionModal>
     </StyledContainer>
   );
 }

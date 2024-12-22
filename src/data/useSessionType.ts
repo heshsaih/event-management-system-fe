@@ -2,37 +2,25 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { SessionTypeForm } from "../pages/manager/other-page/SessionTypePage";
-import { Dayjs } from "dayjs";
 import { FilterOptions } from "../components/FilterParams";
 import {
   mapFilterParamsToUri,
   mapOtherParamDtoToOtherParam,
 } from "../util/converters";
 import { apiWithEtag, apiWithToken } from "../api/config";
+import { Entity, EntityDto, Pageable, UpdateOtherParamDto } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type SessionTypeDto = {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-};
+export type SessionTypeDto = EntityDto;
 
-export type SessionType = Omit<SessionTypeDto, "createdAt" | "updatedAt"> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
-};
-
-export type UpdateSessionTypeDto = {
-  name: string;
-};
+export type SessionType = Entity;
 
 export function useSessionType() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isFetchingSingle, setIsFetchingSingle] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [sessionTypes, setSessionTypes] = useState<SessionType[]>();
+  const [sessionTypes, setSessionTypes] = useState<Pageable<SessionType>>();
   const [params, setParams] = useState<FilterOptions>();
 
   const createSessionType = async function(
@@ -40,19 +28,14 @@ export function useSessionType() {
   ): Promise<SessionTypeDto | undefined> {
     try {
       setIsCreating(true);
-      const response = await apiWithToken.post<SessionTypeDto>("/manager/session-types", data);
+      const response = await apiWithToken.post<SessionTypeDto>(
+        "/manager/session-types",
+        data,
+      );
       toast.success(`Podane typy konferncji zostały utworzone pomyślnie`);
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się utworzyć typów konferencji: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }
@@ -67,15 +50,18 @@ export function useSessionType() {
 
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<SessionTypeDto[]>(
+      const response = await apiWithToken.get<Pageable<SessionTypeDto>>(
         `/manager/session-types?${uri}`,
       );
-      setSessionTypes(response.data.map(mapOtherParamDtoToOtherParam) as SessionType[]);
+      setSessionTypes({
+        ...response.data,
+        content: response.data.content.map(
+          mapOtherParamDtoToOtherParam,
+        ) as SessionType[],
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać typów sesji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -83,7 +69,7 @@ export function useSessionType() {
 
   const updateSessionType = async function(
     id: string,
-    data: UpdateSessionTypeDto,
+    data: UpdateOtherParamDto,
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
@@ -91,11 +77,7 @@ export function useSessionType() {
       toast.success("Typ sesji został zaktualizowany");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zaktualizować typu sesji: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -112,9 +94,7 @@ export function useSessionType() {
       );
       return mapOtherParamDtoToOtherParam(response.data) as SessionType;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać typu sesji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetchingSingle(false);
     }
@@ -122,19 +102,17 @@ export function useSessionType() {
 
   const changeSessionTypeActive = async function(
     id: string,
-    active: boolean
+    active: boolean,
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithEtag.patch(`/manager/session-types/${id}/set-active?active=${active}`);
+      await apiWithEtag.patch(
+        `/manager/session-types/${id}/set-active?active=${active}`,
+      );
       toast.success("Status typu sesji został zmieniony");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zmienić statusu typu sesji: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -152,6 +130,6 @@ export function useSessionType() {
     updateSessionType,
     getSessionType,
     isFetchingSingle,
-    changeSessionTypeActive
+    changeSessionTypeActive,
   };
 }

@@ -3,8 +3,9 @@ import { AutocompleteOption } from "../components/ControlledAutocomplete";
 import { apiWithToken } from "../api/config";
 import { SpeakerTitleDto } from "./useSpeakerTitle";
 import { mapFilterParamsToUri } from "../util/converters";
-import axios, { AxiosError } from "axios";
-import toast from "react-hot-toast";
+import { AxiosError } from "axios";
+import { Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
 export default function useAsyncSessionType(initialState?: AutocompleteOption) {
   const [input, setInput] = useState<string>("");
@@ -29,17 +30,18 @@ export default function useAsyncSessionType(initialState?: AutocompleteOption) {
       async function fetch() {
         try {
           setIsFetching(true);
-          const response = await apiWithToken.get<SpeakerTitleDto[]>(
+          const response = await apiWithToken.get<Pageable<SpeakerTitleDto>>(
             `/manager/session-types?${mapFilterParamsToUri({
               size: 5,
               phrase: input,
+              showInactive: false
             })}`,
             {
               signal: signal,
             },
           );
           setOptions(
-            response.data.map(function (e) {
+            response.data.content.map(function (e) {
               return {
                 label: e.name,
                 value: e.id,
@@ -47,12 +49,7 @@ export default function useAsyncSessionType(initialState?: AutocompleteOption) {
             }),
           );
         } catch (e) {
-          if (axios.isCancel(e)) {
-            return;
-          }
-          if (e instanceof AxiosError && e.message) {
-            toast.error(`Nie udało się pobrać typów konferencji: ${e}`);
-          }
+          handleBackendError(e as AxiosError<BackendError | undefined>);
         } finally {
           setIsFetching(false);
         }

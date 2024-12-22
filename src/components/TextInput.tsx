@@ -1,11 +1,14 @@
 import { Box, TextField, TextFieldProps, Typography } from "@mui/material";
 import { useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type TextInputProps = Omit<TextFieldProps, "name" | "value"> & {
   name: string;
+  customErrorMessagePath?: string;
 };
 
 export default function TextInput(props: TextInputProps) {
+  const { t } = useTranslation();
   const { sx, ...propsWithoutStyles } = props;
   const { field, fieldState } = useController({
     name: props.name,
@@ -49,7 +52,10 @@ export default function TextInput(props: TextInputProps) {
           variant="body2"
           color="error"
         >
-          {fieldState.error.message}
+          {
+            //@ts-ignore
+            t(fieldState.error.message)
+          }
         </Typography>
       )}
     </Box>

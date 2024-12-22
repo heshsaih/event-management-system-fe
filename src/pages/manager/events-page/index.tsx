@@ -21,6 +21,8 @@ import { useNavigate } from "react-router-dom";
 import { Colors } from "../../../constants/styling";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 function mapToColumns(event: EventBrief, t: TFunction) {
   return {
@@ -50,19 +52,31 @@ function mapToColumns(event: EventBrief, t: TFunction) {
 
 export default function EventsPageManager() {
   const { getAllEvents, isFetching, params, events } = useEvent();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(function() {
     getAllEvents();
   }, []);
 
-  const mappedEvents = events && events.map(function (e) {
-    return mapToColumns(e, t);
-  });
+  const mappedEvents =
+    events &&
+    events.content.map(function(e) {
+      return mapToColumns(e, t);
+    });
 
   return (
-    <StyledContainer>
+    <StyledContainer
+      sx={{
+        paddingTop: 0,
+      }}
+    >
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb current navigateTo="/manager/events">
+          {t("breadcrumbsLabels.events")}
+        </Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3" marginBottom={4}>
         {t("eventsPageManager.pageHeader")}
       </Typography>
@@ -96,6 +110,9 @@ export default function EventsPageManager() {
               ></CircularProgress>
             </StyledContainer>
           )}
+          {!isFetching && mappedEvents && mappedEvents.length === 0 && (
+            <Typography>{t("eventsPageManager.noTableEntries")}</Typography>
+          )}
           <Table>
             {!isFetching && mappedEvents && mappedEvents.length > 0 && (
               <>
@@ -108,26 +125,28 @@ export default function EventsPageManager() {
                 <TableBody>
                   {mappedEvents.map(function(e) {
                     return (
-                      <TableRow
-                        hover
-                        onClick={function() {
-                          navigate(`/manager/events/${e.id}`);
-                        }}
-                      >
-                        {Object.keys(e).map(function(val) {
-                          if (val === "id") return;
-                          return (
-                            <TableCell>{e[val as keyof typeof e]}</TableCell>
-                          );
-                        })}
-                      </TableRow>
+                      <Tooltip key={e.id} tabIndex={0} title="amogus">
+                        <TableRow
+                          hover
+                          onClick={function() {
+                            navigate(`/manager/events/${e.id}`);
+                          }}
+                        >
+                          {Object.keys(e).map(function(val) {
+                            if (val === "id") return;
+                            return (
+                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      </Tooltip>
                     );
                   })}
                 </TableBody>
               </>
             )}
             <TablePagination
-              count={10}
+              count={events?.totalElements ?? 10}
               rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
               onRowsPerPageChange={function(e) {
                 const cast = Number(e.target.value);

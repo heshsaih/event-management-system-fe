@@ -5,11 +5,8 @@ export default function EmailNotificationsPage() {
   return (
     <StyledContainer
       inner
-      sx={{
-        paddingTop: 2,
-      }}
     >
-      <Typography variant="h4">Powiadomienia mailowe</Typography>
+      <Typography variant="h3" marginBottom={4}>Powiadomienia mailowe</Typography>
     </StyledContainer>
   );
 }

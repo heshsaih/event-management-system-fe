@@ -23,12 +23,16 @@ import useLocation from "../data/useLocation";
 import StyledModal from "./StyledModal";
 import TextInput from "./TextInput";
 import Form from "./Form";
-import { useNavigate } from "react-router-dom";
 import ControlledDateTimePicker from "./ControlledDateTimePicker";
 import useEventBlock from "../data/useEventBlock";
 import { mapAddSessionSchemaToCreateSessionDto } from "../util/converters";
 import { useTranslation } from "react-i18next";
 import useAsyncEventBlock from "../data/useAsyncEventBlock";
+import i18next from "i18next";
+import AddLocationForm from "./AddLocationForm";
+import AddRoomForm from "../pages/manager/location-page/AddRoomForm";
+import AddSpeakerForm from "./AddSpeakerForm";
+import ConfirmActionModal from "./ConfirmActionModal";
 
 type AddSessionFormProps = {
   eventStartDate: Dayjs;
@@ -49,39 +53,74 @@ const breakpoints: GridBaseProps["columns"] = {
 
 const addSessionSchema = z
   .object({
-    sessionName: z.string().min(1),
+    minutesBeforeSignUpCloses: z
+      .number()
+      .min(
+        1,
+        "addSessionForm.validation.minutesBeforeSignUpClosesTooLow",
+      ),
+    sessionName: z
+      .string()
+      .min(2, "addSessionForm.validation.nameTooShort")
+      .max(64, "addSessionForm.validation.nameTooLong"),
     sessionType: z.object({
       label: z.string(),
-      value: z.string().min(1),
+      value: z
+        .string()
+        .min(1, "addSessionForm.validation.sessionTypeRequired"),
     }),
     speaker: z.object({
       label: z.string(),
-      value: z.string().min(1),
+      value: z
+        .string()
+        .min(1, "addSessionForm.validation.speakerRequired"),
     }),
     location: z.object({
       label: z.string(),
-      value: z.string().min(1),
+      value: z
+        .string()
+        .min(1, "addSessionForm.validation.locationRequired"),
     }),
     room: z.object({
       label: z.string(),
-      value: z.string().min(1),
+      value: z
+        .string()
+        .min(1, "addSessionForm.validation.roomRequired"),
     }),
     eventBlock: z.object({
       label: z.string(),
-      value: z.string().min(1),
+      value: z
+        .string()
+        .min(1, "addSessionForm.validation.eventBlockRequired"),
     }),
-    descriptionPl: z.string().min(1),
-    descriptionEn: z.string().optional(),
+    descriptionPl: z
+      .string()
+      .min(2, "addSessionForm.validation.descriptionPlTooShort")
+      .max(2000, "addSessionForm.validation.descriptionPlTooLong"),
+    descriptionEn: z
+      .string()
+      .optional()
+      .or(
+        z
+          .string()
+          .min(2, "addSessionForm.validation.descriptionEnTooShort")
+          .max(
+            2000,
+            "addSessionForm.validation.descriptionEnTooLong",
+          ),
+      ),
     startDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     endDate: z.instanceof(dayjs as unknown as typeof Dayjs),
-    maxSeats: z.number().min(1),
+    maxSeats: z
+      .number()
+      .min(1, "addSessionForm.validation.maxSeatsTooLow"),
   })
   .refine(
     function(e) {
       return !e.startDate.isAfter(e.endDate);
     },
     {
-      message: "Data rozpoczęcia musi być przed datą zakończenia",
+      message: "addSessionForm.validation.startDateBeforeEndDate",
       path: ["startDate"],
     },
   )
@@ -90,7 +129,7 @@ const addSessionSchema = z
       return !e.endDate.isBefore(e.startDate);
     },
     {
-      message: "Data zakończenia musi być po dacie rozpoczęcia",
+      message: i18next.t("addSessionForm.validation.endDateAfterStartDate"),
       path: ["endDate"],
     },
   );
@@ -102,6 +141,7 @@ export default function AddSessionForm(props: AddSessionFormProps) {
   const a = useForm<AddSessionSchema>({
     resolver: zodResolver(addSessionSchema),
     values: {
+      minutesBeforeSignUpCloses: 15,
       sessionName: "",
       sessionType: {
         label: "",
@@ -144,36 +184,28 @@ export default function AddSessionForm(props: AddSessionFormProps) {
   const [newSessionType, setNewSessionType] = useState<string>("");
   const [roomOptions, setRoomOptions] = useState<AutocompleteOption[]>();
   const [chosenLocationId, setChosenLocationId] = useState<string>();
-  const navigate = useNavigate();
+  const [openLocationFrom, setOpenLocationForm] = useState<boolean>(false);
+  const [openRoomFrom, setOpenRoomForm] = useState<boolean>(false);
+  const [openSpeakerFrom, setOpenSpeakerForm] = useState<boolean>(false);
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+
+  async function fetchRooms() {
+    if (chosenLocationId) {
+      setRoomOptions(await locationHook.retrieveRoomOptions(chosenLocationId));
+    } else {
+      setRoomOptions(undefined);
+    }
+  }
 
   useEffect(
     function() {
-      async function setState() {
-        if (chosenLocationId) {
-          setRoomOptions(
-            await locationHook.retrieveRoomOptions(chosenLocationId),
-          );
-        } else {
-          setRoomOptions(undefined);
-        }
-      }
-      setState();
+      fetchRooms();
     },
     [chosenLocationId],
   );
 
-  const submit = a.handleSubmit(async function(data) {
-    const response = await sessionHook.createSession([
-      mapAddSessionSchemaToCreateSessionDto({
-        ...data,
-        eventId: props.eventId,
-      }),
-    ]);
-
-    if (response) {
-      props.refresh(props.eventId);
-      props.onClose();
-    }
+  const submit = a.handleSubmit(function() {
+    setOpenConfirm(true);
   });
 
   return (
@@ -252,7 +284,7 @@ export default function AddSessionForm(props: AddSessionFormProps) {
                 if (response) {
                   eventBlocks.setComponentState({
                     label: response.name,
-                    value: response.id
+                    value: response.id,
                   });
                   setNewEventBlock("");
                 }
@@ -289,7 +321,7 @@ export default function AddSessionForm(props: AddSessionFormProps) {
                   aria-label={t("addSessionForm.ariaLabels.location")}
                   createable
                   onCreateCallback={function() {
-                    navigate("/manager/locations");
+                    setOpenLocationForm(true);
                   }}
                   createLabel={t("addSessionForm.locationCreateLabel")}
                   createValue={crypto.randomUUID()}
@@ -329,7 +361,7 @@ export default function AddSessionForm(props: AddSessionFormProps) {
                   aria-label={t("addSessionForm.ariaLabels.room")}
                   createable
                   onCreateCallback={function() {
-                    navigate(`/manager/locations/${chosenLocationId}`);
+                    setOpenRoomForm(true);
                   }}
                   createLabel={t("addSessionForm.roomCreateLabel")}
                   createValue={crypto.randomUUID()}
@@ -346,7 +378,7 @@ export default function AddSessionForm(props: AddSessionFormProps) {
               aria-label={t("addSessionForm.ariaLabels.speaker")}
               createable
               onCreateCallback={function() {
-                navigate("/manager/speakers");
+                setOpenSpeakerForm(true);
               }}
               createLabel={t("addSessionForm.speakerCreateLabel")}
               createValue={crypto.randomUUID()}
@@ -359,6 +391,14 @@ export default function AddSessionForm(props: AddSessionFormProps) {
               label={t("addSessionForm.labels.maxSeats")}
               type="number"
               name="maxSeats"
+            ></TextInput>
+            <TextInput
+              aria-label={t(
+                "addSessionForm.ariaLabels.minutesBeforeSignUpCloses",
+              )}
+              label={t("addSessionForm.labels.minutesBeforeSignUpCloses")}
+              type="number"
+              name="minutesBeforeSignUpCloses"
             ></TextInput>
             <Grid2 container>
               <Grid2
@@ -417,6 +457,47 @@ export default function AddSessionForm(props: AddSessionFormProps) {
             </Tooltip>
           </Form>
         </FormProvider>
+        <AddLocationForm
+          open={openLocationFrom}
+          setOpen={setOpenLocationForm}
+          fetchLocations={function() {
+            locations.setInput("");
+          }}
+        ></AddLocationForm>
+        <AddRoomForm
+          open={openRoomFrom}
+          onClose={function() {
+            setOpenRoomForm(false);
+          }}
+          locationId={chosenLocationId as string}
+          submitCallback={fetchRooms}
+        ></AddRoomForm>
+        <AddSpeakerForm
+          open={openSpeakerFrom}
+          onClose={function() {
+            setOpenSpeakerForm(false);
+          }}
+        ></AddSpeakerForm>
+        <ConfirmActionModal
+          open={openConfirm}
+          onClose={function () {
+            setOpenConfirm(false);
+          }}
+          confirmAction={async function() {
+            setOpenConfirm(false);
+            const response = await sessionHook.createSession([
+              mapAddSessionSchemaToCreateSessionDto({
+                ...a.getValues(),
+                eventId: props.eventId,
+              }),
+            ]);
+
+            if (response) {
+              props.refresh(props.eventId);
+              props.onClose();
+            }
+          }}
+        ></ConfirmActionModal>
       </>
     </StyledModal>
   );

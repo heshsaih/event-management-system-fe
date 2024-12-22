@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 import { DateTimePicker, DateTimePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type ControlledDateTimePickerProps = Omit<
   DateTimePickerProps<Dayjs>,
@@ -12,23 +13,24 @@ type ControlledDateTimePickerProps = Omit<
 };
 
 export default function ControlledDateTimePicker(
-  props: ControlledDateTimePickerProps
+  props: ControlledDateTimePickerProps,
 ) {
   const { name, sx, ...rest } = props;
   const { field, fieldState } = useController({
     name: name,
   });
+  const { t } = useTranslation();
 
   return (
     <>
       <DateTimePicker
         closeOnSelect={false}
         localeText={{
-          month: ""
+          month: "",
         }}
         value={field.value}
         ampm={false}
-        onChange={function (e) {
+        onChange={function(e) {
           field.onChange(e ? e : dayjs());
           if (rest.triggerCallback) {
             rest.triggerCallback();
@@ -45,7 +47,7 @@ export default function ControlledDateTimePicker(
             onKeyDown: function(e) {
               e.preventDefault();
             },
-            size: "small"
+            size: "small",
           },
         }}
         {...rest}
@@ -57,7 +59,10 @@ export default function ControlledDateTimePicker(
           textAlign={"center"}
           color="error"
         >
-          {fieldState.error.message}
+          {
+            //@ts-ignore
+            t(fieldState.error.message)
+          }
         </Typography>
       )}
     </>

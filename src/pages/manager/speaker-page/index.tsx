@@ -17,6 +17,8 @@ import { useEffect, useState } from "react";
 import UpdateSpeakerForm from "./UpdateSpeakerForm";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 function mapToColumns(data: Speaker | undefined, t: TFunction) {
   let backupEmail;
@@ -66,7 +68,18 @@ export default function SpeakerPage() {
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer sx={{
+      paddingTop: 0
+    }}>
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb navigateTo="/manager/speakers">
+          {t("breadcrumbsLabels.speakers")}
+        </Breadcrumb>
+        <Breadcrumb current navigateTo="#">
+          {t("breadcrumbsLabels.speaker")}
+        </Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3">{t("speakerPage.pageHeading")}</Typography>
       <StyledContainer inner>
         <Typography variant={"h4"}>{t("speakerPage.dataHeading")}</Typography>

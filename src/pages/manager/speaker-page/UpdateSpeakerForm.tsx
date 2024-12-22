@@ -20,6 +20,7 @@ import useAsyncSpeakerTitle from "../../../data/useAsyncSpeakerTitle";
 import useAsyncOrganization from "../../../data/useAsyncOrganization";
 import { mapUpdateSpeakerFormTypeToUpdateSpeakerDto } from "../../../util/converters";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 type UpdateSpeakerFormProps = {
   speaker: Speaker | undefined;
@@ -28,17 +29,27 @@ type UpdateSpeakerFormProps = {
 };
 
 const updateSpeakerForm = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
+  firstName: z
+    .string()
+    .min(2, "updateSpeakerForm.validation.firstNameTooShort")
+    .max(64, "updateSpeakerForm.validation.firstNameTooLong"),
+  lastName: z
+    .string()
+    .min(2, "updateSpeakerForm.validation.lastNameTooShort")
+    .max(64, "updateSpeakerForm.validation.lastNameTooLong"),
   organization: z.object({
     label: z.string(),
-    value: z.string().min(1),
+    value: z
+      .string()
+      .min(1, "updateSpeakerForm.validation.organizaitonRequired"),
   }),
   speakerTitle: z.object({
     label: z.string(),
-    value: z.string().min(1),
+    value: z
+      .string()
+      .min(1, "updateSpeakerForm.validation.speakerTitleRequired"),
   }),
-  email: z.string().email(),
+  email: z.string().email("updateSpeakerForm.validation.emailWrongFormat"),
   backupEmail: z.string().optional().or(z.string().email()),
 });
 
@@ -76,16 +87,24 @@ export default function UpdateSpeakerForm(props: UpdateSpeakerFormProps) {
     label: props.speaker?.organizationName?.name ?? "",
     value: props.speaker?.organizationName?.id ?? "",
   });
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>();
 
   const submit = a.handleSubmit(async function(data) {
-    const result = await updateSpeaker(
-      props.speaker?.id ?? "",
-      mapUpdateSpeakerFormTypeToUpdateSpeakerDto(data),
-    );
-    if (result) {
-      props.refresh();
-      props.onCancel();
-    }
+    setConfirmAction(function() {
+      return async function() {
+        setOpenConfirm(false);
+        const result = await updateSpeaker(
+          props.speaker?.id ?? "",
+          mapUpdateSpeakerFormTypeToUpdateSpeakerDto(data),
+        );
+        if (result) {
+          props.refresh();
+          props.onCancel();
+        }
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
@@ -157,22 +176,6 @@ export default function UpdateSpeakerForm(props: UpdateSpeakerFormProps) {
           label={t("updateSpeakerForm.labels.backupEmail")}
           aria-label={t("updateSpeakerForm.ariaLabels.backupEmail")}
         ></TextInput>
-        <Typography variant="h4">
-          {t("updateSpeakerForm.activeHeading")}
-        </Typography>
-        <StyledSwitch
-          disabled={isUpdating}
-          checked={props.speaker?.active ?? true}
-          onChange={async function() {
-            const response = await setSpeakerActive(
-              props.speaker?.id ?? "",
-              props.speaker?.active ? !props.speaker.active : true,
-            );
-            if (response) {
-              props.refresh();
-            }
-          }}
-        ></StyledSwitch>
         <Box>
           <Tooltip title={t("updateSpeakerForm.submitButtonTooltip")}>
             <Button
@@ -195,7 +198,36 @@ export default function UpdateSpeakerForm(props: UpdateSpeakerFormProps) {
             </Button>
           </Tooltip>
         </Box>
+        <Typography variant="h4">
+          {t("updateSpeakerForm.activeHeading")}
+        </Typography>
+        <StyledSwitch
+          disabled={isUpdating}
+          checked={props.speaker?.active ?? true}
+          onChange={function() {
+            setConfirmAction(function() {
+              return async function() {
+                setOpenConfirm(false);
+                const response = await setSpeakerActive(
+                  props.speaker?.id ?? "",
+                  props.speaker?.active ? !props.speaker.active : true,
+                );
+                if (response) {
+                  props.refresh();
+                }
+              };
+            });
+            setOpenConfirm(true);
+          }}
+        ></StyledSwitch>
       </Form>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function () {
+          setOpenConfirm(false);
+        }}
+        confirmAction={confirmAction as () => void}
+      ></ConfirmActionModal>
     </FormProvider>
   );
 }

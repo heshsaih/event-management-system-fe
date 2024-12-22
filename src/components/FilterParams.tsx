@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Button,
   Tooltip,
   Typography,
@@ -99,13 +100,17 @@ export default function FilterParams(props: FilterParamsProps) {
     setOpen(false);
   };
 
-  const submit = a.handleSubmit(function(data) {
+  const filter = function(data: FilterParamsType) {
     props.callback({
       ...data,
       orderBy: data.orderBy.value as unknown as FilterOptions["orderBy"],
       direction: data.direction.value as unknown as FilterOptions["direction"],
     });
     closeAccordion();
+  };
+
+  const submit = a.handleSubmit(function(data) {
+    filter(data);
   });
 
   return (
@@ -155,11 +160,27 @@ export default function FilterParams(props: FilterParamsProps) {
               name="showInactive"
               label={t("filterParams.labels.showInactive")}
             ></ControlledSwitch>
-            <Tooltip title={t("filterParams.submitButtonTooltip")}>
-              <Button type="submit">
-                {t("filterParams.submitButtonText")}
-              </Button>
-            </Tooltip>
+            <Box>
+              <Tooltip title={t("filterParams.submitButtonTooltip")}>
+                <Button
+                  type="submit"
+                  aria-label={t("filterParams.ariaLabels.submitButton")}
+                >
+                  {t("filterParams.submitButtonText")}
+                </Button>
+              </Tooltip>
+              <Tooltip title={t("filterParams.clearbuttonTooltip")}>
+                <Button
+                  onClick={function() {
+                    a.reset();
+                    filter(a.getValues());
+                  }}
+                  aria-label={t("filterParams.ariaLabels.clearButton")}
+                >
+                  {t("filterParams.clearButtonText")}
+                </Button>
+              </Tooltip>
+            </Box>
           </Form>
         </FormProvider>
       </AccordionDetails>

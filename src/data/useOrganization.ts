@@ -2,37 +2,25 @@ import { useState } from "react";
 import { SpeakerOrganizationForm } from "../pages/manager/other-page/SpeakerOrganizationPage";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
-import { Dayjs } from "dayjs";
 import { FilterOptions } from "../components/FilterParams";
 import {
   mapFilterParamsToUri,
   mapOtherParamDtoToOtherParam,
 } from "../util/converters";
 import { apiWithEtag, apiWithToken } from "../api/config";
+import { OtherParam, OtherParamDto, Pageable, UpdateOtherParamDto } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type OrganizationDto = {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-};
+export type OrganizationDto = OtherParamDto;
 
-export type Organization = Omit<OrganizationDto, "createdAt" | "updatedAt"> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
-};
-
-export type UpdateOrganizationDto = {
-  name: string;
-};
+export type Organization = OtherParam;
 
 export function useOrganization() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isFetchingSingle, setIsFetchingSingle] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [organizations, setOrganizations] = useState<Organization[]>();
+  const [organizations, setOrganizations] = useState<Pageable<Organization>>();
   const [params, setParams] = useState<FilterOptions>();
 
   const createOrganization = async function(
@@ -40,19 +28,14 @@ export function useOrganization() {
   ): Promise<OrganizationDto | undefined> {
     try {
       setIsCreating(true);
-      const response = await apiWithToken.post<OrganizationDto>("/manager/organizations", data);
+      const response = await apiWithToken.post<OrganizationDto>(
+        "/manager/organizations",
+        data,
+      );
       toast.success(`Podane organizacje zostały utworzone`);
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się utworzyć organizacji: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }
@@ -68,19 +51,18 @@ export function useOrganization() {
 
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<OrganizationDto[]>(
+      const response = await apiWithToken.get<Pageable<OrganizationDto>>(
         `/manager/organizations?${uri}`,
       );
-      setOrganizations(response.data.map(mapOtherParamDtoToOtherParam) as Organization[]);
+      setOrganizations({
+        ...response.data,
+        content: response.data.content.map(
+          mapOtherParamDtoToOtherParam,
+        ) as Organization[],
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(`Nie udało się pobrać organizacji: ${e.response?.data}`);
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -88,7 +70,7 @@ export function useOrganization() {
 
   const updateOrganization = async function(
     id: string,
-    data: UpdateOrganizationDto,
+    data: UpdateOtherParamDto,
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
@@ -96,15 +78,7 @@ export function useOrganization() {
       toast.success("Organizacja została zaktualizowana");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się zaktualizować organizacji: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -121,13 +95,7 @@ export function useOrganization() {
       );
       return mapOtherParamDtoToOtherParam(response.data) as Organization;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(`Nie udało się pobrać organizacji: ${e.response?.data}`);
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetchingSingle(false);
     }
@@ -135,23 +103,17 @@ export function useOrganization() {
 
   const changeOrganizationActive = async function(
     id: string,
-    active: boolean
+    active: boolean,
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithEtag.patch(`/manager/organizations/${id}/set-active?active=${active}`);
+      await apiWithEtag.patch(
+        `/manager/organizations/${id}/set-active?active=${active}`,
+      );
       toast.success("Status organizacji został zmieniony");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        if (e.status === 400) {
-          toast.error(
-            `Nie udało się zmienić statusu organizacji: ${e.response?.data}`,
-          );
-        } else {
-          toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -169,6 +131,6 @@ export function useOrganization() {
     organizations,
     params,
     isFetchingSingle,
-    changeOrganizationActive
+    changeOrganizationActive,
   };
 }

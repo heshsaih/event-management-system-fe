@@ -7,6 +7,9 @@ import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { SessionType, SessionTypeDto } from "./useSessionType";
 import { EventBlock, EventBlockDto } from "./useEvent";
+import { Entity, EntityDto } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type RoomInfo = {
   roomId: string;
@@ -20,11 +23,7 @@ export type RoomInfo = {
   locationId: string;
 };
 
-export type SessionBriefDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
+export type SessionBriefDto = Omit<EntityDto, "name"> & {
   sessionName: string;
   sessionType: string;
   speaker: SpeakerBriefDto;
@@ -48,11 +47,7 @@ export type SessionBrief = Omit<
   endDate: Dayjs;
 };
 
-export type SessionDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
+export type SessionDto = Omit<EntityDto, "name"> & {
   sessionName: string;
   sessionType: SessionTypeDto;
   speaker: SpeakerBriefDto;
@@ -65,13 +60,10 @@ export type SessionDto = {
   eventId: string;
   maxSeats: number;
   availableSeats: number;
-}
+  minutesBeforeSignUpCloses: number;
+};
 
-export type Session = {
-  id: string;
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
-  active: boolean;
+export type Session = Omit<Entity, "name"> & {
   sessionName: string;
   sessionType: SessionType;
   speaker: SpeakerBrief;
@@ -84,6 +76,7 @@ export type Session = {
   eventId: string;
   maxSeats: number;
   availableSeats: number;
+  minutesBeforeSignUpCloses: number;
 };
 
 export type CreateSessionDto = {
@@ -98,7 +91,8 @@ export type CreateSessionDto = {
   startDate: string;
   endDate: string;
   maxSeats: number;
-}
+  minutesBeforeSignUpCloses: number;
+};
 
 export type UpdateSessionDto = {
   sessionName: string;
@@ -111,8 +105,8 @@ export type UpdateSessionDto = {
   startDate: string;
   endDate: string;
   maxSeats: number;
-}
-
+  minutesBeforeSignUpCloses: number;
+};
 
 export default function useSession() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -120,20 +114,18 @@ export default function useSession() {
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [session, setSession] = useState<Session>();
 
-  const createSession = async function (data: CreateSessionDto[]) {
+  const createSession = async function(data: CreateSessionDto[]) {
     try {
       setIsCreating(true);
       await apiWithToken.post("/manager/sessions", data);
-      toast.success("Konferencja została utworzona");
+      toast.success(i18next.t("useSession.createSessionSuccess"));
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się utworzyć konferencji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }
-  }
+  };
 
   const getSession = async function(id: string) {
     try {
@@ -143,45 +135,47 @@ export default function useSession() {
       );
       setSession(mapSessionDtoToSession(response.data));
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać konferencji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const updateSession = async function (id: string, data: UpdateSessionDto): Promise<boolean> {
+  const updateSession = async function(
+    id: string,
+    data: UpdateSessionDto,
+  ): Promise<boolean> {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/sessions/${id}`, data);
-      toast.success("Konferencja została zaktualizowana");
+      toast.success(i18next.t("useSession.updateSessionSuccess"));
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać konferencji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
-  }
+  };
 
-  const setSessionActive = async function (id: string, active: boolean): Promise<boolean> {
+  const setSessionActive = async function(
+    id: string,
+    active: boolean,
+  ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithEtag.patch(`/manager/sessions/${id}/set-active?active=${active}`);
-      toast.success("Status konferencji został zmieniony");
+      await apiWithEtag.patch(
+        `/manager/sessions/${id}/set-active?active=${active}`,
+      );
+      toast.success(i18next.t("useSession.setSessionActiveSuccess"));
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać konferencji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
-  }
+  };
 
   return {
     isFetching,
@@ -191,6 +185,6 @@ export default function useSession() {
     isCreating,
     updateSession,
     isUpdating,
-    setSessionActive
-  }
+    setSessionActive,
+  };
 }

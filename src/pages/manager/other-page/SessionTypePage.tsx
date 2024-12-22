@@ -24,9 +24,13 @@ import UpdateOtherParamForm from "./UpdateOtherParamForm";
 import { useEffect, useState } from "react";
 import FilterParams from "../../../components/FilterParams";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const sessionTypeSchema = z.object({
-  name: z.string(),
+  name: z
+    .string()
+    .min(2, "otherPage.validation.sessionTypeNameTooShort")
+    .max(64, "otherPage.validation.sessionTypeNameTooLong"),
 });
 
 export type SessionTypeForm = z.infer<typeof sessionTypeSchema>;
@@ -53,13 +57,10 @@ export default function SessionTypePage() {
   });
   const [sessionTypeId, setSessionTypeId] = useState<string>();
   const { t } = useTranslation();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
 
-  const submit = a.handleSubmit(async function(data) {
-    const success = await createSessionType([data]);
-    if (success) {
-      getAllSessionTypes();
-      a.reset();
-    }
+  const submit = a.handleSubmit(function() {
+    setOpenConfirm(true);
   });
 
   useEffect(function() {
@@ -82,6 +83,7 @@ export default function SessionTypePage() {
           onSubmit={submit}
           style={{
             flexDirection: "row",
+            alignItems: "start",
           }}
         >
           <TextInput
@@ -114,12 +116,12 @@ export default function SessionTypePage() {
           sx={{ color: Colors.RED }}
         ></CircularProgress>
       )}
-      {!isFetching && sessionTypes && sessionTypes.length === 0 && (
+      {!isFetching && sessionTypes && sessionTypes.content.length === 0 && (
         <Typography>{t("sessionTypePage.noSessionTypes")}</Typography>
       )}
       <TableContainer>
         <Table>
-          {!isFetching && sessionTypes && sessionTypes.length > 0 && (
+          {!isFetching && sessionTypes && sessionTypes.content.length > 0 && (
             <>
               <TableHead>
                 <TableCell>{t("sessionTypePage.tableColumns.name")}</TableCell>
@@ -134,18 +136,17 @@ export default function SessionTypePage() {
                 </TableCell>
               </TableHead>
               <TableBody>
-                {sessionTypes.map(function(e) {
+                {sessionTypes.content.map(function(e) {
                   return (
                     <Tooltip
+                      key={e.id}
                       tabIndex={0}
                       onKeyUp={function(ev) {
                         if (ev.key === "Enter") {
                           setSessionTypeId(e.id);
                         }
                       }}
-                      title={t(
-                        "sessionTypePage.sessionTypeRowTooltip",
-                      )}
+                      title={t("sessionTypePage.sessionTypeRowTooltip")}
                       onClick={function() {
                         setSessionTypeId(e.id);
                       }}
@@ -175,7 +176,7 @@ export default function SessionTypePage() {
             </>
           )}
           <TablePagination
-            count={10}
+            count={sessionTypes?.totalElements ?? 10}
             rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
             onRowsPerPageChange={function(e) {
               const cast = Number(e.target.value);
@@ -207,6 +208,20 @@ export default function SessionTypePage() {
         getAll={getAllSessionTypes}
         isUpdating={isUpdating}
       ></UpdateOtherParamForm>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={async function() {
+          setOpenConfirm(false);
+          const success = await createSessionType([a.getValues()]);
+          if (success) {
+            getAllSessionTypes();
+            a.reset();
+          }
+        }}
+      ></ConfirmActionModal>
     </StyledContainer>
   );
 }

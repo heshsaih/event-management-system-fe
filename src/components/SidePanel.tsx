@@ -7,6 +7,7 @@ import {
   Grid2Props,
   List,
   ListItem,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
@@ -16,6 +17,8 @@ import { Colors } from "../constants/styling";
 //import useAccountStore, { Role } from "../data/useAccountStore";
 import StyledLink from "./StyledLink";
 import { useNavigate } from "react-router-dom";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const breakpoints: Grid2Props["size"] = {
   xs: 12,
@@ -30,65 +33,73 @@ type LinkType = {
   uri: string;
 };
 
-const publicLinks: LinkType[] = [
-  {
-    name: "Zaloguj się",
-    uri: "/login",
-  },
-  {
-    name: "Zarejestruj się",
-    uri: "/register",
-  },
-  {
-    name: "Wydarzenia",
-    uri: "/events",
-  },
-  {
-    name: "Przypomnij hasło",
-    uri: "/forgot-password"
-  }
-];
+const publicLinks = function (t: TFunction): LinkType[] {
+  return [
+    {
+      name: t("sidePanel.publicLinks.login"),
+      uri: "/login",
+    },
+    {
+      name: t("sidePanel.publicLinks.register"),
+      uri: "/register",
+    },
+    {
+      name: t("sidePanel.publicLinks.events"),
+      uri: "/events",
+    },
+    {
+      name: t("sidePanel.publicLinks.forgotPassword"),
+      uri: "/forgot-password",
+    },
+  ];
+};
 
-const authenticatedLinks: LinkType[] = [
-  {
-    name: "Wydarzenia",
-    uri: "/events",
-  },
-  {
-    name: "Mój profil",
-    uri: "/my-profile",
-  },
-];
+const authenticatedLinks = function (t: TFunction): LinkType[] {
+  return [
+    {
+      name: t("sidePanel.authenticatedLinks.events"),
+      uri: "/events",
+    },
+    {
+      name: t("sidePanel.authenticatedLinks.myProfile"),
+      uri: "/my-profile",
+    },
+  ];
+};
 
-const managerLinks: LinkType[] = [
-  {
-    name: "Zarządzanie wydarzeniami",
-    uri: "/manager/events",
-  },
-  {
-    name: "Stwórz wydarzenie",
-    uri: "/manager/events/create?step=0",
-  },
-  {
-    name: "Prelegenci",
-    uri: "/manager/speakers",
-  },
-  {
-    name: "Lokacje",
-    uri: "/manager/locations",
-  },
-  {
-    name: "Pozostałe parametry",
-    uri: "/manager/other",
-  },
-];
+const managerLinks = function (t: TFunction): LinkType[] {
+  return [
+    {
+      name: t("sidePanel.managerLinks.events"),
+      uri: "/manager/events",
+    },
+    {
+      name: t("sidePanel.managerLinks.createEvent"),
+      uri: "/manager/events/create?step=0",
+    },
+    {
+      name: t("sidePanel.managerLinks.speakers"),
+      uri: "/manager/speakers",
+    },
+    {
+      name: t("sidePanel.managerLinks.locations"),
+      uri: "/manager/locations",
+    },
+    {
+      name: t("sidePanel.managerLinks.other"),
+      uri: "/manager/other",
+    },
+  ];
+};
 
-const adminLinks: LinkType[] = [
-  {
-    name: "Użytkownicy",
-    uri: "/admin/users",
-  },
-];
+const adminLinks = function (t: TFunction): LinkType[] {
+  return [
+    {
+      name: t("sidePanel.adminLinks.users"),
+      uri: "/admin/users",
+    },
+  ];
+};
 
 export default function SidePanel() {
   const navigate = useNavigate();
@@ -129,6 +140,7 @@ export default function SidePanel() {
   const isAdmin = isAuthenticated && true;
 
   const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -191,28 +203,30 @@ export default function SidePanel() {
               left: "1rem",
             }}
           >
-            <Fab
-              onClick={() => setOpen(false)}
-              size="small"
-              sx={{
-                borderRadius: 2,
-              }}
-            >
-              <CloseIcon></CloseIcon>
-            </Fab>
+            <Tooltip title={t("sidePanel.closeSidePanelTooltip")}>
+              <Fab
+                onClick={() => setOpen(false)}
+                size="small"
+                sx={{
+                  borderRadius: 2,
+                }}
+              >
+                <CloseIcon></CloseIcon>
+              </Fab>
+            </Tooltip>
           </Box>
           <Grid2 container spacing={2} width={"100%"} justifyContent={"start"}>
             {!isAuthenticated && (
               <Grid2 size={breakpoints}>
                 <Typography textAlign={"start"} variant="h5">
-                  Użytkownik niezalogowany
+                  {t("sidePanel.publicLinksHeading")}
                 </Typography>
                 <List>
-                  {publicLinks.map(function(e) {
+                  {publicLinks(t).map(function (e) {
                     return (
-                      <ListItem>
+                      <ListItem key={e.name}>
                         <StyledLink
-                          onClick={function() {
+                          onClick={function () {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -230,14 +244,14 @@ export default function SidePanel() {
             {isParticipant && (
               <Grid2 size={breakpoints}>
                 <Typography textAlign={"start"} variant="h5">
-                  Uczestnik
+                  {t("sidePanel.authenticatedLinksHeading")}
                 </Typography>
                 <List>
-                  {authenticatedLinks.map(function(e) {
+                  {authenticatedLinks(t).map(function (e) {
                     return (
-                      <ListItem>
+                      <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function() {
+                          onClick={function () {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -255,14 +269,14 @@ export default function SidePanel() {
             {isManager && (
               <Grid2 size={breakpoints}>
                 <Typography textAlign="start" variant="h5">
-                  Zarządca
+                  {t("sidePanel.managerLinksHeading")}
                 </Typography>
                 <List>
-                  {managerLinks.map(function(e) {
+                  {managerLinks(t).map(function (e) {
                     return (
-                      <ListItem>
+                      <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function() {
+                          onClick={function () {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -280,14 +294,14 @@ export default function SidePanel() {
             {isAdmin && (
               <Grid2 size={breakpoints}>
                 <Typography textAlign={"start"} variant="h5">
-                  Admin
+                  {t("sidePanel.adminLinksHeading")}
                 </Typography>
                 <List>
-                  {adminLinks.map(function(e) {
+                  {adminLinks(t).map(function (e) {
                     return (
-                      <ListItem>
+                      <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function() {
+                          onClick={function () {
                             navigate(e.uri);
                             setOpen(false);
                           }}

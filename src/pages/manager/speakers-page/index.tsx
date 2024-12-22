@@ -22,6 +22,8 @@ import { useNavigate } from "react-router-dom";
 import { Colors } from "../../../constants/styling";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 function mapToColumns(speaker: SpeakerBrief, t: TFunction) {
   return {
@@ -46,16 +48,31 @@ export default function SpeakersPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const mappedSpeakers = speakers && speakers.map(function (e) {
-    return mapToColumns(e, t);
-  });
+  const mappedSpeakers =
+    speakers &&
+    speakers.content.map(function(e) {
+      return mapToColumns(e, t);
+    });
 
   useEffect(function() {
     getAllSpeakers();
   }, []);
 
   return (
-    <StyledContainer>
+    <StyledContainer
+      sx={{
+        paddingTop: 0,
+      }}
+    >
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb current navigateTo="#">
+          {t("breadcrumbsLabels.speakers")}
+        </Breadcrumb>
+        <Breadcrumb disabled navigateTo="#">
+          {t("breadcrumbsLabels.speaker")}
+        </Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3" marginBottom={4}>
         {t("speakersPage.pageHeading")}
       </Typography>
@@ -129,7 +146,7 @@ export default function SpeakersPage() {
               </>
             )}
             <TablePagination
-              count={10}
+              count={speakers?.totalElements ?? 10}
               rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
               onRowsPerPageChange={function(e) {
                 const cast = Number(e.target.value);

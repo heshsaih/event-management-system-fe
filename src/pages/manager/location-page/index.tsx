@@ -21,6 +21,8 @@ import UpdateLocationForm from "./UpdateLocationForm";
 import AddRoomForm from "./AddRoomForm";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 function mapLocationData(data: Location | undefined, t: TFunction) {
   return {
@@ -57,7 +59,7 @@ function mapRoomData(data: Room, t: TFunction) {
 }
 
 export default function LocationPage() {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const { isFetching, getLocation, location } = useLocation();
   const [chosenRoom, setChosenRoom] = useState<string>();
   const [editingMode, setEditingMode] = useState<boolean>(false);
@@ -75,10 +77,19 @@ export default function LocationPage() {
   });
 
   return (
-    <StyledContainer>
+    <StyledContainer sx={{
+      paddingTop: 0
+    }}>
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb navigateTo="/manager/locations">{t("breadcrumbsLabels.locations")}</Breadcrumb>
+        <Breadcrumb current navigateTo="#">{t("breadcrumbsLabels.location")}</Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3">{t("locationPage.pageHeading")}</Typography>
       <StyledContainer inner>
-        <Typography variant="h4">{t("locationPage.locationDataHeading")}</Typography>
+        <Typography variant="h4">
+          {t("locationPage.locationDataHeading")}
+        </Typography>
         {isFetching && (
           <CircularProgress
             size={"3rem"}
@@ -122,6 +133,10 @@ export default function LocationPage() {
             onCancel={function() {
               getLocation(id ?? "");
               setEditingMode(false);
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+              });
             }}
           ></UpdateLocationForm>
         )}
@@ -134,7 +149,7 @@ export default function LocationPage() {
             sx={{ color: Colors.RED }}
           ></CircularProgress>
         )}
-        {rooms && rooms.length > 0 && (
+        {!isFetching && rooms && rooms.length > 0 && (
           <>
             <TableContainer>
               <Table>
@@ -167,18 +182,21 @@ export default function LocationPage() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Tooltip title={t("locationPage.addRoomButtonTooltip")}>
-              <Button
-                aria-label={t("locationPage.ariaLabels.addRoomButton")}
-                onClick={function() {
-                  setOpen(true);
-                }}
-              >
-                {t("locationPage.addRoomButtonText")}
-              </Button>
-            </Tooltip>
           </>
         )}
+        {!isFetching && rooms && rooms.length === 0 && (
+          <Typography>{t("locationPage.locationHasNoRooms")}</Typography>
+        )}
+        <Tooltip title={t("locationPage.addRoomButtonTooltip")}>
+          <Button
+            aria-label={t("locationPage.ariaLabels.addRoomButton")}
+            onClick={function() {
+              setOpen(true);
+            }}
+          >
+            {t("locationPage.addRoomButtonText")}
+          </Button>
+        </Tooltip>
         <UpdateRoomForm
           id={chosenRoom}
           open={!!chosenRoom}

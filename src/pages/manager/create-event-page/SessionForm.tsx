@@ -28,63 +28,137 @@ import useLocation from "../../../data/useLocation";
 import ControlledAutocomplete, {
   AutocompleteOption,
 } from "../../../components/ControlledAutocomplete";
-import { useNavigate } from "react-router-dom";
 import useAsyncLocations from "../../../data/useAsyncLocations";
 import useAsyncSpeaker from "../../../data/useAsyncSpeaker";
 import useAsyncSessionType from "../../../data/useAsyncSessionType";
 import { useSessionType } from "../../../data/useSessionType";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import i18next from "i18next";
 
 const sessionSchema = z
   .object({
+    minutesBeforeSignUpCloses: z
+      .number()
+      .min(
+        1,
+        i18next.t(
+          "createEventPage.sessionForm.validation.minuteBeforeSignUpCloseTooLow",
+        ),
+      ),
     name: z
       .string()
-      .min(3, "Nazwa musi mieć min. 3 znaki")
-      .max(64, "Nazwa może mieć maks. 64 znaki"),
+      .min(3, i18next.t("createEventPage.sessionForm.validation.nameTooShort"))
+      .max(64, i18next.t("createEventPage.sessionForm.validation.nameTooLong")),
     descriptionPL: z
       .string()
-      .min(3, "Opis musi mieć min. 3 znaki")
-      .max(1024, "Opis może mieć maks. 1024 znaki"),
-    descriptionEN: z.string().optional(),
+      .min(
+        3,
+        i18next.t(
+          "createEventPage.sessionForm.validation.descriptionPlTooShort",
+        ),
+      )
+      .max(
+        1024,
+        i18next.t(
+          "createEventPage.sessionForm.validation.descriptionPlTooLong",
+        ),
+      ),
+    descriptionEN: z
+      .string()
+      .optional()
+      .or(
+        z
+          .string()
+          .min(
+            2,
+            i18next.t(
+              "createEventPage.sessionForm.validation.descriptionEnTooShort",
+            ),
+          )
+          .max(
+            2000,
+            i18next.t(
+              "createEventPage.sessionForm.validation.descriptionEnTooLong",
+            ),
+          ),
+      ),
     startTime: z.instanceof(dayjs as unknown as typeof Dayjs),
     endTime: z.instanceof(dayjs as unknown as typeof Dayjs),
-    sessionBlock: z.string(),
+    sessionBlock: z
+      .string()
+      .min(
+        1,
+        i18next.t("createEventPage.sessionForm.validation.eventBlockRequired"),
+      ),
     maxSeats: z
-      .number({ message: "Wartość jest wymagana i musi być liczbą" })
-      .min(1, "Ilośc miejsc musi być dodatnia")
-      .max(1024, "Liczba miejsc nie może przekraczać 1024"),
+      .number({
+        message: i18next.t(
+          "createEventPage.sessionForm.validation.maxSeatsTooLow",
+        ),
+      })
+      .min(
+        1,
+        i18next.t("createEventPage.sessionForm.validation.maxSeatsTooLow"),
+      ),
     location: z.object({
-      label: z.string().min(1),
-      value: z.string().min(1, "Lokacja jest wymagana"),
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          i18next.t("createEventPage.sessionForm.validation.locationRequired"),
+        ),
     }),
     room: z.object({
-      label: z.string().min(1),
-      value: z.string().min(1, "Pomieszczenie jest wymagane"),
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          i18next.t("createEventPage.sessionForm.validation.roomRequired"),
+        ),
     }),
     speaker: z.object({
-      label: z.string().min(1),
-      value: z.string().min(1, "Prelegent jest wymagany"),
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          i18next.t("createEventPage.sessionForm.validation.speakerRequired"),
+        ),
     }),
     sessionType: z.object({
-      label: z.string().min(1),
-      value: z.string().min(1, "Typ konferencji jest wymagany"),
+      label: z.string(),
+      value: z
+        .string()
+        .min(
+          1,
+          i18next.t(
+            "createEventPage.sessionForm.validation.sessionTypeRequired",
+          ),
+        ),
     }),
   })
   .refine(
-    function (e) {
+    function(e) {
       return !e.startTime.isAfter(e.endTime);
     },
     {
-      message: "Data rozpoczęcia musi być przed datą zakończenia",
+      message: i18next.t(
+        "createEventPage.sessionForm.validation.startDateBeforeEndDate",
+      ),
       path: ["startTime"],
     },
   )
   .refine(
-    function (e) {
+    function(e) {
       return !e.endTime.isBefore(e.startTime);
     },
     {
-      message: "Data zakończenia musi być po dacie rozpoczęcia",
+      message: i18next.t(
+        "createEventPage.sessionForm.validation.endDateAfterStartDate",
+      ),
       path: ["endTime"],
     },
   );
@@ -95,9 +169,14 @@ export type CreateSessionForm = z.infer<typeof sessionSchema> & {
 
 type SessionFormProps = {
   id: string;
+  openLocationForm: () => void;
+  openRoomForm: () => void;
+  openSpeakerForm: () => void;
+  setChosenLocation: (id: string) => void;
   handleListChange: () => void;
   addError: (id: string) => void;
   removeError: (id: string) => void;
+  setRetrieveRooms: (func: () => void) => void;
 };
 
 const breakpoints: GridBaseProps["columns"] = {
@@ -113,17 +192,24 @@ export default function SessionForm({
   handleListChange,
   addError,
   removeError,
+  openLocationForm,
+  openRoomForm,
+  setChosenLocation,
+  setRetrieveRooms,
+  openSpeakerForm,
 }: SessionFormProps) {
   const { t } = useTranslation();
   const { retrieveRoomOptions } = useLocation();
   const [newOption, setNewOption] = useState<string>("");
   const [accordionOpen, setAccordionOpen] = useState<boolean>(false);
-  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
-  const state = useCreateEventStore(function (state) {
+  const state = useCreateEventStore(function(state) {
     return state;
   });
-  const session = state.sessions.find(function (e) {
+  const [openConfirmAction, setOpenConfirmAction] = useState<boolean>(false);
+  const [confirmActionFunction, setConfirmActionFunction] =
+    useState<() => void>();
+  const session = state.sessions.find(function(e) {
     return e.id === id;
   }) as CreateSessionForm;
   const a = useForm<CreateSessionForm>({
@@ -141,6 +227,7 @@ export default function SessionForm({
       room: session.room,
       speaker: session.speaker,
       sessionType: session.sessionType,
+      minutesBeforeSignUpCloses: session.minutesBeforeSignUpCloses ?? 1,
     },
     mode: "all",
   });
@@ -157,7 +244,7 @@ export default function SessionForm({
     useState<AutocompleteOption>(session.room);
 
   useEffect(
-    function () {
+    function() {
       async function setState() {
         if (chosenLocationId) {
           setRoomOptions(await retrieveRoomOptions(chosenLocationId));
@@ -170,7 +257,7 @@ export default function SessionForm({
     [chosenLocationId],
   );
 
-  const openAccordion = function () {
+  const openAccordion = function() {
     setAccordionOpen(true);
     const currentRect = ref.current?.getBoundingClientRect() as DOMRect;
     const scrollValue = currentRect.top + window.scrollY - 200;
@@ -180,17 +267,17 @@ export default function SessionForm({
     });
   };
 
-  const closeAccordion = function () {
+  const closeAccordion = function() {
     setAccordionOpen(false);
     handleListChange();
   };
 
-  useEffect(function () {
+  useEffect(function() {
     a.trigger();
   }, []);
 
   useEffect(
-    function () {
+    function() {
       if (Object.keys(a.formState.errors).length > 0) {
         addError(id);
       } else {
@@ -200,20 +287,30 @@ export default function SessionForm({
     [a.formState.errors],
   );
 
-  const submit = a.handleSubmit(function (data) {
-    state.updateSession({
-      ...data,
-      id: id,
+  const submit = a.handleSubmit(function(data) {
+    setConfirmActionFunction(function() {
+      return function() {
+        state.updateSession({
+          ...data,
+          id: id,
+        });
+        toast.success(t("createEventPage.sessionForm.updateSessionSuccess"));
+      };
     });
-    toast.success(t("createEventPage.sessionForm.updateSessionSuccess"));
+    setOpenConfirmAction(true);
   });
 
-  const remove = function () {
-    closeAccordion();
-    removeError(id);
-    state.removeSession(session.id);
-    handleListChange();
-    toast.success(t("createEventPage.sessionForm.removeSessionSuccess"));
+  const remove = function() {
+    setConfirmActionFunction(function() {
+      return function() {
+        closeAccordion();
+        removeError(id);
+        state.removeSession(session.id);
+        handleListChange();
+        toast.success(t("createEventPage.sessionForm.removeSessionSuccess"));
+      };
+    });
+    setOpenConfirmAction(true);
   };
 
   return (
@@ -250,6 +347,7 @@ export default function SessionForm({
         <FormProvider {...a}>
           <Form onSubmit={submit}>
             <TextInput
+              focused={accordionOpen}
               aria-label={t(
                 "createEventPage.sessionForm.ariaLabels.sessionName",
               )}
@@ -288,7 +386,7 @@ export default function SessionForm({
               options={sessionTypes.options ?? []}
               label={t("createEventPage.sessionForm.labels.sessionType")}
               createable
-              onCreateCallback={async function () {
+              onCreateCallback={async function() {
                 const result = await createSessionType([
                   {
                     name: newSessionType,
@@ -306,7 +404,7 @@ export default function SessionForm({
                 "createEventPage.sessionForm.sessionTypeCreateMessage",
               )}
               createValue={crypto.randomUUID()}
-              filterCallback={function (phrase) {
+              filterCallback={function(phrase) {
                 sessionTypes.setInput(phrase);
                 setNewSessionType(phrase);
               }}
@@ -321,7 +419,7 @@ export default function SessionForm({
                 marginY: "0.5rem",
               }}
               value={a.getValues().sessionBlock}
-              onChange={function (_, value) {
+              onChange={function(_, value) {
                 if (value) {
                   if (value === ADD_BLOCK_MESSAGE) {
                     state.addSessionBlock(newOption);
@@ -334,10 +432,10 @@ export default function SessionForm({
                   }
                 }
               }}
-              options={state.sessionBlocks.map(function (e) {
+              options={state.sessionBlocks.map(function(e) {
                 return e.name;
               })}
-              renderInput={function (params) {
+              renderInput={function(params) {
                 return (
                   <TextField
                     {...params}
@@ -345,8 +443,8 @@ export default function SessionForm({
                   ></TextField>
                 );
               }}
-              filterOptions={function (options, params) {
-                const filtered = options.filter(function (e) {
+              filterOptions={function(options, params) {
+                const filtered = options.filter(function(e) {
                   return e.includes(params.inputValue);
                 });
 
@@ -381,15 +479,15 @@ export default function SessionForm({
                   options={locations.options ?? []}
                   label={t("createEventPage.sessionForm.labels.location")}
                   createable
-                  onCreateCallback={function () {
+                  onCreateCallback={function() {
                     state.updateSession(a.getValues());
-                    navigate("/manager/locations");
+                    openLocationForm();
                   }}
                   createLabel={t(
                     "createEventPage.sessionForm.locationCreateMessage",
                   )}
                   createValue={crypto.randomUUID()}
-                  onChangeCallback={function (id) {
+                  onChangeCallback={function(id) {
                     setChosenLocationId(id);
                     setRoomComponentState({
                       label: "",
@@ -400,7 +498,7 @@ export default function SessionForm({
                       value: "",
                     });
                   }}
-                  filterCallback={function (phrase) {
+                  filterCallback={function(phrase) {
                     locations.setInput(phrase);
                   }}
                 ></ControlledAutocomplete>
@@ -424,9 +522,20 @@ export default function SessionForm({
                   options={roomOptions ?? []}
                   label={t("createEventPage.sessionForm.labels.room")}
                   createable
-                  onCreateCallback={function () {
+                  onCreateCallback={function() {
+                    setRetrieveRooms(function() {
+                      return async function() {
+                        console.log(chosenLocationId);
+                        if (chosenLocationId) {
+                          setRoomOptions(
+                            await retrieveRoomOptions(chosenLocationId),
+                          );
+                        }
+                      };
+                    });
                     state.updateSession(a.getValues());
-                    navigate(`/manager/locations/${chosenLocationId}`);
+                    setChosenLocation(chosenLocationId as string);
+                    openRoomForm();
                   }}
                   createLabel={t(
                     "createEventPage.sessionForm.roomCreateMessage",
@@ -444,15 +553,15 @@ export default function SessionForm({
               options={speakers.options ?? []}
               label={t("createEventPage.sessionForm.labels.speaker")}
               createable
-              onCreateCallback={function () {
+              onCreateCallback={function() {
                 state.updateSession(a.getValues());
-                navigate("/manager/speakers");
+                openSpeakerForm();
               }}
               createLabel={t(
                 "createEventPage.sessionForm.speakerCreateMessage",
               )}
               createValue={crypto.randomUUID()}
-              filterCallback={function (phrase) {
+              filterCallback={function(phrase) {
                 speakers.setInput(phrase);
               }}
             ></ControlledAutocomplete>
@@ -461,6 +570,16 @@ export default function SessionForm({
               label={t("createEventPage.sessionForm.labels.maxSeats")}
               type="number"
               name="maxSeats"
+            ></TextInput>
+            <TextInput
+              name="minutesBeforeSignUpCloses"
+              type="number"
+              label={t(
+                "createEventPage.sessionForm.labels.minutesBeforeSignUpCloses",
+              )}
+              aria-label={t(
+                "createEventPage.sessionForm.ariaLabels.minutesBeforeSignUpCloses",
+              )}
             ></TextInput>
             <Grid2 container>
               <Grid2
@@ -480,7 +599,7 @@ export default function SessionForm({
                   maxDate={state.endDate}
                   label={t("createEventPage.sessionForm.labels.startTime")}
                   name="startTime"
-                  triggerCallback={function () {
+                  triggerCallback={function() {
                     a.trigger(["startTime", "endTime"]);
                   }}
                 ></ControlledDateTimePicker>
@@ -502,7 +621,7 @@ export default function SessionForm({
                   maxDate={state.endDate}
                   name="endTime"
                   label={t("createEventPage.sessionForm.labels.endTime")}
-                  triggerCallback={function () {
+                  triggerCallback={function() {
                     a.trigger(["startTime", "endTime"]);
                   }}
                 ></ControlledDateTimePicker>
@@ -541,9 +660,15 @@ export default function SessionForm({
                   alignItems: "center",
                 }}
               >
-                <Tooltip title={t("createEventPage.sessionForm.deleteSessionButtonTooltip")}>
+                <Tooltip
+                  title={t(
+                    "createEventPage.sessionForm.deleteSessionButtonTooltip",
+                  )}
+                >
                   <Button
-                    aria-label={t("createEventPage.sessionForm.ariaLabels.deleteSessionButton")}
+                    aria-label={t(
+                      "createEventPage.sessionForm.ariaLabels.deleteSessionButton",
+                    )}
                     onClick={remove}
                   >
                     {t("createEventPage.sessionForm.deleteSessionButtonText")}
@@ -554,6 +679,13 @@ export default function SessionForm({
           </Form>
         </FormProvider>
       </AccordionDetails>
+      <ConfirmActionModal
+        open={openConfirmAction}
+        onClose={function() {
+          setOpenConfirmAction(false);
+        }}
+        confirmAction={confirmActionFunction as () => void}
+      ></ConfirmActionModal>
     </Accordion>
   );
 }

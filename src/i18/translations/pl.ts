@@ -1,5 +1,154 @@
+const breadcrumbsLabels = {
+  home: "Strona główna",
+  events: "Wydarzenia",
+  event: "Wydarzenie",
+  locations: "Lokacje",
+  location: "Lokacja",
+  speakers: "Prelegenci",
+  speaker: "Prelegent",
+  other: "Pozostałe parametry",
+  createEvent: "Stwórz wydarzenie",
+};
+const backendErrors = {
+  messages: {
+    "Event block in session does not exist in event":
+      "Podany blok wydarzenia nie istnieje w tym wydarzeniu",
+    "Received data contains duplicate names":
+      "Przesłane dane posiadają zduplikowane nazwy",
+    "Received data contains duplicate emails":
+      "Przesłane dane posiadają zduplikowane adresy e-mail",
+    "Registration date must be before event start date":
+      "Data rozpoczęcia zapisów na wydarzenie musi być przed datą rozpoczęcia wydarzenia",
+    "Start date must be before end date":
+      "Data rozpoczęcia wydarzenia musi być przed datą zakończenia wydarzenia",
+"Session dates outside event dates":
+      "Przynajmniej jedna konferencja ma datę spoza czasu trwania wydarzenia",
+    "Email template contains forbidden keyword default":
+      "Szablon powiadomienia e-mail zawiera niedopuszczalne słowa kluczowe",
+    "Received data contains duplicate ids":
+      "Przesłane dane posiadają zduplikowane identyfikatory",
+    "Received data contains duplicate ids: ":
+      "Przesłane dane posiadają zduplikowane identyfikatory",
+    "Speaker with given email already exists":
+      "Prelegent z podanym adresem e-mail już istnieje",
+    "Session with given name already exists":
+      "Konferencja z podaną nazwą już istnieje",
+    "Event block with given name already exists":
+      "Blok wydarzenia o podanej nazwie już istnieje",
+    "Room with given name already exists in that location":
+      "Pomieszczenie z podaną nazwą już istnieje w tej lokacji",
+    "Event with given name already exists":
+      "Wydarzenie o podanej nazwie już istnieje",
+    "Email template with given name already exists":
+      "Szablon powiadomienia e-mail o podanej nazwie już istnieje",
+    "event id cannot be null": "Wydarzenie jest wymagane",
+    "location id cannot be null": "Lokacja jest wymagana",
+    "session type id cannot be null": "Typ konferencji jest wymagany",
+    "session id cannot be null": "Konferencja jest wymagana",
+    "speaker title cannot be null": "Tytuł prelegenta jest wymagany",
+    "organization id cannot be null": "Organizacja prelegenta jest wymagana",
+    "speaker id cannot be null": "Prelegent jest wymagany",
+"room id cannot be null": "Pomieszczenie jest wymagane",
+    "Max seats cannot be null": "Ilość miejsc jest wymagana",
+    "Event block id cannot be null": "Blok wydarzenia jest wymagany",
+    "Minutes before sign up closes cannot be null":
+      "Ilość minut przed zamknięciem zapisów jest wymagany",
+    "Minutes before sign up closes must be higher than 0":
+      "Ilość minut przed zamknięciem zapisów musi być większa od 0",
+    "Name cannot be empty": "Nazwa jest wymagana",
+    "Name must be between 2 and 64 characters":
+      "Nazwa musi posiadać od 2 do 64 znaków",
+    "DescriptionPl must have between 2 and 2000 characters":
+      "Opis w wersji polskiej musi być posiadać od 2 do 2000 znaków",
+    "DescriptionEn must have between 2 and 2000 characters":
+      "Opis w wersji angielskiej musi posiadać od 2 do 2000 znaków",
+    "DescriptionPl cannot be blank": "Opis w wersji polskiej jest wymagany",
+    "Start date cannot be null": "Czas rozpoczęcia jest wymagany",
+    "Start date must take place in the future":
+      "Czas rozpoczęcia musi być z przyszłości",
+    "End date cannot be null": "Data zakończenia jest wymagana",
+    "Registration start date cannot be null":
+      "Czas rozpoczęcia rejestracji jest wymagany",
+    "Image data cannot be null": "Zdjęcie tematyczne jest wymagane",
+    "First name cannot be blank": "Imię prelegenta jest wymagane",
+    "First name must be between 2 and 64 characters":
+      "Imię prelegenta musi mieć od 2 do 64 znaków",
+    "Last name cannot be blank": "Nazwisko prelegenta jest wymagane",
+    "Last name must be between 2 and 64 characters":
+      "Nazwisko prelegenta musi mieć od 2 do 64 znaków",
+    "Title name must be between 2 and 16 characters":
+      "Tytuł prelegenta musi mieć od 2 do 16 znaków",
+    "Organization name must be between 2 and 64 characters":
+      "Organizacja prelegenta musi mieć od 2 do 64 znaków",
+    "Outsiders allowed cannot be null":
+      "Informacja o możliwości wejścia dla uczestników spoza PŁ jest wymagana",
+    "Minutes between different sessions cannot be null":
+      "Odstęp pomiędzy konferencjami jest wymagany",
+    "Minutes between different can not be less than 0":
+      "Odstęp pomiędzy konferencjami musi być więszky od 0",
+    "Event block name must be between 2 and 64 characters":
+      "Nazwa bloku wydarzenia musi mieć od 2 do 64 znakó",
+    "Building number cannot be blank": "Numer budynku jest wymagany",
+    "Building number must be between 1 and 16 characters":
+      "Numer budynku musi mieć od 1 do 16 znakó",
+    "Street cannot be blank": "Nazwa ulicy jest wymagana",
+    "Street must be between 2 and 64 characters":
+      "Nazwa ulicy musi mieć od 2 do 64 znaków",
+    "City cannot be blank": "Nazwa miasta jest wymagana",
+    "City must be between 2 and 64 characters":
+      "Nazwa miasta musi mieć od 2 do 64 znaków",
+    "Postal code cannot be blank": "Kod pocztowy jest wymagany",
+    "Postal code must have 6 characters":
+      "Kod pocztowy musi mieć dokładnie 6 znaków (w formacie XX-XXX)",
+    "Room number cannot be blank": "Numer pomieszczenia jest wymagany",
+    "Room number must be between 1 and 16 characters":
+      "Numer pomieszczenia musi mieć od 1 do 16 znaków",
+    "Capacity cannot be null": "Ilość miejsc w pomieszczeniu jest wymagana",
+    "Capacity must be higher than 0":
+      "Ilość miejsc w pomieszczeniu musi być większa od 0",
+    "Subject cannot be blank": "Temat powiadomienia mailowego jest wymagany",
+    "Subject must be between 2 and 64 characters":
+      "Temat powiadomienia mailowego musi mieć od 2 do 64 znaków",
+    "Content prefix must be between 2 and 255 characters":
+      "Przedrostek powiadomienia mailowego musi mieć od 2 do 255 znaków",
+    "Content suffix must be between 2 and 255 characters":
+      "Przyrostek powiadomienia mailowego musi mieć od 2 do 255 znaków",
+    "Invalid ETag": "Aktualnie wyświetlane dane są nieaktualne, odśwież stronę",
+    "Account not found": "Konto nie zostało odnalezione",
+    "Session type not found": "Konferencja nie została odnaleziona",
+    "Room not found": "Pomieszczenie nie zostało odnalezione",
+    "Speaker not found": "Prelegent nie został odnaleziony",
+    "Organization not found": "Organizacja prelegenta nie została odnaleziona",
+    "Location not found": "Lokacja nie została odnaleziona",
+    "Session not found": "Konferencja nie została odnaleziona",
+    "Event not found": "Wydarzenie nie zostało odnalezione",
+    "Event block not found": "Blok wydarzenia nie został odnaleziony",
+    "email template not found":
+      "Szablon powiadomienia mailowego nie został odnaleziony",
+    "Survey email template not found":
+      "Szablon powiadomienia mailowego nie został odnaleziony",
+    "Session sign up email template not found":
+      "Szablon powiadomienia mailowego nie został odnaleziony",
+    "Session reminder email template not found":
+      "Szablon powiadomienia mailowego nie został odnaleziony",
+    "Unknown error": "Coś poszło nie tak",
+    "Connection Error":
+      "Nie udało połączyć się z serwerem, spróbuj ponownie później",
+  },
+  titles: {
+    "Not Found": "Nie znaleziono",
+    "Bad Request": "Błędne żądanie",
+    Conflict: "Konflikt",
+    "Precondition Failed": "Nieaktualne dane",
+    "Internal Server Error": "Coś poszło nie tak",
+    "Connection Error": "Brak połączenia",
+  },
+};
+
 const filterParams = {
   ariaLabels: {
+    submitButton: "Przycisk do zatwierdzenia opcji filtrowania",
+    clearButton: "Przycisk do wyczyszczenia opcji filtrowania",
     phrase: "Pole tekstowe z frazą, po której będą filtrowane elementy",
     orderBy: "Pole wyboru wartości, po której odbywać się będzie sortowanie",
     direction: "Pole wboru kierunku sortowania",
@@ -25,6 +174,8 @@ const filterParams = {
   componentHeadingText: "Kliknij, aby wyświetlić opcje filtrowania",
   submitButtonTooltip: "Kliknij, aby filtrować listę",
   submitButtonText: "Filtruj",
+  clearbuttonTooltip: "Kliknij, aby wyczyścić opcje filtrowania",
+  clearButtonText: "Wyczyść",
 };
 
 const eventImage = {
@@ -56,8 +207,24 @@ const createEventPage = {
     previousStepButtonText: "Powrót",
     nextStepButtonTooltip: "Kliknij, aby przejść do kolejnego kroku",
     nextStepButtonText: "Dalej",
-  },
+},
   eventForm: {
+    validation: {
+      nameTooShort: "Nazwa wydarzenia musi być dłuższa niż 2 znaki",
+      nameTooLong: "Nazwa wydarzenia nie może być dłuższa niż 64 znaki",
+      descriptionPlTooShort:
+        "Opis wydarzenia w wersji polskiej musi być dłuższy niż 2 znaki",
+      descriptionPlTooLong:
+        "Opis wydarzenia w wersji polskiej nie może być dłuższy niż 2000 znaków",
+      minutesBetweenSessionsTooLow:
+        "Przerwa pomiędzy konferencjami musi być większa od 0",
+      startDateBeforeEndDate:
+        "Data rozpoczęcia wydarzenia musi być przed datą jego zakończenia",
+      endDateAfterStartDate:
+        "Data zakończenia wydarzenia musi być przed datą jego rozpoczęcia",
+      registrationStartDateBeforeStartDate:
+        "Data roczpoczęcia zapisów na wydarzenie musi być przed jego rozpoczęciem",
+    },
     ariaLabels: {
       eventNameInput: "Pole tekstowe z nazwą wydarzenia",
       eventDescriptionPl: "Pole tekstowe z opisem wydarzenia w wersji polskiej",
@@ -92,6 +259,29 @@ const createEventPage = {
     pageHeader: "Dane o wydarzeniu",
   },
   sessionForm: {
+    validation: {
+      nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+      nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+      descriptionPlTooShort:
+        "Opis w wersji polskiej musi być dłuższy niż 2 znaki",
+      descriptionPlTooLong:
+        "Opis w wersji polskiej nie może być dłuższy niż 2000 znaków",
+      descriptionEnTooShort:
+        "Opis w wersji angielskiej musi być dłuższy niż 2 znaki",
+      descriptionEnTooLong:
+        "Opis w wersji angielskiej nie może być dłuższy niż 2000 znaków",
+      sessionTypeRequired: "Typ konferencji jest wymagany",
+      eventBlockRequired: "Blok wydarzenia jest wymagany",
+      locationRequired: "Lokacja jest wymagana",
+      roomRequired: "Pomieszczenie jest wymagane",
+      speakerRequired: "Prelegent jest wymagany",
+      maxSeatsTooLow: "Ilość miejsc musi być większa od 0",
+      startDateBeforeEndDate:
+        "Data rozpoczęcia musi być przed datą zakończenia",
+      endDateAfterStartDate: "Data zakończenia musi być po dacie rozpoczęcia",
+      minuteBeforeSignUpCloseTooLow:
+        "Czas do zakończenia zapisów musi być większy od 0",
+    },
     ariaLabels: {
       sessionName: "Pole tekstowe z nazwą konferencji",
       descriptionPl: "Pole tekstowe z opisem konferencji w wersji polskiej",
@@ -106,6 +296,8 @@ const createEventPage = {
       endTime: "Pole wyboru daty zakończenia konferencji",
       saveSessionButton: "Przycisk do zapisu danych konferencji",
       deleteSessionButton: "Przycisk do usunięcia konferencji",
+      minutesBeforeSignUpCloses:
+        "Pole numeryczne z czasem w minutach przed którym następuje zakończenie zapisów na konferencję",
     },
     labels: {
       sessionName: "Nazwa*",
@@ -119,6 +311,8 @@ const createEventPage = {
       maxSeats: "Ilość miejsc*",
       startTime: "Data rozpoczęcia*",
       endTime: "Data zakończenia",
+      minutesBeforeSignUpCloses:
+        "Czas zakończenia zapisów przed rozpoczęciem konferencji (w minutach)*",
     },
     sessionTypeCreateMessage: "Taki typ nie istnieje, kliknij aby go stworzyć",
     speakerCreateMessage:
@@ -146,6 +340,12 @@ const createEventPage = {
       descriptionEn: "Opis wydarzenia w wersji angielskiej",
       startDate: "Data rozpoczęcia wydarzenia",
       endDate: "Data zakończenia wydarzenia",
+      registrationStartDate: "Data rozpoczęcia zapisów",
+      outsidersAllowed: "Wstęp dla uczestników spoza Politechniki",
+      yes: "Tak",
+      no: "Nie",
+      minutesBetweenSessions:
+        "Odstęp czasowy pomiędzy konferencjami (w minutach)",
     },
     sessionTableRows: {
       name: "Nazwa",
@@ -163,7 +363,7 @@ const createEventPage = {
     eventDataHeading: "Dane wydarzenia",
     sessionsDataHeading: "Konferencje",
     previousStepButtonTooltip: "Kliknij, aby wrócić do poprzedniego kroku",
-    previousStepButtonText: "Wróć",
+    previousStepButtonText: "Powrót",
     submitButtonTooltip: "Kliknij, aby utworzyć wydarzenie",
     submitButtonText: "Zakończ",
   },
@@ -229,6 +429,8 @@ const eventPageManager = {
       endDate: "Data zakończenia",
       noEndDate: "Brak daty zakończenia",
       maxSeats: "Ilość miejsc",
+      minutesBeforeSignUpCloses:
+        "Czas od zakończenia zapisów do rozpoczęcia konferencji (w minutach)",
       speaker: "Prelegent",
       address: "Adres",
       location: "Lokacja",
@@ -291,6 +493,29 @@ const eventPageManager = {
     cancelButtonText: "Anuluj",
   },
   updateSessionForm: {
+    validation: {
+      nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+      nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+      descriptionPlTooShort:
+        "Opis w wersji polskiej musi być dłuższy niż 2 znaki",
+      descriptionPlTooLong:
+        "Opis w wersji polskiej nie może być dłuższy niż 2000 znaków",
+      descriptionEnTooShort:
+        "Opis w wersji angielskiej musi być dłuższy niż 2 znaki",
+      descriptionEnTooLong:
+        "Opis w wersji angielskiej nie może być dłuższy niż 2000 znaków",
+      sessionTypeRequired: "Typ konferencji jest wymagany",
+      eventBlockRequired: "Blok wydarzenia jest wymagany",
+      locationRequired: "Lokacja jest wymagana",
+      roomRequired: "Pomieszczenie jest wymagane",
+      speakerRequired: "Prelegent jest wymagany",
+      maxSeatsTooLow: "Ilość miejsc musi być większa od 0",
+      startDateBeforeEndDate:
+        "Data rozpoczęcia musi być przed datą zakończenia",
+      endDateAfterStartDate: "Data zakończenia musi być po dacie rozpoczęcia",
+      minutesBeforeSignUpClosesTooLow:
+        "Czas od zakończenia zapisów do rozpoczęcia konferencji (w minutach)",
+    },
     pageHeading: "Zaktualizuj konrefencję",
     dataHeading: "Dane o konferencji",
     activeHeading: "Aktywność",
@@ -308,6 +533,8 @@ const eventPageManager = {
       endDate: "Pole wyboru daty zakończenia konferencji",
       active: "Przełącznik do ustawienia aktywności wydarzenia",
       saveSessionButton: "Przycisk do zapisania konferencji",
+      minutesBeforeSignUpCloses:
+        "Pole numeryczne z czasem od zakończenia zapisów do rozpoczęcia konferencji w minutach",
     },
     labels: {
       name: "Nazwa*",
@@ -320,7 +547,9 @@ const eventPageManager = {
       speaker: "Prelegent*",
       maxSeats: "Ilość miejsc*",
       startDate: "Data rozpoczęcia*",
-      endDate: "Data zakończenia",
+      endDate: "Data zakończenia*",
+      minutesBeforeSignUpCloses:
+        "Czas od zakończenia zapisów do rozpoczęcia konferencji (w minutach)*",
     },
     createSessionTypeMessage: "Taki typ nie istnieje, kliknij aby go stworzyć",
     createBlockMessage: "Taki blok nie istnieje, kliknij aby go stworzyć",
@@ -350,12 +579,18 @@ const eventsPageManager = {
     updatedAt: "Data aktualizacji",
     noUpdatedAt: "Brak daty aktualizacji",
   },
+  noTableEntries: "Brak wydarzeń spełniających kryteria wyszukiwania",
   pageHeader: "Panel podglądu wydarzeń",
   addEventButtonTooltip: "Kliknij, aby utworzyć wydarzenie",
   addEventButtonAriaLabel: "Przycisk do utworzenia wydarzenia",
 };
 
 const addRoomForm = {
+  validation: {
+    roomNumberTooShort: "Nazwa pomieszczenia musi być dłuższa niż 2 znaki",
+    roomNumberTooLong: "Nazwa pomieszczenia nie może być dłuższa niż 16 znaków",
+    capacityTooLow: "Ilość miejsc musi być większa od 0",
+  },
   pageHeading: "Utwórz pomieszczenie",
   submitButtonTooltip: "Kliknij, aby utworzyć pomieszczenie",
   submitButtonText: "Zapisz",
@@ -365,11 +600,25 @@ const addRoomForm = {
   },
   labels: {
     roomNumber: "Nazwa pomieszczenia*",
-    capacity: "Ilość miejsc",
+    capacity: "Ilość miejsc*",
   },
 };
 
 const updateLocationForm = {
+  updateDataHeading: "Dane lokacji",
+  activeHeading: "Aktywność",
+  validation: {
+    nameTooShort: "Nazwa lokacji musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa lokacji nie może być dłuższa niż 64 znaki",
+    buildingNumberTooShort: "Numer budynku musi być dłuższy niż 2 znaki",
+    buildingNumberTooLong: "Numer budynku nie może być dłuższy niż 16 znaków",
+    streetTooShort: "Nazwa ulicy musi być dłuższa niż 2 znaki",
+    streetTooLong: "Nazwa ulicy nie może być dłuższa niż 64 znaki",
+    cityTooShort: "Nazwa miasta musi być dłuższa niż 2 znaki",
+    cityTooLong: "Nazwa miasta nie może być dłuższa niż 64 znaki",
+    postalCodeWrongLength:
+      "Kod pocztowy musi mieć 6 znaków (w formacie XX-XXX)",
+  },
   ariaLabels: {
     name: "Pole tekstowe z nazwą lokacji",
     street: "Pole tekstowe z ulicą, na której znajduje się lokacja",
@@ -389,12 +638,19 @@ const updateLocationForm = {
   },
   submitButtonTooltip: "Kliknij, aby zapisać zmiany",
   submitButtonText: "Zapisz",
-  cancelButtonTooltip: "Kliknij, aby odrzucić zmiany",
-  cancelButtonText: "Anuluj",
+  cancelButtonTooltip: "Kliknij, aby zamknąć formularz",
+  cancelButtonText: "Zamknij",
 };
 
 const updateRoomForm = {
   pageHeading: "Zaktualizuj pomieszczenie",
+  updateDataHeading: "Dane pomieszczenia",
+  activeHeading: "Aktywność",
+  validation: {
+    roomNumberTooShort: "Nazwa pomieszczenia musi być dłuższa niż 2 znaki",
+    roomNumberTooLong: "Nazwa pomieszczenia nie może być dłuższa niż 16 znaków",
+    capacityTooLow: "Ilość miejsc musi być większa od 0",
+  },
   ariaLabels: {
     roomNumber: "Pole tekstowe z nazwą pomieszczenia",
     capacity: "Pole numeryczne z ilością miejsc",
@@ -436,6 +692,7 @@ const locationPage = {
     editLocationButton: "Przycisk do edycji danych lokacji",
     addRoomButton: "Przycisk do utworzenia pomieszczenia",
   },
+  locationHasNoRooms: "Lokacja nie ma utworzonych żadnych pomieszczeń",
   pageHeading: "Panel zarządzania lokacją",
   locationDataHeading: "Dane o lokacji",
   editLocationButtonTooltip: "Kliknij, aby edytować lokację",
@@ -466,6 +723,18 @@ const locationsPage = {
 };
 
 const addLocationForm = {
+  validation: {
+    nameTooShort: "Nazwa lokacji musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa lokacji nie może być dłuższa niż 64 znaki",
+    buildingNumberTooShort: "Numer budynku musi być dłuższy niż 2 znaki",
+    buildingNumberTooLong: "Numer budynku nie może być dłuższy niż 16 znaków",
+    streetTooShort: "Nazwa ulicy musi być dłuższa niż 2 znaki",
+    streetTooLong: "Nazwa ulicy nie może być dłuższa niż 64 znaki",
+    cityTooShort: "Nazwa miasta musi być dłuższa niż 2 znaki",
+    cityTooLong: "Nazwa miasta nie może być dłuższa niż 64 znaki",
+    postalCodeWrongLength:
+      "Kod pocztowy musi mieć 6 znaków (w formacie XX-XXX)",
+  },
   addRoomForm: {
     ariaLabels: {
       roomNumber: "Pole tekstowe z nazwą pomieszczenia",
@@ -610,6 +879,10 @@ const speakersPage = {
 };
 
 const updateOtherParamForm = {
+  validation: {
+    nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+  },
   dataHeading: "Dane",
   ariaLabels: {
     name: "Pole tekstowe z nazwą parametru",
@@ -629,9 +902,30 @@ const otherPage = {
   speakerTitleHeading: "Tytuły prelegentów",
   organizationsHeading: "Organizacje prelegentów",
   speakerTypeHeading: "Typy konferencji",
+  validation: {
+    speakerTitleTooShort: "Tytuł prelegenta musi być dłuższy niż 2 znaki",
+    speakerTitleTooLong: "Tytuł prelegenta nie może być dłuższy niż 64 znaki",
+    organizationNameTooShort: "Nazwa organizacji musi być dłuższa niż 2 znaki",
+    organizationNameTooLong:
+      "Nazwa organizacji nie może być dłuższa niż 64 znaki",
+    sessionTypeNameTooShort:
+      "Nazwa typu konferencji musi być dłuższa niż 2 znaki",
+    sessionTypeNameTooLong:
+      "Nazwa typu konferencji nie może być dłuższa niż 64 znaki",
+  },
 };
 
 const updateSpeakerForm = {
+  validation: {
+    firstNameTooShort: "Imię prelegenta musi być dłuższe niż 2 znaki",
+    firstNameTooLong: "Imię prelegenta nie może być dłuższe niż 64 znaki",
+    lastNameTooShort: "Nazwisko prelegenta musi być dłuższe niż 2 znaki",
+    lastNameTooLong: "Nazwisko prelegenta musi być dłuższe niż 64 znaki",
+    speakerTitleRequired: "Tytuł prelegenta jest wymagany",
+    organizaitonRequired: "Organizacja prelegenta jest wymagana",
+    emailWrongFormat:
+      "Podany adres e-mail prelegenta je jest poprawnym adresem e-mail",
+  },
   ariaLabels: {
     firstName: "Pole tekstowe z imieniem prelegenta",
     lastName: "Pole tekstowe z nazwiskiem prelegenta",
@@ -687,6 +981,28 @@ const speakerPage = {
 
 const addSessionForm = {
   pageHeading: "Utwórz konferencję",
+  validation: {
+    nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+    descriptionPlTooShort:
+      "Opis w wersji polskiej musi być dłuższy niż 2 znaki",
+    descriptionPlTooLong:
+      "Opis w wersji polskiej nie może być dłuższy niż 2000 znaków",
+    descriptionEnTooShort:
+      "Opis w wersji angielskiej musi być dłuższy niż 2 znaki",
+    descriptionEnTooLong:
+      "Opis w wersji angielskiej nie może być dłuższy niż 2000 znaków",
+    sessionTypeRequired: "Typ konferencji jest wymagany",
+    eventBlockRequired: "Blok wydarzenia jest wymagany",
+    locationRequired: "Lokacja jest wymagana",
+    roomRequired: "Pomieszczenie jest wymagane",
+    speakerRequired: "Prelegent jest wymagany",
+    maxSeatsTooLow: "Ilość miejsc musi być większa od 0",
+    startDateBeforeEndDate: "Data rozpoczęcia musi być przed datą zakończenia",
+    endDateAfterStartDate: "Data zakończenia musi być po dacie rozpoczęcia",
+    minutesBeforeSignUpClosesTooLow:
+      "Czas od zakończenia zapisów do rozpoczęcia konferencji musi być większy od 0",
+  },
   ariaLabels: {
     name: "Pole tekstowe z nazwą konferencji",
     descriptionPl: "Pole tekstowe z opisem konferencji w wersji polskiej",
@@ -699,7 +1015,9 @@ const addSessionForm = {
     maxSeats: "Pole numeryczne z ilością miejsc na konferencję",
     startDate: "Pole wyboru daty rozpoczęcia konferencji",
     endDate: "Pole wyboru daty zakończenia konferencji",
-    submitButton: "Przycisk do utworzenia konferencji"
+    submitButton: "Przycisk do utworzenia konferencji",
+    minutesBeforeSignUpCloses:
+      "Pole numeryczne z czasem od zakończenia zapisów do rozpoczęcia konferencji w minutach",
   },
   labels: {
     name: "Nazwa konferencji*",
@@ -712,6 +1030,8 @@ const addSessionForm = {
     speaker: "Prelegent*",
     maxSeats: "Ilość miejsc*",
     startDate: "Data rozpoczęcia*",
+    minutesBeforeSignUpCloses:
+      "Czas od zakończenia zapisów do rozpoczęcia konferencji (w minutach)",
     endDate: "Data zakończenia",
   },
   sessionTypeCreateLabel: "Taki typ nie istnieje, kliknij aby go stworzyć",
@@ -720,8 +1040,184 @@ const addSessionForm = {
   roomCreateLabel: "Takie pomieszczenie nie istnieje, kliknij aby je stworzyć",
   speakerCreateLabel: "Taki prelegent nie istnieje, kliknij aby go stworzyć",
   submitButtonTooltip: "Kliknij, aby utworzyć prelegenta",
-  sutmitButtonText: "Utwórz"
+  sutmitButtonText: "Utwórz",
 };
+
+const addSpeakerForm = {
+  validation: {
+    firstNameTooShort: "Imię prelegenta musi być dłuższe niż 2 znaki",
+    firstNameTooLong: "Imię prelegenta nie może być dłuższe niż 64 znaki",
+    lastNameTooShort: "Nazwisko prelegenta musi być dłuższe niż 2 znaki",
+    lastNameTooLong: "Nazwisko prelegenta musi być dłuższe niż 64 znaki",
+    speakerTitleRequired: "Tytuł prelegenta jest wymagany",
+    organizaitonRequired: "Organizacja prelegenta jest wymagana",
+    emailWrongFormat:
+      "Podany adres e-mail prelegenta je jest poprawnym adresem e-mail",
+  },
+  pageHeading: "Utwórz prelegenta",
+  ariaLabels: {
+    firstName: "Pole tekstowe z imieniem prelegenta",
+    lastName: "Pole tekstowe z nazwiskiem prelegenta",
+    speakerTitle: "Pole wyboru tytułu naukowego prelegenta",
+    organization: "Pole wyboru organizacji prelegenta",
+    email: "Pole tekstowe z adresem e-mail prelegenta",
+    backupEmail:
+      "Pole tekstowe z zapasowym adresem e-mail prelegenta. Nie jest wymagany",
+    submitButton: "Przycisk do utworzenia nowego prelegenta",
+  },
+  labels: {
+    firstName: "Imię*",
+    lastName: "Nazwisko*",
+    speakerTitle: "Tytuł naukowy*",
+    organization: "Organizacja*",
+    email: "Adres e-mail*",
+    backupEmail: "Zapasowy adres e-mail",
+  },
+  createLabels: {
+    speakerTitle: "Taki tytuł nie istnieje, kliknij aby go utworzyć",
+    organizaiton: "Taka organizacja nie istnieje, kliknij aby ją utworzyć",
+  },
+  submitButtonTooltip: "Kliknij, aby utworzyć prelegenta",
+  submitButtonText: "Utwórz",
+};
+
+const otherEmailNotifPage = {
+  columnsRow: {
+    name: "Nazwa",
+    templateType: "Typ szablonu",
+    createdAt: "Data utworzenia",
+    noCreatedAt: "Brak daty utworzenia",
+    updatedAt: "Data aktualizacji",
+    noUpdatedAt: "Brak daty aktualizacji",
+    active: "Czy aktywny?",
+    yes: "Tak",
+    no: "Nie",
+  },
+  pageHeading: "Szablony powiadomień mailowych",
+  addTemplateHeading: "Utwórz nowy szablon",
+  addTemplateButtonText: "Utwórz",
+  addTemplateButtonTooltip: "Kliknij, aby utworzyć nowy szablon",
+  tableEntryTooltip: "Kliknij, aby edytować szablon",
+  tableEntryGlobalTooltip: 'Szablonów typu "GLOBAL" nie można edytować',
+  emptyTableMessage: "Brak szablonów",
+};
+
+const addEmailNotifForm = {
+  validation: {
+    nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+    subjectTooShort: "Temat maila musi być dłuższy niż 2 znaki",
+    subjectTooLong: "Temat maila nie może być dłuższy niż 64 znaki",
+    contentPrefixTooShort: "Przedrostek maila musi być dłuższy niż 2 znaki",
+    contentPrefiXTooLong:
+      "Przedrostek maila nie może być dłuższy niż 255 znaków",
+    contentSuffixTooShort: "Przyrostek maila musi być dłuższy niż 2 znaki",
+    contentSuffixTooLong:
+      "Przyrostek maila nie może być dłuższy niż 255 znaków",
+  },
+  ariaLabels: {
+    name: "Pole tekstowe z nazwą szablonu",
+    subject: "Pole tekstowe z tematem maila",
+    contentPrefix: "Pole tekstowe z przedrostkiem maila",
+    contentSuffix: "Pole tekstowe z przyrostkiem maila",
+    templateType: "Lista wyboru typu szablonu powiadomienia",
+    submitButton:
+      "Przycisk do utworzenia nowego szablonu powiadomień mailowych",
+  },
+  labels: {
+    name: "Nazwa*",
+    subject: "Temat maila*",
+    contentPrefix: "Przedrostek maila*",
+    contentSuffix: "Przyrostek maila*",
+    templateType: "Typ szablonu*",
+  },
+  pageHeading: "Utwórz szablon powiadomień mailowych",
+  submitButtonTooltip: "Kliknij, aby utworzyć szablon powiadomienia",
+  submitButtonText: "Utwórz",
+};
+
+const sessionViewer = {
+  translations: {
+    navigation: {
+      month: "Miesiąc",
+      week: "Tydzień",
+      day: "Dzień",
+      today: "Dzisiaj",
+      agenda: "Podsumowanie",
+    },
+    form: {
+      addTitle: "Add Event",
+      editTitle: "Edit Event",
+      confirm: "Confirm",
+      delete: "Delete",
+      cancel: "Cancel",
+    },
+    event: {
+      title: "Tytuł",
+      subtitle: "Podtytuł",
+      start: "Czas rozpoczęcia",
+      end: "Czas zakończenia",
+      allDay: "Cały dzień",
+    },
+    validation: {
+      required: "Required",
+      invalidEmail: "Invalid Email",
+      onlyNumbers: "Only Numbers Allowed",
+      min: "Minimum {{min}} letters",
+      max: "Maximum {{max}} letters",
+    },
+    moreEvents: "More...",
+    noDataToDisplay: "Tego dnia nie odbywa się żadna konferencja",
+    loading: "Loading...",
+  },
+  accordionTooltip: "Kliknij, aby wyświetlić konferencje",
+  accordionText:
+    "Kliknij, aby wyświetlić wszystkie konferencje w tym wydarzeniu",
+  componentHeading: "Konferencje",
+};
+
+const confirmActionModal = {
+  pageHeading: "Potwierdź akcję",
+  pageBody: "Ta akcja spowoduje zmiany w danych. Czy chcesz kontynuować?",
+  confirmButtonTooltip: "Kliknij, aby wykonać akcję",
+  confrimButtonText: "Tak",
+  denyButtonTooltip: "Kliknij, aby odrzucić zmiany",
+  denyButtonText: "Nie",
+};
+
+const useSession = {
+  createSessionSuccess: "Konferencja została utworzona",
+  updateSessionSuccess: "Konferencja została zaktualizowana",
+  setSessionActiveSuccess: "Status konferencji został zmieniony",
+};
+
+const sidePanel = {
+  publicLinks: {
+    login: "Zaloguj się",
+    register: "Zarejestruj się",
+    events: "Wydarzenia",
+    forgotPassword: "Przypomnij hasło"
+  },
+  authenticatedLinks: {
+    events: "Wydarzenia",
+    myProfile: "Mój profil"
+  },
+  managerLinks: {
+    events: "Zarządzanie wydarzeniami",
+    createEvent: "Utwórz wydarzenie",
+    speakers: "Zarządzanie prelegentami",
+    locations: "Zarządzanie lokacjami",
+    other: "Zarządzanie pozostałymi parametrami",
+  },
+  adminLinks: {
+    users: "Zarządzanie użytkownikami"
+  },
+  publicLinksHeading: "Użytkownik nieuwierzytelniony",
+  authenticatedLinksHeading: "Użytkownik uwierzytelniony",
+  managerLinksHeading: "Zarządca",
+  adminLinksHeading: "Administrator",
+  closeSidePanelTooltip: "Kliknij, aby zamknąć panel"
+}
 
 export default {
   eventImage,
@@ -745,4 +1241,13 @@ export default {
   updateSpeakerForm,
   speakerPage,
   addSessionForm,
+  backendErrors,
+  otherEmailNotifPage,
+  addEmailNotifForm,
+  sessionViewer,
+  confirmActionModal,
+  useSession,
+  addSpeakerForm,
+  breadcrumbsLabels,
+  sidePanel
 } as const;

@@ -14,13 +14,14 @@ import Form from "./Form";
 import TextInput from "./TextInput";
 import AddIcon from "@mui/icons-material/Add";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useWidth from "../hooks/useWidth";
-import SaveIcon from "@mui/icons-material/Save";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import StyledModal from "./StyledModal";
 import useLocation from "../data/useLocation";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "./ConfirmActionModal";
+import { mapLocationFormToCreateLocationDto } from "../util/converters";
 
 type AddLocationFormProps = {
   open: boolean;
@@ -29,11 +30,28 @@ type AddLocationFormProps = {
 };
 
 const locationSchema = z.object({
-  name: z.string(),
-  buildingNumber: z.string(),
-  street: z.string(),
-  city: z.string(),
-  postalCode: z.string(),
+  name: z
+    .string()
+    .min(2, "addLocationForm.validation.nameTooShort")
+    .max(64, "addLocationForm.validation.nameTooLong"),
+  buildingNumber: z
+    .string()
+    .min(2, "addLocationForm.validation.buildingNumberTooShort")
+    .max(16, "addLocationForm.validation.buildingNumberTooLong"),
+  street: z
+    .string()
+    .min(2, "addLocationForm.validation.streetTooShort")
+    .max(64, "addLocationForm.validation.streetTooLong"),
+  city: z
+    .string()
+    .min(2, "addLocationForm.validation.cityTooShort")
+    .max(64, "addLocationForm.validation.cityTooLong"),
+  postalCode: z
+    .string()
+    .regex(
+      /[0-9][0-9]-[0-9][0-9][0-9]/,
+      "addLocationForm.validation.postalCodeWrongLength",
+    ),
   rooms: z.array(
     z.object({
       roomNumber: z.string(),
@@ -52,6 +70,13 @@ function RoomForm(props: RoomFormProps) {
   const { t } = useTranslation();
   const width = useWidth();
   const [room, setRoom] = useState<RoomForm>(props.room);
+
+  useEffect(
+    function() {
+      props.updateRoom(room);
+    },
+    [room],
+  );
 
   return (
     <StyledContainer
@@ -91,18 +116,6 @@ function RoomForm(props: RoomFormProps) {
       </Box>
       <Typography flexGrow={1}></Typography>
       <Box display={"flex"}>
-        <Tooltip title={t("addLocationForm.addRoomForm.saveRoomButtonTooltip")}>
-          <Button
-            aria-label={t(
-              "addLocationForm.addRoomForm.ariaLabels.saveRoomButton",
-            )}
-            onClick={function() {
-              props.updateRoom(room);
-            }}
-          >
-            <SaveIcon></SaveIcon>
-          </Button>
-        </Tooltip>
         <Tooltip
           title={t("addLocationForm.addRoomForm.removeRoomButtonTooltip")}
         >
@@ -144,6 +157,8 @@ export default function AddLocationForm(props: AddLocationFormProps) {
     },
   });
   const { isFetching, createLocation } = useLocation();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>();
 
   const addRoom = function() {
     setRooms([
@@ -163,7 +178,6 @@ export default function AddLocationForm(props: AddLocationFormProps) {
         return e.id === room.id ? room : e;
       }),
     );
-    toast.success(t("addLocationForm.saveRoomSuccess"));
   };
 
   const deleteRoom = function(roomId: string) {
@@ -175,20 +189,29 @@ export default function AddLocationForm(props: AddLocationFormProps) {
     toast.success(t("addLocationForm.removeRoomSuccess"));
   };
 
-  const submit = a.handleSubmit(async function(e) {
-    e.rooms = rooms.map(function(e) {
-      return {
-        roomNumber: e.roomNumber,
-        capacity: e.capacity,
-      };
-    });
-    const success = await createLocation([e]);
+  const submitLocation = async function() {
+    setOpenConfirm(false);
+    const success = await createLocation([
+      mapLocationFormToCreateLocationDto({
+        ...a.getValues(),
+        rooms: rooms,
+      }),
+    ]);
     if (success) {
       props.setOpen(false);
       a.reset();
       props.fetchLocations();
       setRooms([]);
     }
+  };
+
+  const submit = a.handleSubmit(function() {
+    setConfirmAction(function() {
+      return function() {
+        submitLocation();
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
@@ -207,6 +230,7 @@ export default function AddLocationForm(props: AddLocationFormProps) {
                 {t("addLocationForm.buildingDataHeading")}
               </Typography>
               <TextInput
+                autoFocus
                 name="name"
                 label={t("addLocationForm.labels.name")}
                 aria-label={t("addLocationForm.ariaLabels.name")}
@@ -263,7 +287,14 @@ export default function AddLocationForm(props: AddLocationFormProps) {
                     return (
                       <RoomForm
                         room={e}
-                        deleteRoom={deleteRoom}
+                        deleteRoom={function() {
+                          setConfirmAction(function() {
+                            return function() {
+                              deleteRoom(e.id);
+                            };
+                          });
+                          setOpenConfirm(true);
+                        }}
                         updateRoom={updateRoom}
                       ></RoomForm>
                     );
@@ -287,6 +318,13 @@ export default function AddLocationForm(props: AddLocationFormProps) {
             </Tooltip>
           </Form>
         </FormProvider>
+        <ConfirmActionModal
+          open={openConfirm}
+          onClose={function() {
+            setOpenConfirm(false);
+          }}
+          confirmAction={confirmAction as () => void}
+        ></ConfirmActionModal>
       </>
     </StyledModal>
   );

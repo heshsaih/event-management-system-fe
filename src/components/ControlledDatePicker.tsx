@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type ControlledDatePickerProps = Omit<
   DatePickerProps<Dayjs>,
@@ -16,13 +17,14 @@ export default function ControlledDatePicker(props: ControlledDatePickerProps) {
   const { field, fieldState } = useController({
     name: name,
   });
+  const { t } = useTranslation();
 
   return (
     <>
       <DatePicker
         closeOnSelect={false}
         value={field.value}
-        onChange={function (e) {
+        onChange={function(e) {
           field.onChange(e ? e : dayjs());
           if (props.triggerCallback) {
             props.triggerCallback();
@@ -32,7 +34,7 @@ export default function ControlledDatePicker(props: ControlledDatePickerProps) {
         sx={{
           margin: "0.5rem",
           "& .MuiOutlinedInput-root": {
-            backgroundColor: "white"
+            backgroundColor: "white",
           },
           ...sx,
         }}
@@ -42,7 +44,7 @@ export default function ControlledDatePicker(props: ControlledDatePickerProps) {
             onKeyDown: function(e) {
               e.preventDefault();
             },
-            size: "small"
+            size: "small",
           },
         }}
         {...rest}
@@ -54,7 +56,10 @@ export default function ControlledDatePicker(props: ControlledDatePickerProps) {
           variant="body2"
           color="error"
         >
-          {fieldState.error.message}
+          {
+            //@ts-ignore
+            t(fieldState.error.message)
+          }
         </Typography>
       )}
     </>

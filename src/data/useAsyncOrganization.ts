@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { AutocompleteOption } from "../components/ControlledAutocomplete";
 import { apiWithToken } from "../api/config";
 import { mapFilterParamsToUri } from "../util/converters";
-import toast from "react-hot-toast";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { OrganizationDto } from "./useOrganization";
+import { Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
 export default function useAsyncOrganization(initialState?: AutocompleteOption) {
   const [input, setInput] = useState<string>("");
@@ -23,17 +24,18 @@ export default function useAsyncOrganization(initialState?: AutocompleteOption) 
       async function fetch() {
         try {
           setIsFetching(true);
-          const response = await apiWithToken.get<OrganizationDto[]>(
+          const response = await apiWithToken.get<Pageable<OrganizationDto>>(
             `/manager/organizations?${mapFilterParamsToUri({
               phrase: input,
               size: 5,
+              showInactive: false,
             })}`,
             {
               signal: signal,
             },
           );
           setOptions(
-            response.data.map(function (e) {
+            response.data.content.map(function (e) {
               return {
                 label: e.name,
                 value: e.id,
@@ -41,14 +43,7 @@ export default function useAsyncOrganization(initialState?: AutocompleteOption) 
             }),
           );
         } catch (e) {
-          if (axios.isCancel(e)) {
-            return;
-          }
-          if (e instanceof AxiosError && e.status) {
-            toast.error(
-              `Nie udało się pobrać organizacji: ${e.response?.data}`,
-            );
-          }
+          handleBackendError(e as AxiosError<BackendError | undefined>);
         } finally {
           setIsFetching(false);
         }

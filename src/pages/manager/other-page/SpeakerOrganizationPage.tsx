@@ -24,9 +24,13 @@ import { Colors } from "../../../constants/styling";
 import UpdateOtherParamForm from "./UpdateOtherParamForm";
 import FilterParams from "../../../components/FilterParams";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const speakerOrganizationSchema = z.object({
-  name: z.string(),
+  name: z
+    .string()
+    .min(2, "otherPage.validation.organizationNameTooShort")
+    .max(64, "otherPage.validation.organizationNameTooLong"),
 });
 
 export type SpeakerOrganizationForm = z.infer<typeof speakerOrganizationSchema>;
@@ -47,6 +51,7 @@ export default function SpeakerOrganizationPage() {
   } = useOrganization();
   const { t } = useTranslation();
   const [organizationId, setOrganizationId] = useState<string>();
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const a = useForm<SpeakerOrganizationForm>({
     resolver: zodResolver(speakerOrganizationSchema),
     defaultValues: {
@@ -58,12 +63,8 @@ export default function SpeakerOrganizationPage() {
     getAllOrganizations();
   }, []);
 
-  const submit = a.handleSubmit(async function(data) {
-    const success = await createOrganization([data]);
-    if (success) {
-      getAllOrganizations();
-      a.reset();
-    }
+  const submit = a.handleSubmit(function() {
+    setOpenConfirm(true);
   });
 
   return (
@@ -82,6 +83,7 @@ export default function SpeakerOrganizationPage() {
           onSubmit={submit}
           style={{
             flexDirection: "row",
+            alignItems: "start",
           }}
         >
           <TextInput
@@ -116,12 +118,12 @@ export default function SpeakerOrganizationPage() {
           sx={{ color: Colors.RED }}
         ></CircularProgress>
       )}
-      {!isFetching && organizations && organizations.length === 0 && (
+      {!isFetching && organizations && organizations.content.length === 0 && (
         <Typography>{t("organizationPage.noOrganizations")}</Typography>
       )}
       <TableContainer>
         <Table>
-          {!isFetching && organizations && organizations.length > 0 && (
+          {!isFetching && organizations && organizations.content.length > 0 && (
             <>
               <TableHead>
                 <TableCell>{t("organizationPage.tableColumns.name")}</TableCell>
@@ -136,9 +138,10 @@ export default function SpeakerOrganizationPage() {
                 </TableCell>
               </TableHead>
               <TableBody>
-                {organizations.map(function(e) {
+                {organizations.content.map(function(e) {
                   return (
                     <Tooltip
+                      key={e.id}
                       tabIndex={0}
                       title={t("organizationPage.organizationRowTooltip")}
                       onClick={function() {
@@ -175,7 +178,7 @@ export default function SpeakerOrganizationPage() {
             </>
           )}
           <TablePagination
-            count={10}
+            count={organizations?.totalElements ?? 10}
             rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
             onRowsPerPageChange={function(e) {
               const cast = Number(e.target.value);
@@ -207,6 +210,20 @@ export default function SpeakerOrganizationPage() {
         getAll={getAllOrganizations}
         isUpdating={isUpdating}
       ></UpdateOtherParamForm>
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={async function() {
+          setOpenConfirm(false);
+          const success = await createOrganization([a.getValues()]);
+          if (success) {
+            getAllOrganizations();
+            a.reset();
+          }
+        }}
+      ></ConfirmActionModal>
     </StyledContainer>
   );
 }

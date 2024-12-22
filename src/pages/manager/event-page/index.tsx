@@ -7,11 +7,13 @@ import EmailNotificationsPage from "./EmailNotificationsPage";
 import useEvent from "../../../data/useEvent";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 export default function EventPageManager() {
   const [tab, setTab] = useState<number>(0);
   const state = useEvent();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const { id } = useParams();
 
   useEffect(function() {
@@ -33,12 +35,25 @@ export default function EventPageManager() {
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer
+      sx={{
+        paddingTop: 0,
+      }}
+    >
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb navigateTo="/manager/events">
+          {t("breadcrumbsLabels.events")}
+        </Breadcrumb>
+        <Breadcrumb current navigateTo="#">
+          {t("breadcrumbsLabels.event")}
+        </Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3">
         {t("eventPageManager.index.pageHeading")}
       </Typography>
       <Tabs
-        sx={{ maxWidth: "100%", overflow: "auto" }}
+        sx={{ maxWidth: "100%", overflow: "auto", alignItems: "center" }}
         allowScrollButtonsMobile
         variant="scrollable"
         scrollButtons="auto"

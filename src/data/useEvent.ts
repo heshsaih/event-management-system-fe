@@ -10,27 +10,18 @@ import {
   mapFilterParamsToUri,
 } from "../util/converters";
 import { FilterOptions } from "../components/FilterParams";
+import { Entity, EntityDto, Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type EventBlockDto = {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
+export type EventBlockDto = EntityDto & {
   eventId: string;
-  active: boolean;
 };
 
-export type EventBlock = Omit<EventBlockDto, "createdAt" | "updatedAt"> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
+export type EventBlock = Entity & {
+  eventId: string;
 };
 
-export type EventDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-  name: string;
+export type EventDto = EntityDto & {
   descriptionEn: string;
   descriptionPl: string;
   startDate: string;
@@ -42,29 +33,28 @@ export type EventDto = {
     imageName: string;
     data: string;
   };
-  signUpManagerEmailTemplateId: string;
-  surveyManagerEmailTemplateId: string;
+  signUpEmailTemplateId: string;
+  surveyEmailTemplateId: string;
   eventBlocks: EventBlockDto[];
   sessions: SessionDto[];
 };
 
-export type Event = Omit<
-  EventDto,
-  | "createdAt"
-  | "updatedAt"
-  | "eventBlocks"
-  | "sessions"
-  | "startDate"
-  | "endDate"
-  | "registrationStartDate"
-> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
+export type Event = Entity & {
+  descriptionEn: string;
+  descriptionPl: string;
   startDate: Dayjs;
   endDate: Dayjs;
   registrationStartDate: Dayjs;
+  outsidersAllowed: boolean;
+  minutesBetweenDifferentSessions: number;
   eventBlocks: EventBlock[];
   sessions: Session[];
+  image: {
+    imageName: string;
+    data: string;
+  };
+  signUpEmailTemplateId: string;
+  surveyEmailTemplateId: string;
 };
 
 export type CreateSessionWithEventDto = {
@@ -95,16 +85,12 @@ export type CreateEventDto = {
   outsidersAllowed: boolean;
   minutesBetweenDifferentSessions: number;
   surveyManagerEmailTemplateId: string;
-  signUpManagerEmailTemplateId: string;
+  sessionSignUpManagerEmailTemplateId: string;
+  sessionReminderManagerEmailTemplateId: string;
   sessions: CreateSessionWithEventDto[];
 };
 
-export type EventBriefDto = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  active: boolean;
-  name: string;
+export type EventBriefDto = EntityDto & {
   descriptionEn?: string;
   descriptionPl: string;
   startDate: string;
@@ -131,14 +117,9 @@ export type UpdateEventDto = {
   registrationStartDate: string;
   outsidersAllowed: boolean;
   minutesBetweenDifferentSessions: number;
-  signUpManagerEmailTemplateId: string;
-  surveyManagerEmailTemplateId: string;
 };
 
-export type EventBrief = Omit<
-  EventBriefDto,
-  "createdAt" | "updatedAt" | "registrationStartDate" | "startDate" | "endDate"
-> & {
+export type EventBrief = Entity & {
   createdAt: Dayjs;
   updatedAt: Dayjs;
   registrationStartDate: Dayjs;
@@ -152,7 +133,7 @@ export default function useEvent() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [event, setEvent] = useState<Event>();
-  const [events, setEvents] = useState<EventBrief[]>();
+  const [events, setEvents] = useState<Pageable<EventBrief>>();
 
   const createEvent = async function(
     data: CreateEventDto,
@@ -166,9 +147,7 @@ export default function useEvent() {
       toast.success(`Wydarzenie \"${data.name}\" zostało utworzone`);
       return response.data.id;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się utworzyć wydarzenia: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsCreating(false);
     }
@@ -182,15 +161,16 @@ export default function useEvent() {
     const uri = mapFilterParamsToUri(newParams);
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<EventDto[]>(
+      const response = await apiWithToken.get<Pageable<EventDto>>(
         `/manager/events?${uri}`,
       );
-      setEvents(response.data.map(mapEventBriefDtoToEventBrief));
+      setEvents({
+        ...response.data,
+        content: response.data.content.map(mapEventBriefDtoToEventBrief),
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać wydarzeń: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -202,9 +182,7 @@ export default function useEvent() {
       const response = await apiWithEtag.get<EventDto>(`/manager/events/${id}`);
       setEvent(mapEventDtoToEvent(response.data));
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać wydarzenia: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
@@ -220,9 +198,7 @@ export default function useEvent() {
       toast.success("Wydarzenie zostało zaktualizowane");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać wydarzenia: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -241,11 +217,7 @@ export default function useEvent() {
       toast.success("Status wydarzenia został zmieniony");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(
-          `Nie udało się zmienić statusu wydarzenia: ${e.response?.data}`,
-        );
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -263,7 +235,7 @@ export default function useEvent() {
     events,
     updateEvent,
     isUpdating,
-    changeEventActive
+    changeEventActive,
   };
 }
 

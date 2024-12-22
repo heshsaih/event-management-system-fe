@@ -4,18 +4,42 @@ import { z } from "zod";
 import useLocation, { Location } from "../../../data/useLocation";
 import Form from "../../../components/Form";
 import TextInput from "../../../components/TextInput";
-import { Box, Button, CircularProgress, Tooltip } from "@mui/material";
-import { useEffect } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { Colors } from "../../../constants/styling";
 import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
+import ConfirmActionModal from "../../../components/ConfirmActionModal";
 
 const updateLocationSchema = z.object({
-  name: z.string(),
-  street: z.string(),
-  buildingNumber: z.string(),
-  postalCode: z.string(),
-  city: z.string(),
+  name: z
+    .string()
+    .min(2, "updateLocationForm.validation.nameTooShort")
+    .max(64, "updateLocationForm.validation.nameTooLong"),
+  street: z
+    .string()
+    .min(2, "updateLocationForm.validation.streetTooShort")
+    .max(64, "updateLocationForm.validation.streetTooLong"),
+  buildingNumber: z
+    .string()
+    .min(2, "updateLocationForm.validation.buildingNumberTooShort")
+    .max(16, "updateLocationForm.validation.buildingNumberTooLong"),
+  postalCode: z
+    .string()
+    .regex(
+      /[0-9][0-9]-[0-9][0-9][0-9]/,
+      "updateLocationForm.validation.postalCodeWrongLength",
+    ),
+  city: z
+    .string()
+    .min(2, "updateLocationForm.validation.cityTooShort")
+    .max(64, "updateLocationForm.validation.cityTooLong"),
 });
 
 type LocationSchema = z.infer<typeof updateLocationSchema>;
@@ -39,21 +63,35 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
       city: props.location?.city ?? "",
     },
   });
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>();
 
   useEffect(function() {
     props.getLocation(props.location?.id ?? "");
   }, []);
 
-  const submit = a.handleSubmit(async function(data) {
-    const result = await updateLocation(props.location?.id ?? "", data);
+  const submit = a.handleSubmit(function() {
+    setConfirmAction(function() {
+      return async function() {
+        setOpenConfirm(false);
+        const result = await updateLocation(
+          props.location?.id ?? "",
+          a.getValues(),
+        );
 
-    if (result) {
-      props.onCancel();
-    }
+        if (result) {
+          props.getLocation(props.location?.id ?? "");
+        }
+      };
+    });
+    setOpenConfirm(true);
   });
 
   return (
     <>
+      <Typography variant="h5">
+        {t("updateLocationForm.updateDataHeading")}
+      </Typography>
       {isFetching && (
         <CircularProgress
           sx={{ color: Colors.RED }}
@@ -88,19 +126,6 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
               aria-label={t("updateLocationForm.ariaLabels.city")}
               label={t("updateLocationForm.labels.city")}
             ></TextInput>
-            <StyledSwitch
-              aria-label={t("updateLocationForm.ariaLabels.active")}
-              checked={props.location?.active ?? true}
-              onChange={async function() {
-                const result = await changeLocationActive(
-                  props.location?.id ?? "",
-                  props.location?.active ? false : true,
-                );
-                if (result) {
-                  props.getLocation(props.location?.id ?? "");
-                }
-              }}
-            ></StyledSwitch>
             <Box>
               <Tooltip title={t("updateLocationForm.submitButtonTooltip")}>
                 <Button
@@ -126,6 +151,39 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
           </Form>
         </FormProvider>
       )}
+      {!isFetching && (
+        <>
+          <Typography variant="h5">
+            {t("updateLocationForm.activeHeading")}
+          </Typography>
+          <StyledSwitch
+            aria-label={t("updateLocationForm.ariaLabels.active")}
+            checked={props.location?.active ?? true}
+            onChange={function() {
+              setConfirmAction(function() {
+                setOpenConfirm(false);
+                return async function() {
+                  const result = await changeLocationActive(
+                    props.location?.id ?? "",
+                    props.location?.active ? false : true,
+                  );
+                  if (result) {
+                    props.getLocation(props.location?.id ?? "");
+                  }
+                };
+              });
+              setOpenConfirm(true);
+            }}
+          ></StyledSwitch>
+        </>
+      )}
+      <ConfirmActionModal
+        open={openConfirm}
+        onClose={function() {
+          setOpenConfirm(false);
+        }}
+        confirmAction={confirmAction as () => void}
+      ></ConfirmActionModal>
     </>
   );
 }

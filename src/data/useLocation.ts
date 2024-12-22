@@ -1,4 +1,3 @@
-import { Dayjs } from "dayjs";
 import { Room, RoomDto } from "./useRoom";
 import { useState } from "react";
 import { apiWithEtag, apiWithToken } from "../api/config";
@@ -11,18 +10,15 @@ import {
 } from "../util/converters";
 import { FilterOptions } from "../components/FilterParams";
 import { AutocompleteOption } from "../components/ControlledAutocomplete";
+import { Entity, EntityDto, Pageable } from "../types";
+import { BackendError, handleBackendError } from "../util/parsingErrors";
 
-export type LocationDto = {
-  id: string;
-  name: string;
-  active: boolean;
+export type LocationDto = EntityDto & {
   buildingNumber: string;
   street: string;
   city: string;
   postalCode: string;
   rooms: RoomDto[];
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type UpdateLocationDto = Omit<
@@ -30,12 +26,11 @@ export type UpdateLocationDto = Omit<
   "rooms" | "createdAt" | "updatedAt" | "id" | "active"
 >;
 
-export type Location = Omit<
-  LocationDto,
-  "createdAt" | "updatedAt" | "rooms"
-> & {
-  createdAt: Dayjs;
-  updatedAt: Dayjs;
+export type Location = Entity & {
+  buildingNumber: string;
+  street: string;
+  city: string;
+  postalCode: string;
   rooms: Room[];
 };
 
@@ -61,32 +56,27 @@ export default function useLocation() {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [location, setLocation] = useState<Location>();
-  const [locations, setLocations] = useState<LocationBrief[]>();
+  const [locations, setLocations] = useState<Pageable<LocationBrief>>();
 
-  const createLocation = async function (
+  const createLocation = async function(
     data: CreateLocationDto[],
   ): Promise<LocationBriefDto | undefined> {
     try {
       setIsFetching(true);
-      const response = await apiWithToken.post<LocationBriefDto>("/manager/locations", data);
+      const response = await apiWithToken.post<LocationBriefDto>(
+        "/manager/locations",
+        data,
+      );
       toast.success(`Lokacja została utworzona pomyślnie`);
       return response.data;
     } catch (e) {
-      if (e instanceof AxiosError) {
-        if (e.status) {
-          if (e.status === 400) {
-            toast.error(`Błędnie podane dane: ${e.response?.data}`);
-          } else {
-            toast.error(`Wystąpił nieoczekiwany błąd: ${e.response?.data}`);
-          }
-        }
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const getLocation = async function (id: string) {
+  const getLocation = async function(id: string) {
     try {
       setIsFetching(true);
       const response = await apiWithEtag.get<LocationDto>(
@@ -94,15 +84,13 @@ export default function useLocation() {
       );
       setLocation(mapLocationDtoToLocation(response.data));
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać lokacji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const retrieveRoomOptions = async function (
+  const retrieveRoomOptions = async function(
     id: string,
   ): Promise<AutocompleteOption[] | undefined> {
     try {
@@ -110,22 +98,20 @@ export default function useLocation() {
       const response = await apiWithToken.get<LocationDto>(
         `/manager/locations/${id}`,
       );
-      return response.data.rooms.map(function (e) {
+      return response.data.rooms.map(function(e) {
         return {
           label: e.roomNumber,
           value: e.id,
         };
       });
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać lokacji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const getAllLocations = async function (filterParams?: FilterOptions) {
+  const getAllLocations = async function(filterParams?: FilterOptions) {
     const newParams = {
       ...params,
       ...filterParams,
@@ -133,46 +119,45 @@ export default function useLocation() {
     const uri = mapFilterParamsToUri(newParams);
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<LocationDto[]>(
+      const response = await apiWithToken.get<Pageable<LocationDto>>(
         `/manager/locations?${uri}`,
       );
-      setLocations(response.data.map(mapLocationBriefDtoToLocationBrief));
+      setLocations({
+        ...response.data,
+        content: response.data.content.map(mapLocationBriefDtoToLocationBrief),
+      });
       setParams(newParams);
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się pobrać lokacji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
       setIsFetching(false);
     }
   };
 
-  const updateLocation = async function (id: string, data: UpdateLocationDto) {
+  const updateLocation = async function(id: string, data: UpdateLocationDto) {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/locations/${id}`, data);
       toast.success("Lokacja zaktualizowana pomyśłnie");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się zaktualizować lokacji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const changeLocationActive = async function (id: string, active: boolean) {
+  const changeLocationActive = async function(id: string, active: boolean) {
     try {
       setIsUpdating(true);
-      await apiWithEtag.patch(`/manager/locations/${id}/set-active?active=${active}`);
+      await apiWithEtag.patch(
+        `/manager/locations/${id}/set-active?active=${active}`,
+      );
       toast.success("Status lokacji został zmieniony pomyśłnie");
       return true;
     } catch (e) {
-      if (e instanceof AxiosError && e.status) {
-        toast.error(`Nie udało się zmienić statusu lokacji: ${e.response?.data}`);
-      }
+      handleBackendError(e as AxiosError<BackendError | undefined>);
       return false;
     } finally {
       setIsUpdating(false);
@@ -190,6 +175,6 @@ export default function useLocation() {
     isUpdating,
     retrieveRoomOptions,
     createLocation,
-    changeLocationActive
+    changeLocationActive,
   };
 }

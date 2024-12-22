@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import { ParsedToken } from "../data/useAccountStore";
 import {
+  CreateLocationDto,
+  CreateRoomWithLocationDto,
   Location,
   LocationBrief,
   LocationBriefDto,
@@ -15,9 +17,7 @@ import {
   SpeakerDto,
   UpdateSpeakerDto,
 } from "../data/useSpeaker";
-import { SpeakerTitle, SpeakerTitleDto } from "../data/useSpeakerTitle";
-import { Organization, OrganizationDto } from "../data/useOrganization";
-import { SessionType, SessionTypeDto } from "../data/useSessionType";
+import { SessionType } from "../data/useSessionType";
 import {
   CreateEventDto,
   CreateSessionWithEventDto,
@@ -41,11 +41,14 @@ import { UpdateEventSchema } from "../pages/manager/event-page/UpdateEventForm";
 import { AddSessionSchema } from "../components/AddSessionForm";
 import { UpdateSpeakerFormType } from "../pages/manager/speaker-page/UpdateSpeakerForm";
 import { UpdateSessionSchema } from "../pages/manager/event-page/UpdateSessionForm";
+import { OtherParam, OtherParamDto } from "../types";
+import { EmailTemplate, EmailTemplateDto } from "../data/useEmailNotification";
+import { LocationForm } from "../components/AddLocationForm";
 
 export function arrayBufferToBase64(array: ArrayBuffer): string {
   let binary = "";
   const bytes = new Uint8Array(array);
-  bytes.forEach(function (byte) {
+  bytes.forEach(function(byte) {
     binary += String.fromCharCode(byte);
   });
   return window.btoa(binary);
@@ -106,6 +109,24 @@ export function mapSpeakerBriefDtoToSpeakerBrief(
   };
 }
 
+export function mapLocationFormToCreateLocationDto(
+  data: LocationForm,
+): CreateLocationDto {
+  return {
+    name: data.name,
+    buildingNumber: data.buildingNumber,
+    street: data.street,
+    city: data.city,
+    postalCode: data.postalCode,
+    rooms: data.rooms.map(function(e): CreateRoomWithLocationDto {
+      return {
+        roomNumber: e.roomNumber,
+        capacity: e.capacity,
+      };
+    }),
+  };
+}
+
 export function mapSpeakerDtoToSpeaker(dto: SpeakerDto): Speaker {
   return {
     ...dto,
@@ -116,13 +137,13 @@ export function mapSpeakerDtoToSpeaker(dto: SpeakerDto): Speaker {
   };
 }
 
-export function mapFilterParamsToUri(params: FilterOptions): string {
-  return `phrase=${params.phrase ?? ""}&page=${params.page ?? 0}&size=${params.size ?? 20}&showInactive=${params.showInactive ?? true}&direction=${params.direction ?? "desc"}&orderBy=${params.orderBy ?? "createdAt"}`;
+export function mapFilterParamsToUri(params?: FilterOptions): string {
+  return `phrase=${params?.phrase ?? ""}&page=${params?.page ?? 0}&size=${params?.size ?? 20}&showInactive=${params?.showInactive ?? true}&direction=${params?.direction ?? "desc"}&orderBy=${params?.orderBy ?? "createdAt"}`;
 }
 
 export function mapOtherParamDtoToOtherParam(
-  dto: SpeakerTitleDto | OrganizationDto | SessionTypeDto | null,
-): SpeakerTitle | Organization | SessionType | null {
+  dto: OtherParamDto | null,
+): OtherParam | null {
   if (dto === null) {
     return null;
   }
@@ -201,7 +222,7 @@ export function mapEventDataToCreateEventDto(
     descriptionEn: data.descriptionEN,
     eventBlocksNames: Array.from(
       new Set(
-        data.sessions.map(function (e) {
+        data.sessions.map(function(e) {
           return e.sessionBlock;
         }),
       ),
@@ -212,7 +233,9 @@ export function mapEventDataToCreateEventDto(
     outsidersAllowed: data.outsidersAllowed,
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
     surveyManagerEmailTemplateId: "0b2d5602-43e2-46ad-a694-058873001aca",
-    signUpManagerEmailTemplateId: "c9c02f48-c4c4-4482-adc3-eb633a0965ae",
+    sessionSignUpManagerEmailTemplateId: "c9c02f48-c4c4-4482-adc3-eb633a0965ae",
+    sessionReminderManagerEmailTemplateId:
+      "c9c02f48-c4c4-4482-adc3-eb633a0965ae",
     sessions: data.sessions.map(
       mapCreateSessionFormToCreateSessionWithEventDto,
     ),
@@ -241,8 +264,6 @@ export function mapUpdateEventSchemaToUpdateEventDto(
     outsidersAllowed: data.outsidersAllowed,
     endDate: data.endDate.toISOString(),
     registrationStartDate: data.registrationStartDate.toISOString(),
-    signUpManagerEmailTemplateId: "",
-    surveyManagerEmailTemplateId: "",
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
     image: data.image,
   };
@@ -263,6 +284,7 @@ export function mapAddSessionSchemaToCreateSessionDto(
     startDate: data.startDate.toISOString(),
     endDate: data.endDate.toISOString(),
     maxSeats: data.maxSeats,
+    minutesBeforeSignUpCloses: data.minutesBeforeSignUpCloses,
   };
 }
 
@@ -293,5 +315,16 @@ export function mapUpdateSessionSchemaToUpdateSessionDto(
     startDate: data.startDate.toISOString(),
     endDate: data.endDate.toISOString(),
     maxSeats: data.maxSeats,
+    minutesBeforeSignUpCloses: data.minutesBeforeSignUpCloses,
+  };
+}
+
+export function mapEmailTemplateDtoToEmailTemplate(
+  dto: EmailTemplateDto,
+): EmailTemplate {
+  return {
+    ...dto,
+    createdAt: dayjs(dto.createdAt),
+    updatedAt: dayjs(dto.updatedAt),
   };
 }

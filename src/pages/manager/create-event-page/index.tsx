@@ -9,6 +9,8 @@ import MailNotifications from "./MailNotifications";
 import useWidth from "../../../hooks/useWidth";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 const steps = function (t: TFunction<"pl">) {
 return [
@@ -74,7 +76,15 @@ export default function CreateEventPage() {
 
   return (
     <StyledContainer
+      sx={{
+        paddingTop: 0
+      }}
     >
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb navigateTo="/manager/events">{t("breadcrumbsLabels.events")}</Breadcrumb>
+        <Breadcrumb current navigateTo="#">{t("breadcrumbsLabels.createEvent")}</Breadcrumb>
+      </StyledBreadcrumbs>
       <Stepper
         activeStep={step}
         sx={{

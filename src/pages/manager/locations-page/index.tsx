@@ -22,6 +22,8 @@ import { useNavigate } from "react-router-dom";
 import { Colors } from "../../../constants/styling";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import Breadcrumb from "../../../components/Breadcrumb";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
 
 function mapToColums(location: LocationBrief, t: TFunction) {
   return {
@@ -44,7 +46,7 @@ function mapToColums(location: LocationBrief, t: TFunction) {
 }
 
 export default function LocationsPage() {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = useState<boolean>(false);
   const { params, isFetching, locations, getAllLocations } = useLocation();
   const navigate = useNavigate();
@@ -53,12 +55,27 @@ export default function LocationsPage() {
     getAllLocations();
   }, []);
 
-  const mappedLocations = locations && locations.map(function (e) {
-    return mapToColums(e, t);
-  });
+  const mappedLocations =
+    locations &&
+    locations.content.map(function(e) {
+      return mapToColums(e, t);
+    });
 
   return (
-    <StyledContainer>
+    <StyledContainer
+      sx={{
+        paddingTop: 0,
+      }}
+    >
+      <StyledBreadcrumbs>
+        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+        <Breadcrumb current navigateTo="#">
+          {t("breadcrumbsLabels.locations")}
+        </Breadcrumb>
+        <Breadcrumb disabled navigateTo="#">
+          {t("breadcrumbsLabels.location")}
+        </Breadcrumb>
+      </StyledBreadcrumbs>
       <Typography variant="h3" marginBottom={4}>
         {t("locationsPage.pageHeading")}
       </Typography>
@@ -124,7 +141,7 @@ export default function LocationsPage() {
               </>
             )}
             <TablePagination
-              count={10}
+              count={locations?.totalElements ?? 10}
               rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
               onRowsPerPageChange={function(e) {
                 const cast = Number(e.target.value);

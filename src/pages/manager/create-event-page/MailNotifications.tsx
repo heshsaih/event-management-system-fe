@@ -9,7 +9,7 @@ type MailNotificationsProps = {
 export default function MailNotifications(props: MailNotificationsProps) {
   return (
     <StyledContainer inner>
-      <Typography variant="h3">Powiadomienia mailowe</Typography>
+      <Typography variant="h3" marginBottom={4}>Powiadomienia mailowe</Typography>
       <Box
         sx={{
           display: "flex",
