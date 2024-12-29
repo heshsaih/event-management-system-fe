@@ -16,7 +16,7 @@ export type Pageable<T> = {
       sorted: boolean;
       unsorted: boolean;
     };
-    ofsett: number;
+    offset: number;
     paged: boolean;
     unpaged: boolean;
   };

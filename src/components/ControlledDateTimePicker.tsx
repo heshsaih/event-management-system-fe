@@ -45,7 +45,9 @@ export default function ControlledDateTimePicker(
           textField: {
             error: !!fieldState.error,
             onKeyDown: function(e) {
-              e.preventDefault();
+              if (e.key !== "Tab") {
+                e.preventDefault();
+              }
             },
             size: "small",
           },

@@ -70,8 +70,8 @@ export default function ControlledAutocomplete(
     <Box width={"100%"}>
       <Autocomplete
         aria-label={props["aria-label"]}
-        loading={props.loading ?? true}
         disabled={props.disabled ?? false}
+        noOptionsText={"Brak opcji"}
         fullWidth
         sx={{
           marginTop: ".5rem",

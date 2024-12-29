@@ -60,9 +60,9 @@ export default function EventPageManager() {
         value={tab}
         onChange={handleTabChange}
       >
-        <Tab label={t("eventPageManager.index.eventDataTab")}></Tab>
-        <Tab label={t("eventPageManager.index.sessionsTab")}></Tab>
-        <Tab label={t("eventPageManager.index.mailNotificationsTab")}></Tab>
+        <Tab tabIndex={0} label={t("eventPageManager.index.eventDataTab")}></Tab>
+        <Tab tabIndex={0} label={t("eventPageManager.index.sessionsTab")}></Tab>
+        <Tab tabIndex={0} label={t("eventPageManager.index.mailNotificationsTab")}></Tab>
       </Tabs>
       {tab === 0 && (
         <EventPageSummaryManager state={state}></EventPageSummaryManager>

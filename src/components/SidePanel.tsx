@@ -280,7 +280,7 @@ export default function SidePanel() {
                             navigate(e.uri);
                             setOpen(false);
                           }}
-                          style={{ color: "white" }}
+                          style={{ color: "white", textAlign: "left" }}
                           to={e.uri}
                         >
                           {e.name}

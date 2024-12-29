@@ -232,10 +232,18 @@ export function mapEventDataToCreateEventDto(
     registrationStartDate: data.registrationStartDate.toISOString(),
     outsidersAllowed: data.outsidersAllowed,
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
-    surveyManagerEmailTemplateId: "0b2d5602-43e2-46ad-a694-058873001aca",
-    sessionSignUpManagerEmailTemplateId: "c9c02f48-c4c4-4482-adc3-eb633a0965ae",
+    surveyManagerEmailTemplateId:
+      data.surveyManagerEmailTemplateId.value.length === 0
+        ? null
+        : data.surveyManagerEmailTemplateId.value,
+    sessionSignUpManagerEmailTemplateId:
+      data.sessionSignUpManagerEmailTemplateId.value.length === 0
+        ? null
+        : data.sessionSignUpManagerEmailTemplateId.value,
     sessionReminderManagerEmailTemplateId:
-      "c9c02f48-c4c4-4482-adc3-eb633a0965ae",
+      data.sessionReminderManagerEmailTemplateId.value.length === 0
+        ? null
+        : data.sessionReminderManagerEmailTemplateId.value,
     sessions: data.sessions.map(
       mapCreateSessionFormToCreateSessionWithEventDto,
     ),

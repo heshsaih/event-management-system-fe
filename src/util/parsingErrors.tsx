@@ -23,7 +23,6 @@ export function buildErrorMessage(err: Papaparse.ParseError) {
 }
 
 export function handleBackendError(e: AxiosError<BackendError | undefined>) {
-  console.log(e);
   if (axios.isCancel(e)) {
     return;
   }

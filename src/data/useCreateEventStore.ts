@@ -5,6 +5,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import dayjs from "dayjs";
 import getRandomColor from "../util/randomColor";
 import { DEFAULT_SESSION_BLOCK } from "../constants/session";
+import { MailNotifications } from "../pages/manager/create-event-page/MailNotifications";
+import { AutocompleteOption } from "../components/ControlledAutocomplete";
 
 export type SessionBlock = {
   name: string;
@@ -14,10 +16,14 @@ export type SessionBlock = {
 export type CreateEventStore = CreateEventForm & {
   sessions: CreateSessionForm[];
   sessionBlocks: SessionBlock[];
+  surveyManagerEmailTemplateId: AutocompleteOption;
+  sessionSignUpManagerEmailTemplateId: AutocompleteOption;
+  sessionReminderManagerEmailTemplateId: AutocompleteOption;
   image?: {
-    name: string,
-    data: string
-  },
+    name: string;
+    data: string;
+  };
+  updateMailNotifications: (data: MailNotifications) => void;
   addSessionBlock: (newSessionBlock: string) => void;
   setSessionBlocks: (sessionBlocks: string[]) => void;
   updateSession: (session: CreateSessionForm) => void;
@@ -44,11 +50,30 @@ const useCreateEventStore = create<CreateEventStore>()(
         outsidersAllowed: true,
         image: undefined,
         minutesBetweenSessions: 1,
+        surveyManagerEmailTemplateId: {
+          label: "",
+          value: ""
+        },
+        sessionSignUpManagerEmailTemplateId: {
+          label: "",
+          value: ""
+        },
+        sessionReminderManagerEmailTemplateId: {
+          label: "",
+          value: ""
+        },
         updateSession: function(session: CreateSessionForm) {
           set({
             sessions: get().sessions.map(function(e) {
               return e.id === session.id ? session : e;
             }),
+          });
+        },
+        updateMailNotifications: function(data: MailNotifications) {
+          set({
+            sessionSignUpManagerEmailTemplateId: data.signUp,
+            surveyManagerEmailTemplateId: data.survey,
+            sessionReminderManagerEmailTemplateId: data.reminder,
           });
         },
         createSession: function(newSession: CreateSessionForm) {
@@ -67,8 +92,8 @@ const useCreateEventStore = create<CreateEventStore>()(
           set({
             image: {
               name: name,
-              data: value
-            }
+              data: value,
+            },
           });
         },
         updateEvent: function(event: CreateEventForm) {

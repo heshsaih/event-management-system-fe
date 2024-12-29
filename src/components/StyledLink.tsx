@@ -15,13 +15,14 @@ export default function StyledLink(props: StyledLinkProps) {
     style={{
       color: "black",
       textDecoration: hover ? "underline" : "none",
+      textAlign: "start",
       ...style,
     }}
     onMouseEnter={() => setHover(true)}
     onMouseLeave={() => setHover(false)}
     {...propsWithoutStyle}
   >
-    <Typography variant={props.variant}>{props.children}</Typography>
+    <Typography sx={{ textAlign: "left" }} variant={props.variant}>{props.children}</Typography>
   </Link>
 
 }

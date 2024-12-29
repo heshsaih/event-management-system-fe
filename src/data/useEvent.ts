@@ -84,9 +84,9 @@ export type CreateEventDto = {
   registrationStartDate: string;
   outsidersAllowed: boolean;
   minutesBetweenDifferentSessions: number;
-  surveyManagerEmailTemplateId: string;
-  sessionSignUpManagerEmailTemplateId: string;
-  sessionReminderManagerEmailTemplateId: string;
+  surveyManagerEmailTemplateId: string | null;
+  sessionSignUpManagerEmailTemplateId: string | null;
+  sessionReminderManagerEmailTemplateId: string | null;
   sessions: CreateSessionWithEventDto[];
 };
 

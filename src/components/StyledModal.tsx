@@ -18,6 +18,42 @@ type StyledModalProps = Omit<ModalProps, "onClose"> & {
 
 export default function StyledModal(props: StyledModalProps) {
   const { sx, children, ...rest } = props;
+
+  const focusTrapSetup = function(ref: HTMLDivElement) {
+    if (props.open) {
+      const focusableElements = ref.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+
+      const first =
+        focusableElements[0].nodeName === "DIV"
+          ? focusableElements[1]
+          : focusableElements[0];
+      const last =
+        focusableElements[focusableElements.length - 1].nodeName === "DIV"
+          ? focusableElements[focusableElements.length - 2]
+          : focusableElements[focusableElements.length - 1];
+
+      ref.addEventListener("keydown", function(e) {
+        if (e.key === "Tab") {
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
+
+      ref.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+          props.onClose();
+        }
+      });
+    }
+  };
+
   return (
     <Modal
       sx={{
@@ -27,6 +63,11 @@ export default function StyledModal(props: StyledModalProps) {
         ...sx,
       }}
       {...rest}
+      ref={function(ref) {
+        if (ref) {
+          focusTrapSetup(ref as HTMLDivElement);
+        }
+      }}
     >
       <StyledContainer
         sx={{
