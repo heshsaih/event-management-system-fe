@@ -12,6 +12,7 @@ import {
 import { FilterOptions } from "../components/FilterParams";
 import { Entity, EntityDto, Pageable } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type EventBlockDto = EntityDto & {
   eventId: string;
@@ -33,10 +34,11 @@ export type EventDto = EntityDto & {
     imageName: string;
     data: string;
   };
-  signUpEmailTemplateId: string;
-  surveyEmailTemplateId: string;
   eventBlocks: EventBlockDto[];
   sessions: SessionDto[];
+  sessionSignUpManagerEmailTemplateId: string | null;
+  surveyManagerEmailTemplateId: string | null;
+  sessionReminderManagerEmailTemplateId: string | null;
 };
 
 export type Event = Entity & {
@@ -53,8 +55,9 @@ export type Event = Entity & {
     imageName: string;
     data: string;
   };
-  signUpEmailTemplateId: string;
-  surveyEmailTemplateId: string;
+  sessionSignUpManagerEmailTemplateId: string | null;
+  surveyManagerEmailTemplateId: string | null;
+  sessionReminderManagerEmailTemplateId: string | null;
 };
 
 export type CreateSessionWithEventDto = {
@@ -117,6 +120,9 @@ export type UpdateEventDto = {
   registrationStartDate: string;
   outsidersAllowed: boolean;
   minutesBetweenDifferentSessions: number;
+  surveyManagerEmailTemplateId: string | null;
+  sessionSignUpManagerEmailTemplateId: string | null;
+  sessionReminderManagerEmailTemplateId: string | null;
 };
 
 export type EventBrief = Entity & {
@@ -144,7 +150,7 @@ export default function useEvent() {
         `/manager/events`,
         data,
       );
-      toast.success(`Wydarzenie \"${data.name}\" zostało utworzone`);
+      toast.success(i18next.t("dataHooks.event.createSuccess"));
       return response.data.id;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -195,7 +201,7 @@ export default function useEvent() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/events/${id}`, data);
-      toast.success("Wydarzenie zostało zaktualizowane");
+      toast.success(i18next.t("dataHooks.event.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -214,7 +220,7 @@ export default function useEvent() {
       await apiWithEtag.patch(
         `/manager/events/${id}/set-active?active=${active}`,
       );
-      toast.success("Status wydarzenia został zmieniony");
+      toast.success(i18next.t("dataHooks.event.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

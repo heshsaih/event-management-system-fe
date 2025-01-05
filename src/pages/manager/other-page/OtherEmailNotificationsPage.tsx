@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   CircularProgress,
   Table,
@@ -11,6 +12,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import StyledContainer from "../../../components/StyledContainer";
 import useEmailNotification from "../../../data/useEmailNotification";
 import FilterParams from "../../../components/FilterParams";
@@ -18,12 +20,14 @@ import { Colors } from "../../../constants/styling";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AddEmailTemplateForm from "../../../components/AddEmailTemplateForm";
+import UpdateEmailNotificationTemplate from "./UpdateEmailNotificationTemplate";
 
 export default function OtherEmailNotificationsPage() {
   const { getAllTemplates, templates, options, isFetching } =
     useEmailNotification();
   const { t } = useTranslation();
   const [openAddTemplate, setOpenAddTemplate] = useState<boolean>(false);
+  const [chosenTemplateId, setChosenTemplateId] = useState<string>();
 
   useEffect(function() {
     getAllTemplates();
@@ -39,19 +43,26 @@ export default function OtherEmailNotificationsPage() {
       <Typography variant="h4">
         {t("otherEmailNotifPage.pageHeading")}
       </Typography>
-      <Typography variant="h5">
-        {t("otherEmailNotifPage.addTemplateHeading")}
-      </Typography>
-      <Tooltip title={t("otherEmailNotifPage.addTemplateButtonTooltip")}>
-        <Button
-          onClick={function() {
-            setOpenAddTemplate(true);
-          }}
-        >
-          {t("otherEmailNotifPage.addTemplateButtonText")}
-        </Button>
-      </Tooltip>
-      <FilterParams callback={getAllTemplates}></FilterParams>
+      <Box
+        sx={{
+          display: "flex",
+          width: "100%",
+        }}
+      >
+        <FilterParams callback={getAllTemplates}></FilterParams>
+        <Box>
+          <Tooltip title={t("otherEmailNotifPage.addTemplateButtonTooltip")}>
+            <Button
+              aria-label={t("otherEmailNotifPage.ariaLabels.addTemplateButton")}
+              onClick={function() {
+                setOpenAddTemplate(true);
+              }}
+            >
+              <AddIcon></AddIcon>
+            </Button>
+          </Tooltip>
+        </Box>
+      </Box>
       {isFetching && (
         <CircularProgress
           size={"3rem"}
@@ -86,14 +97,25 @@ export default function OtherEmailNotificationsPage() {
                 {templates.content.map(function(e) {
                   return (
                     <Tooltip
-                      tabIndex={0}
-                      title={
-                        e.templateType === "GLOBAL"
-                          ? t("otherEmailNotifPage.tableEntryGlobalTooltip")
-                          : t("otherEmailNotifPage.tableEntryTooltip")
-                      }
+                      title={t("otherEmailNotifPage.tableEntryTooltip")}
+                      key={e.id}
                     >
-                      <TableRow hover={e.templateType !== "GLOBAL"}>
+                      <TableRow
+                        tabIndex={0}
+                        hover
+                        onKeyUp={function(ev) {
+                          if (ev.key === "Enter") {
+                            setChosenTemplateId(e.id);
+                          }
+                        }}
+                        onClick={function() {
+                          setChosenTemplateId(e.id);
+                        }}
+                        aria-label={
+                          t("otherEmailNotifPage.ariaLabels.tableEntry") +
+                          e.name
+                        }
+                      >
                         <TableCell>{e.name}</TableCell>
                         <TableCell>{e.templateType}</TableCell>
                         <TableCell>
@@ -144,6 +166,14 @@ export default function OtherEmailNotificationsPage() {
           getAllTemplates();
         }}
       ></AddEmailTemplateForm>
+      <UpdateEmailNotificationTemplate
+        open={!!chosenTemplateId}
+        onClose={function() {
+          setChosenTemplateId(undefined);
+          getAllTemplates();
+        }}
+        templateId={chosenTemplateId ?? ""}
+      ></UpdateEmailNotificationTemplate>
     </StyledContainer>
   );
 }

@@ -8,6 +8,7 @@ import "./i18/config"
 import { Colors } from "./constants/styling";
 
 export default function App() {
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
       <RouterProvider router={router}></RouterProvider>

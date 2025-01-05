@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { Entity, EntityDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type RoomDto = Omit<EntityDto, "name"> & {
   roomNumber: string;
@@ -35,6 +36,17 @@ export default function useRoom() {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  const findRoomForCSVParsing = async function(
+    id: string,
+  ): Promise<RoomDto | null> {
+    try {
+      const response = await apiWithToken.get<RoomDto>(`/manager/rooms/${id}`);
+      return response.data;
+    } catch {
+      return null;
+    }
+  };
+
   const getRoom = async function(id: string) {
     try {
       setIsFetching(true);
@@ -55,7 +67,7 @@ export default function useRoom() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/rooms/${id}`, data);
-      toast.success("Pomieszczenie zostało zaktualizowane pomyślnie");
+      toast.success(i18next.t("dataHooks.room.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -71,7 +83,7 @@ export default function useRoom() {
       await apiWithEtag.patch(
         `/manager/rooms/${id}/set-active?active=${active}`,
       );
-      toast.success("Status pomieszczenia został zmieniony");
+      toast.success(i18next.t("dataHooks.room.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -87,7 +99,7 @@ export default function useRoom() {
     try {
       setIsCreating(true);
       const response = await apiWithToken.post<RoomDto>(`/manager/rooms`, data);
-      toast.success("Podane pomieszczenia zostały utworzone");
+      toast.success(i18next.t("dataHooks.room.createSuccesss"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -105,5 +117,6 @@ export default function useRoom() {
     room,
     createRoom,
     isCreating,
+    findRoomForCSVParsing,
   };
 }

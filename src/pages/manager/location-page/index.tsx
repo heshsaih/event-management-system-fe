@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   CircularProgress,
   Table,
@@ -10,6 +11,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import StyledContainer from "../../../components/StyledContainer";
 import useLocation, { Location } from "../../../data/useLocation";
 import { useEffect, useState } from "react";
@@ -23,6 +26,7 @@ import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
 import Breadcrumb from "../../../components/Breadcrumb";
+import toast from "react-hot-toast";
 
 function mapLocationData(data: Location | undefined, t: TFunction) {
   return {
@@ -43,7 +47,7 @@ function mapLocationData(data: Location | undefined, t: TFunction) {
 
 function mapRoomData(data: Room, t: TFunction) {
   return {
-    id: data.id,
+    [t("locationPage.locationData.id")]: data.id,
     [t("locationPage.roomData.roomNumber")]: data.roomNumber,
     [t("locationPage.roomData.capacity")]: data.capacity,
     [t("locationPage.roomData.createdAt")]: data.createdAt.isValid()
@@ -55,6 +59,7 @@ function mapRoomData(data: Room, t: TFunction) {
     [t("locationPage.roomData.active")]: data.active
       ? t("locationPage.roomData.yes")
       : t("locationPage.roomData.no"),
+    [t("locationPage.roomData.options")]: "",
   };
 }
 
@@ -77,13 +82,19 @@ export default function LocationPage() {
   });
 
   return (
-    <StyledContainer sx={{
-      paddingTop: 0
-    }}>
+    <StyledContainer
+      sx={{
+        paddingTop: 0,
+      }}
+    >
       <StyledBreadcrumbs>
         <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
-        <Breadcrumb navigateTo="/manager/locations">{t("breadcrumbsLabels.locations")}</Breadcrumb>
-        <Breadcrumb current navigateTo="#">{t("breadcrumbsLabels.location")}</Breadcrumb>
+        <Breadcrumb navigateTo="/manager/locations">
+          {t("breadcrumbsLabels.locations")}
+        </Breadcrumb>
+        <Breadcrumb current navigateTo="#">
+          {t("breadcrumbsLabels.location")}
+        </Breadcrumb>
       </StyledBreadcrumbs>
       <Typography variant="h3">{t("locationPage.pageHeading")}</Typography>
       <StyledContainer inner>
@@ -135,7 +146,7 @@ export default function LocationPage() {
               setEditingMode(false);
               window.scrollTo({
                 top: 0,
-                behavior: "smooth"
+                behavior: "smooth",
               });
             }}
           ></UpdateLocationForm>
@@ -155,28 +166,71 @@ export default function LocationPage() {
               <Table>
                 <TableHead>
                   {Object.keys(rooms[0]).map(function(e) {
-                    if (e === "id") return;
                     return <TableCell>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
                   {rooms.map(function(e) {
                     return (
-                      <Tooltip title={t("updateRoomForm.submitButtonTooltip")}>
-                        <TableRow
-                          hover
-                          onClick={function() {
-                            setChosenRoom(e.id);
-                          }}
-                        >
-                          {Object.keys(e).map(function(val) {
-                            if (val === "id") return;
+                      <TableRow>
+                        {Object.keys(e).map(function(val) {
+                          if (val === t("locationPage.roomData.options")) {
                             return (
-                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                              <TableCell>
+                                <Box>
+                                  <Tooltip
+                                    title={t(
+                                      "locationPage.updateRoomButtonTooltip",
+                                    )}
+                                  >
+                                    <Button
+                                      onClick={function() {
+                                        setChosenRoom(
+                                          e[
+                                          t("locationPage.locationData.id")
+                                          ] as string,
+                                        );
+                                      }}
+                                      aria-label={t(
+                                        "locationPage.ariaLabels.updateRoomButton",
+                                      )}
+                                    >
+                                      <EditIcon></EditIcon>
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip
+                                    title={t("locationPage.copyButtonTooltip")}
+                                  >
+                                    <Button
+                                      onClick={function() {
+                                        window.navigator.clipboard
+                                          .writeText(
+                                            e[
+                                            t("locationPage.locationData.id")
+                                            ] as string,
+                                          )
+                                          .then(function() {
+                                            toast.success(
+                                              t("locationPage.copySuccess"),
+                                            );
+                                          });
+                                      }}
+                                      aria-label={t(
+                                        "locationPage.ariaLabels.copyButton",
+                                      )}
+                                    >
+                                      <ContentCopyIcon></ContentCopyIcon>
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                              </TableCell>
                             );
-                          })}
-                        </TableRow>
-                      </Tooltip>
+                          }
+                          return (
+                            <TableCell>{e[val as keyof typeof e]}</TableCell>
+                          );
+                        })}
+                      </TableRow>
                     );
                   })}
                 </TableBody>

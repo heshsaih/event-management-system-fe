@@ -141,18 +141,21 @@ export default function SpeakerTitlePage() {
                   return (
                     <Tooltip
                       key={e.id}
-                      tabIndex={0}
                       title={t("speakerTitlePage.speakerTitleRowTooltip")}
-                      onClick={function() {
-                        setSpeakerTitleId(e.id);
-                      }}
-                      onKeyUp={function(ev) {
-                        if (ev.key === "Enter") {
-                          setSpeakerTitleId(e.id);
-                        }
-                      }}
                     >
-                      <TableRow hover>
+                      <TableRow
+                        hover
+                        tabIndex={0}
+                        onClick={function() {
+                          setSpeakerTitleId(e.id);
+                        }}
+                        onKeyUp={function(ev) {
+                          if (ev.key === "Enter") {
+                            setSpeakerTitleId(e.id);
+                          }
+                        }}
+                        aria-label={t("speakerTitlePage.ariaLabels.tableEntry") + e.name}
+                      >
                         <TableCell>{e.name}</TableCell>
                         <TableCell>
                           {e.createdAt.isValid()

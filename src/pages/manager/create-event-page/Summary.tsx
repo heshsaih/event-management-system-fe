@@ -195,6 +195,43 @@ export default function Summary({ previousStep }: SummaryProps) {
           </TableBody>
         </Table>
       </TableContainer>
+      <Typography variant="h4" margin={4}>
+        {t("createEventPage.summary.emailTEmplatesHeading")}
+      </Typography>
+      <TableContainer>
+        <Table>
+          <TableRow>
+            <TableCell>
+              {t("createEventPage.summary.emailTemplatesColumns.signUp")}
+            </TableCell>
+            <TableCell>
+              {state.sessionSignUpManagerEmailTemplateId.value.length > 0
+                ? state.sessionSignUpManagerEmailTemplateId.label
+                : t("createEventPage.summary.emailTemplatesColumns.default")}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>
+              {t("createEventPage.summary.emailTemplatesColumns.survey")}
+            </TableCell>
+            <TableCell>
+              {state.surveyManagerEmailTemplateId.value.length > 0
+                ? state.surveyManagerEmailTemplateId.label
+                : t("createEventPage.summary.emailTemplatesColumns.default")}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>
+              {t("createEventPage.summary.emailTemplatesColumns.reminder")}
+            </TableCell>
+            <TableCell>
+              {state.sessionReminderManagerEmailTemplateId.value.length > 0
+                ? state.sessionReminderManagerEmailTemplateId.label
+                : t("createEventPage.summary.emailTemplatesColumns.default")}
+            </TableCell>
+          </TableRow>
+        </Table>
+      </TableContainer>
       <Grid2 container marginTop={4}>
         <Grid2
           size={breakpoints}

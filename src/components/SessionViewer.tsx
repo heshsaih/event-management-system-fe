@@ -71,11 +71,11 @@ export default function SessionViewer({
   events,
   selectedDate,
   scrollOnClose,
-  initialState
+  initialState,
 }: SessionViewerProps) {
   const [open, setOpen] = useState<boolean>(initialState ?? false);
   const ref = useRef<HTMLDivElement>(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const openAccordion = function() {
     setOpen(true);
@@ -127,7 +127,7 @@ export default function SessionViewer({
           <ThemeProvider theme={muiDefaultTheme}>
             <Scheduler
               selectedDate={
-                new Date(selectedDate.setDate(selectedDate.getDate()))
+                new Date(selectedDate.setDate(selectedDate.getDate() - 1))
               }
               view="week"
               week={{

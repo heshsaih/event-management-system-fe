@@ -142,18 +142,21 @@ export default function SpeakerOrganizationPage() {
                   return (
                     <Tooltip
                       key={e.id}
-                      tabIndex={0}
                       title={t("organizationPage.organizationRowTooltip")}
-                      onClick={function() {
-                        setOrganizationId(e.id);
-                      }}
-                      onKeyUp={function(ev) {
-                        if (ev.key === "Enter") {
-                          setOrganizationId(e.id);
-                        }
-                      }}
                     >
-                      <TableRow hover>
+                      <TableRow
+                        onClick={function() {
+                          setOrganizationId(e.id);
+                        }}
+                        onKeyUp={function(ev) {
+                          if (ev.key === "Enter") {
+                            setOrganizationId(e.id);
+                          }
+                        }}
+                        tabIndex={0}
+                        hover
+                        aria-label={t("organizationPage.ariaLabels.tableEntry") + e.name}
+                      >
                         <TableCell>{e.name}</TableCell>
                         <TableCell>
                           {e.createdAt.isValid()

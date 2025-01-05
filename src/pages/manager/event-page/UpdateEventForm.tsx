@@ -37,25 +37,46 @@ const breakpoints: GridBaseProps["columns"] = {
 
 const updateEventSchema = z
   .object({
-    name: z.string().min(1),
-    descriptionPl: z.string().min(1),
+    name: z
+      .string()
+      .min(2, "eventPageManager.updateEventForm.validation.nameTooShort")
+      .max(64, "eventPageManager.updateEventForm.validation.nameTooLong"),
+    descriptionPl: z
+      .string()
+      .min(
+        2,
+        "eventPageManager.updateEventForm.validation.descriptionPlTooShort",
+      )
+      .max(
+        2000,
+        "eventPageManager.updateEventForm.validation.descriptionPlTooLong",
+      ),
     descriptionEn: z.string().optional(),
     startDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     endDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     registrationStartDate: z.instanceof(dayjs as unknown as typeof Dayjs),
     outsidersAllowed: z.boolean(),
-    minutesBetweenSessions: z.number().min(1),
+    minutesBetweenSessions: z
+      .number()
+      .min(
+        1,
+        "eventPageManager.updateEventForm.validation.minutesBetweenSessionsTooLow",
+      ),
     image: z.object({
       imageName: z.string(),
       data: z.string(),
     }),
+    signUpTemplateId: z.string().nullable(),
+    reminderTemplateId: z.string().nullable(),
+    surveyTemplateId: z.string().nullable(),
   })
   .refine(
     function(e) {
       return !e.startDate.isAfter(e.endDate);
     },
     {
-      message: "Data rozpoczęcia musi być przed datą zakończenia",
+      message:
+        "eventPageManager.updateEventForm.validation.startDateBeforeEndDate",
       path: ["startDate"],
     },
   )
@@ -64,7 +85,8 @@ const updateEventSchema = z
       return !e.endDate.isBefore(e.startDate);
     },
     {
-      message: "Data zakończenia musi być po dacie rozpoczęcia",
+      message:
+        "eventPageManager.updateEventForm.validation.endDateAfterStartDate",
       path: ["endDate"],
     },
   )
@@ -74,12 +96,13 @@ const updateEventSchema = z
     },
     {
       message:
-        "Data rozpoczęcia zapisów musi być przed rozpoczęciem wydarzenia",
+        "eventPageManager.updateEventForm.validation.registrationStartDateBeforeStartDate",
       path: ["registrationStartDate"],
     },
   );
 
 export type UpdateEventSchema = z.infer<typeof updateEventSchema>;
+
 type UpdateEventForm = {
   refresh: () => void;
   closeForm: () => void;
@@ -143,6 +166,9 @@ export default function UpdateEventForm({
         imageName: event?.image.imageName ?? "",
         data: event?.image.data ?? "",
       },
+      signUpTemplateId: event?.sessionSignUpManagerEmailTemplateId ?? null,
+      reminderTemplateId: event?.sessionReminderManagerEmailTemplateId ?? null,
+      surveyTemplateId: event?.surveyManagerEmailTemplateId ?? null,
     },
     mode: "all",
   });

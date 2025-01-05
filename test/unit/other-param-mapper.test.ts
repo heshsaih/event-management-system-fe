@@ -42,5 +42,4 @@ test("date mapping for other param success wrong date formats", function () {
   expect(result.createdAt.isValid()).toBe(false);
   expect(dayjs.isDayjs(result.updatedAt)).toBe(true);
   expect(result.updatedAt.isValid()).toBe(false);
-  
 });

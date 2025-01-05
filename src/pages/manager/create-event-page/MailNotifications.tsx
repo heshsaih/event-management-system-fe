@@ -1,4 +1,11 @@
-import { Box, Button, Radio, RadioGroup, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Radio,
+  RadioGroup,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import StyledContainer from "../../../components/StyledContainer";
 import { useState } from "react";
 import useCreateEventStore from "../../../data/useCreateEventStore";
@@ -8,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Form from "../../../components/Form";
 import ControlledAutocomplete from "../../../components/ControlledAutocomplete";
 import useAsyncEmailTemplate from "../../../data/useAsyncEmailTemplate";
+import { useTranslation } from "react-i18next";
 
 type MailNotificationsProps = {
   previousStep: () => void;
@@ -35,9 +43,15 @@ export default function MailNotifications(props: MailNotificationsProps) {
   const state = useCreateEventStore(function(state) {
     return state;
   });
-  const signUpTemplates = useAsyncEmailTemplate(state.sessionSignUpManagerEmailTemplateId);
-  const reminderTemplates = useAsyncEmailTemplate(state.sessionReminderManagerEmailTemplateId);
-  const surveyTemplates = useAsyncEmailTemplate(state.surveyManagerEmailTemplateId);
+  const signUpTemplates = useAsyncEmailTemplate(
+    state.sessionSignUpManagerEmailTemplateId,
+  );
+  const reminderTemplates = useAsyncEmailTemplate(
+    state.sessionReminderManagerEmailTemplateId,
+  );
+  const surveyTemplates = useAsyncEmailTemplate(
+    state.surveyManagerEmailTemplateId,
+  );
 
   const [signUpChecked, setSignUpChecked] = useState<boolean>(
     state.sessionSignUpManagerEmailTemplateId.value.length !== 0,
@@ -48,6 +62,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
   const [surveyChecked, setSurveyChecked] = useState<boolean>(
     state.surveyManagerEmailTemplateId.value.length !== 0,
   );
+  const { t } = useTranslation();
 
   const a = useForm<MailNotifications>({
     resolver: zodResolver(mailNotificationsSchema),
@@ -86,7 +101,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
   return (
     <StyledContainer inner>
       <Typography variant="h3" marginBottom={4}>
-        Powiadomienia mailowe
+        {t("createEventPage.mailTemplates.pageHeading")}
       </Typography>
       <StyledContainer inner>
         <FormProvider {...a}>
@@ -100,7 +115,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
               }}
             >
               <Typography variant="h5">
-                Powiadomienie o zapisaniu się na wydarzenie
+                {t("createEventPage.mailTemplates.signUpHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
@@ -110,7 +125,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setSignUpChecked(false);
                     }}
                   ></Radio>
-                  <Typography>Domyślne</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.defaultTemplate")}
+                  </Typography>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
@@ -119,7 +136,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setSignUpChecked(true);
                     }}
                   ></Radio>
-                  <Typography>Wybrane</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.chosenTemplate")}
+                  </Typography>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete
@@ -130,7 +149,12 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 setComponentState={signUpTemplates.setComponentState}
                 name="signUp"
                 options={signUpTemplates.options ?? []}
-                label="Powiadomienie o zapisaniu się"
+                label={t(
+                  "createEventPage.mailTemplates.labels.signUpAutocomplete",
+                )}
+                aria-label={t(
+                  "createEventPage.mailTemplates.ariaLabels.signUpAutocomplete",
+                )}
               ></ControlledAutocomplete>
             </Box>
             <Box
@@ -142,7 +166,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
               }}
             >
               <Typography variant="h5">
-                Prośba o wypełnienie ankiety po wydarzeniu
+                {t("createEventPage.mailTemplates.surveyHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
@@ -152,7 +176,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setSurveyChecked(false);
                     }}
                   ></Radio>
-                  <Typography>Domyślne</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.defaultTemplate")}
+                  </Typography>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
@@ -161,7 +187,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setSurveyChecked(true);
                     }}
                   ></Radio>
-                  <Typography>Wybrane</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.chosenTemplate")}
+                  </Typography>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete
@@ -172,7 +200,12 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 setComponentState={surveyTemplates.setComponentState}
                 name="survey"
                 options={surveyTemplates.options ?? []}
-                label="Prośba o wypełnienie ankiety"
+                label={t(
+                  "createEventPage.mailTemplates.labels.surveyAutocomplete",
+                )}
+                aria-label={t(
+                  "createEventPage.mailTemplates.ariaLabels.surveyAutocomplete",
+                )}
               ></ControlledAutocomplete>
             </Box>
             <Box
@@ -184,7 +217,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
               }}
             >
               <Typography variant="h5">
-                Przypomnienie o nadchodzącym wydarzeniu
+                {t("createEventPage.mailTemplates.reminderHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
@@ -194,7 +227,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setReminderChecked(false);
                     }}
                   ></Radio>
-                  <Typography>Domyślne</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.defaultTemplate")}
+                  </Typography>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
@@ -203,7 +238,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                       setReminderChecked(true);
                     }}
                   ></Radio>
-                  <Typography>Wybrane</Typography>
+                  <Typography>
+                    {t("createEventPage.mailTemplates.chosenTemplate")}
+                  </Typography>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete
@@ -214,12 +251,41 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 setComponentState={reminderTemplates.setComponentState}
                 name="reminder"
                 options={surveyTemplates.options ?? []}
-                label="Przypomnienie o nadchodzącym wydarzeniu"
+                label={t(
+                  "createEventPage.mailTemplates.labels.surveyAutocomplete",
+                )}
+                aria-label={t(
+                  "createEventPage.mailTemplates.ariaLabels.surveyAutocomplete",
+                )}
               ></ControlledAutocomplete>
             </Box>
             <Box>
-              <Button onClick={props.previousStep}>Powrót</Button>
-              <Button type="submit">Dalej</Button>
+              <Tooltip
+                title={t(
+                  "createEventPage.mailTemplates.previousStepButtonTooltip",
+                )}
+              >
+                <Button
+                  aria-label={t(
+                    "createEventPage.mailTemplates.ariaLabels.previousStepButton",
+                  )}
+                  onClick={props.previousStep}
+                >
+                  {t("createEventPage.mailTemplates.previousStepButtonText")}
+                </Button>
+              </Tooltip>
+              <Tooltip
+                title={t("createEventPage.mailTemplates.nextStepButtonTooltip")}
+              >
+                <Button
+                  aria-label={t(
+                    "createEventPage.mailTemplates.ariaLabels.nextStepButton",
+                  )}
+                  type="submit"
+                >
+                  {t("createEventPage.mailTemplates.nextStepButtonText")}
+                </Button>
+              </Tooltip>
             </Box>
           </Form>
         </FormProvider>

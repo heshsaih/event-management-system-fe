@@ -41,7 +41,7 @@ export default function EventPageManager() {
       }}
     >
       <StyledBreadcrumbs>
-        <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+      <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
         <Breadcrumb navigateTo="/manager/events">
           {t("breadcrumbsLabels.events")}
         </Breadcrumb>
@@ -60,15 +60,15 @@ export default function EventPageManager() {
         value={tab}
         onChange={handleTabChange}
       >
-        <Tab tabIndex={0} label={t("eventPageManager.index.eventDataTab")}></Tab>
-        <Tab tabIndex={0} label={t("eventPageManager.index.sessionsTab")}></Tab>
-        <Tab tabIndex={0} label={t("eventPageManager.index.mailNotificationsTab")}></Tab>
+        <Tab label={t("eventPageManager.index.eventDataTab")}></Tab>
+        <Tab label={t("eventPageManager.index.sessionsTab")}></Tab>
+        <Tab label={t("eventPageManager.index.mailNotificationsTab")}></Tab>
       </Tabs>
       {tab === 0 && (
         <EventPageSummaryManager state={state}></EventPageSummaryManager>
       )}
       {tab === 1 && <SessionsPageManager state={state}></SessionsPageManager>}
-      {tab === 2 && <EmailNotificationsPage></EmailNotificationsPage>}
+      {tab === 2 && <EmailNotificationsPage state={state}></EmailNotificationsPage>}
     </StyledContainer>
   );
 }

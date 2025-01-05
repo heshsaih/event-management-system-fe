@@ -140,18 +140,21 @@ export default function SessionTypePage() {
                   return (
                     <Tooltip
                       key={e.id}
-                      tabIndex={0}
-                      onKeyUp={function(ev) {
-                        if (ev.key === "Enter") {
-                          setSessionTypeId(e.id);
-                        }
-                      }}
                       title={t("sessionTypePage.sessionTypeRowTooltip")}
-                      onClick={function() {
-                        setSessionTypeId(e.id);
-                      }}
                     >
-                      <TableRow hover>
+                      <TableRow
+                        tabIndex={0}
+                        onClick={function() {
+                          setSessionTypeId(e.id);
+                        }}
+                        onKeyUp={function(ev) {
+                          if (ev.key === "Enter") {
+                            setSessionTypeId(e.id);
+                          }
+                        }}
+                        hover
+                        aria-label={t("sessionTypePage.ariaLabels.tableEntry") + e.name}
+                      >
                         <TableCell>{e.name}</TableCell>
                         <TableCell>
                           {e.createdAt.isValid()

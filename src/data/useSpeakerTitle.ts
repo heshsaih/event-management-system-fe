@@ -10,6 +10,7 @@ import {
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { Pageable, OtherParam, OtherParamDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type SpeakerTitleDto = OtherParamDto;
 
@@ -36,7 +37,7 @@ export function useSpeakerTitle() {
         "/manager/speaker-titles",
         data,
       );
-      toast.success(`Podane tytuły prelegentów zostały utworzone pomyślnie`);
+      toast.success(i18next.t("dataHooks.speakerTitle.createSuccess"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -79,7 +80,7 @@ export function useSpeakerTitle() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/speaker-titles/${id}`, data);
-      toast.success("Tytuł prelegenta został zaktualizowany");
+      toast.success(i18next.t("dataHooks.speakerTitle.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -114,7 +115,7 @@ export function useSpeakerTitle() {
       await apiWithEtag.patch(
         `/manager/speaker-titles/${id}/set-active?active=${active}`,
       );
-      toast.success("Status tytułu prelegenta został zmieniony");
+      toast.success(i18next.t("dataHooks.speakerTitle.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

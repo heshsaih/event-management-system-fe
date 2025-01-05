@@ -52,15 +52,15 @@ const useCreateEventStore = create<CreateEventStore>()(
         minutesBetweenSessions: 1,
         surveyManagerEmailTemplateId: {
           label: "",
-          value: ""
+          value: "",
         },
         sessionSignUpManagerEmailTemplateId: {
           label: "",
-          value: ""
+          value: "",
         },
         sessionReminderManagerEmailTemplateId: {
           label: "",
-          value: ""
+          value: "",
         },
         updateSession: function(session: CreateSessionForm) {
           set({
@@ -143,14 +143,16 @@ const useCreateEventStore = create<CreateEventStore>()(
             });
           } else {
             set({
-              sessionBlocks: [
-                ...sessionBlocks.map(function(e) {
-                  return {
-                    name: e,
-                    color: getRandomColor(),
-                  };
-                }),
-              ],
+              sessionBlocks: sessionBlocks.map(function(e) {
+                const color =
+                  e === DEFAULT_SESSION_BLOCK.name
+                    ? DEFAULT_SESSION_BLOCK.color
+                    : getRandomColor();
+                return {
+                  name: e,
+                  color: color,
+                };
+              }),
             });
           }
         },

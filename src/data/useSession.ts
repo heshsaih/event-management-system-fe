@@ -118,7 +118,7 @@ export default function useSession() {
     try {
       setIsCreating(true);
       await apiWithToken.post("/manager/sessions", data);
-      toast.success(i18next.t("useSession.createSessionSuccess"));
+      toast.success(i18next.t("dataHooks.session.createSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -148,7 +148,7 @@ export default function useSession() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/sessions/${id}`, data);
-      toast.success(i18next.t("useSession.updateSessionSuccess"));
+      toast.success(i18next.t("dataHooks.session.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -167,7 +167,7 @@ export default function useSession() {
       await apiWithEtag.patch(
         `/manager/sessions/${id}/set-active?active=${active}`,
       );
-      toast.success(i18next.t("useSession.setSessionActiveSuccess"));
+      toast.success(i18next.t("dataHooks.session.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

@@ -12,7 +12,7 @@ export enum ParsingErrors {
 }
 
 export type BackendError = {
-  message: string;
+  message: string[];
   status: HttpStatusCode;
   title: string;
 };
@@ -45,6 +45,19 @@ export function handleBackendError(e: AxiosError<BackendError | undefined>) {
           </div>
         );
       });
+    } else if (e.response) {
+      toast.error(function() {
+        return (
+          <div>
+            <Typography variant="body1">
+              {i18next.t(`backendErrors.titles.Internal Server Error`)}
+            </Typography>
+            <Typography variant="body2">
+              {i18next.t(`backendErrors.messages.Unknown error`)}
+            </Typography>
+          </div>
+        );
+      });
     } else {
       toast.error(function() {
         return (
@@ -62,7 +75,7 @@ export function handleBackendError(e: AxiosError<BackendError | undefined>) {
   } else {
     toast.error(function() {
       const title = e.response?.data?.title as string;
-      const message = e.response?.data?.message as string;
+      const message = e.response?.data?.message[0] as string;
       return (
         <div>
           <Typography variant="body1">

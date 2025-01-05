@@ -274,7 +274,29 @@ export function mapUpdateEventSchemaToUpdateEventDto(
     registrationStartDate: data.registrationStartDate.toISOString(),
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
     image: data.image,
+    surveyManagerEmailTemplateId: data.surveyTemplateId,
+    sessionReminderManagerEmailTemplateId: data.reminderTemplateId,
+    sessionSignUpManagerEmailTemplateId: data.signUpTemplateId,
   };
+}
+
+export function mapEventToUpdateEventDtoForMailTemplateUpdate(
+  event: Event,
+): UpdateEventDto { 
+  return {
+    name: event.name,
+    descriptionPl: event.descriptionPl,
+    descriptionEn: event.descriptionEn,
+    startDate: event.startDate.toISOString(),
+    endDate: event.endDate.toISOString(),
+    registrationStartDate: event.registrationStartDate.toISOString(),
+    minutesBetweenDifferentSessions: event.minutesBetweenDifferentSessions,
+    image: event.image,
+    surveyManagerEmailTemplateId: event.surveyManagerEmailTemplateId,
+    sessionSignUpManagerEmailTemplateId: event.sessionSignUpManagerEmailTemplateId,
+    sessionReminderManagerEmailTemplateId: event.sessionReminderManagerEmailTemplateId,
+    outsidersAllowed: event.outsidersAllowed
+  }
 }
 
 export function mapAddSessionSchemaToCreateSessionDto(

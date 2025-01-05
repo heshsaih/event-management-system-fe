@@ -42,7 +42,9 @@ export default function ControlledDatePicker(props: ControlledDatePickerProps) {
           textField: {
             error: !!fieldState.error,
             onKeyDown: function(e) {
-              e.preventDefault();
+              if (e.key !== "Tab") {
+                e.preventDefault();
+              }
             },
             size: "small",
           },

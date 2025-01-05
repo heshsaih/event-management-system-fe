@@ -12,6 +12,7 @@ import { FilterOptions } from "../components/FilterParams";
 import { AutocompleteOption } from "../components/ControlledAutocomplete";
 import { Entity, EntityDto, Pageable } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type LocationDto = EntityDto & {
   buildingNumber: string;
@@ -58,6 +59,19 @@ export default function useLocation() {
   const [location, setLocation] = useState<Location>();
   const [locations, setLocations] = useState<Pageable<LocationBrief>>();
 
+  const findLocationForCSVParsing = async function(
+    id: string,
+  ): Promise<LocationDto | null> {
+    try {
+      const response = await apiWithToken.get<LocationDto>(
+        `/manager/locations/${id}`,
+      );
+      return response.data; 
+    } catch {
+      return null;
+    }
+  };
+
   const createLocation = async function(
     data: CreateLocationDto[],
   ): Promise<LocationBriefDto | undefined> {
@@ -67,7 +81,7 @@ export default function useLocation() {
         "/manager/locations",
         data,
       );
-      toast.success(`Lokacja została utworzona pomyślnie`);
+      toast.success(i18next.t("dataHooks.location.createSuccess"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -138,7 +152,7 @@ export default function useLocation() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/locations/${id}`, data);
-      toast.success("Lokacja zaktualizowana pomyśłnie");
+      toast.success(i18next.t("dataHooks.location.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -176,5 +190,6 @@ export default function useLocation() {
     retrieveRoomOptions,
     createLocation,
     changeLocationActive,
+    findLocationForCSVParsing,
   };
 }

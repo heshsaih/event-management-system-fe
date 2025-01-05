@@ -122,19 +122,31 @@ export default function LocationsPage() {
                 <TableBody>
                   {mappedLocations.map(function(e) {
                     return (
-                      <TableRow
-                        hover
-                        onClick={function() {
-                          navigate(`/manager/locations/${e.id}`);
-                        }}
-                      >
-                        {Object.keys(e).map(function(val) {
-                          if (val === "id") return;
-                          return (
-                            <TableCell>{e[val as keyof typeof e]}</TableCell>
-                          );
-                        })}
-                      </TableRow>
+                      <Tooltip title={t("locationsPage.tableEntryTooltip")}>
+                        <TableRow
+                          tabIndex={0}
+                          onKeyUp={function(ev) {
+                            if (ev.key === "Enter") {
+                              navigate(`/manager/locations/${e.id}`);
+                            }
+                          }}
+                          hover
+                          onClick={function() {
+                            navigate(`/manager/locations/${e.id}`);
+                          }}
+                          aria-label={
+                            t("locationsPage.ariaLabels.tableEntry") +
+                            e[t("locationsPage.locationDataColumns.name")]
+                          }
+                        >
+                          {Object.keys(e).map(function(val) {
+                            if (val === "id") return;
+                            return (
+                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      </Tooltip>
                     );
                   })}
                 </TableBody>

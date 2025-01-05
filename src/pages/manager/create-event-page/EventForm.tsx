@@ -19,6 +19,9 @@ import ControlledSwitch from "../../../components/ControlledSwitch";
 import { readFile } from "./fileReader";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import { useState } from "react";
+import ReadEventDataModal from "../../../file-reading/ReadEventDataModal";
+import { CloudUpload } from "@mui/icons-material";
 
 const eventSchema = z
   .object({
@@ -90,6 +93,7 @@ type EventFormProps = {
 
 export default function EventForm(props: EventFormProps) {
   const { t } = useTranslation();
+  const [openReadFile, setOpenReadFile] = useState<boolean>(false);
   const state = useCreateEventStore(function(state) {
     return state;
   });
@@ -216,6 +220,19 @@ export default function EventForm(props: EventFormProps) {
             name="outsidersAllowed"
             label={t("createEventPage.eventForm.labels.outsidersAllowed")}
           ></ControlledSwitch>
+          <Tooltip
+            title={t("createEventPage.eventForm.readFromFileButtonTooltip")}
+          >
+            <Button
+              onClick={() => setOpenReadFile(true)}
+              endIcon={<CloudUpload></CloudUpload>}
+              aria-label={t(
+                "createEventPage.eventForm.ariaLabels.readFromFileButton",
+              )}
+            >
+              {t("createEventPage.eventForm.readFromFileButtonText")}
+            </Button>
+          </Tooltip>
           <FileButton
             aria-label={t(
               "createEventPage.eventForm.ariaLabels.eventImageButton",
@@ -242,6 +259,12 @@ export default function EventForm(props: EventFormProps) {
           </Tooltip>
         </Form>
       </FormProvider>
+      <ReadEventDataModal
+        open={openReadFile}
+        onClose={function() {
+          setOpenReadFile(false);
+        }}
+      ></ReadEventDataModal>
     </StyledContainer>
   );
 }

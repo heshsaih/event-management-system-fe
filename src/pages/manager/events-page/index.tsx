@@ -92,6 +92,7 @@ export default function EventsPageManager() {
           <Box>
             <Tooltip title={t("eventsPageManager.addEventButtonTooltip")}>
               <Button
+                aria-label={t("eventsPageManager.ariaLabels.addEventButton")}
                 onClick={function() {
                   navigate("/manager/events/create?step=0");
                 }}
@@ -125,11 +126,21 @@ export default function EventsPageManager() {
                 <TableBody>
                   {mappedEvents.map(function(e) {
                     return (
-                      <Tooltip key={e.id} tabIndex={0} title="amogus">
+                      <Tooltip key={e.id} title={t("eventsPageManager.tableEntryTooltip")}>
                         <TableRow
+                          tabIndex={0}
+                          aria-label={
+                            t("eventsPageManager.ariaLabels.tableEntry") +
+                            e[t("eventsPageManager.tableColumns.name")]
+                          }
                           hover
                           onClick={function() {
                             navigate(`/manager/events/${e.id}`);
+                          }}
+                          onKeyUp={function(ev) {
+                            if (ev.key === "Enter") {
+                              navigate(`/manager/events/${e.id}`);
+                            }
                           }}
                         >
                           {Object.keys(e).map(function(val) {

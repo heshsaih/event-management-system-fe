@@ -8,12 +8,8 @@ import {
 import StyledContainer from "../../../components/StyledContainer";
 import useCreateEventStore from "../../../data/useCreateEventStore";
 import SessionForm, { CreateSessionForm } from "./SessionForm";
-import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import { lazy, Suspense, useRef, useState } from "react";
-import FileButton from "../../../components/FileButton";
-import Papaparse from "papaparse";
-import { buildErrorMessage } from "../../../util/parsingErrors";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { Navigate } from "react-router-dom";
@@ -24,122 +20,14 @@ import AddLocationForm from "../../../components/AddLocationForm";
 import AddRoomForm from "../location-page/AddRoomForm";
 import AddSpeakerForm from "../../../components/AddSpeakerForm";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import { CloudUpload } from "@mui/icons-material";
+import ReadSessionsDataModal from "../../../file-reading/ReadSessionsDataModal";
 const SessionViewer = lazy(() => import("../../../components/SessionViewer"));
 
 type CreateSessionsProps = {
   nextStep: () => void;
   previousStep: () => void;
 };
-
-type ExpectedCSVType = {
-  nazwa?: string;
-  "opis-pl"?: string;
-  "opis-en"?: string;
-  "czas-rozpoczecia"?: string;
-  "czas-zakonczenia"?: string;
-  "ilosc-miejsc"?: string;
-  blok?: string;
-  prelegent?: string;
-};
-
-function parseSessions(
-  data: string,
-  setSessions: (sessions: CreateSessionForm[]) => void,
-  setSessionBlocks: (sessionBlocks: string[]) => void,
-  scroll: () => void,
-) {
-  Papaparse.parse<ExpectedCSVType>(data, {
-    header: true,
-    complete: function(result) {
-      console.log(result);
-      if (result.errors.length > 0) {
-        result.errors.forEach(function(e) {
-          toast.error(buildErrorMessage(e));
-        });
-      }
-
-      const dateValidationErorsRows: number[] = [];
-      result.data.forEach(function(e, i) {
-        const startTime = dayjs(e["czas-rozpoczecia"]);
-        const endTime = dayjs(e["czas-zakonczenia"]);
-
-        if (!(startTime.isValid() && endTime.isValid())) {
-          dateValidationErorsRows.push(i + 2);
-        }
-      });
-
-      if (dateValidationErorsRows.length > 0) {
-        dateValidationErorsRows.forEach(function(e) {
-          toast.error(
-            `W wierszu ${e} jedna z dat jest w nieprawidłowym formacie`,
-          );
-        });
-      } else {
-        setSessions(
-          result.data.map(function(e): CreateSessionForm {
-            return {
-              name: e["nazwa"] ?? "",
-              descriptionPL: e["opis-pl"] ?? "",
-              descriptionEN: e["opis-en"] ?? "",
-              startTime: dayjs(e["czas-rozpoczecia"]).second(0).millisecond(0),
-              endTime: dayjs(e["czas-zakonczenia"]).second(0).millisecond(0),
-              maxSeats: Number(e["ilosc-miejsc"] ?? 0),
-              id: crypto.randomUUID(),
-              sessionBlock: e["blok"] ?? DEFAULT_SESSION_BLOCK.name,
-              //@ts-ignore
-              roomId: "",
-              locationId: "",
-              speakerId: "",
-            };
-          }),
-        );
-        const uniqueBlocks = new Set(
-          result.data
-            .filter(function(e) {
-              return !!e.blok;
-            })
-            .map(function(e) {
-              return e.blok;
-            }),
-        ) as Set<string>;
-        setSessionBlocks(Array.from(uniqueBlocks));
-        console.log(Array.from(uniqueBlocks));
-        toast.success(`Dane zostały wczytane pomyślnie`);
-        scroll();
-      }
-    },
-    error: function(err: Error, _: Papaparse.LocalFile) {
-      console.log(err);
-      toast.error(`Nie udało się wczytać pliku\nPowód: ${err.message}`);
-    },
-  });
-}
-
-function readFile(
-  file: File,
-  setSessions: (sessions: CreateSessionForm[]) => void,
-  setSessionBlocks: (sessionBlocks: string[]) => void,
-  scroll: () => void,
-) {
-  if (file.type !== "text/csv") {
-    toast.error("Wybrany plik ma niepoprawny format (wymaagane są pliki .csv)");
-    return;
-  }
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    if (e.target?.result) {
-      parseSessions(
-        e.target.result as string,
-        setSessions,
-        setSessionBlocks,
-        scroll,
-      );
-    }
-  };
-
-  reader.readAsText(file);
-}
 
 export default function CreateSessions(props: CreateSessionsProps) {
   const { t } = useTranslation();
@@ -152,6 +40,7 @@ export default function CreateSessions(props: CreateSessionsProps) {
   const [chosenLocationForRoomAddition, setChosenLocationFormRoomAddition] =
     useState<string>();
   const [retrieveRooms, setRetrieveRooms] = useState<() => void>();
+  const [openLoadData, setOpenLoadData] = useState<boolean>(false);
 
   const addError = function(id: string) {
     if (!errors.includes(id)) {
@@ -241,6 +130,9 @@ export default function CreateSessions(props: CreateSessionsProps) {
             )}
           >
             <Button
+              aria-label={t(
+                "createEventPage.createSessions.ariaLabels.deleteAllSessionsButton",
+              )}
               onClick={function() {
                 setOpenConfirm(true);
               }}
@@ -253,20 +145,29 @@ export default function CreateSessions(props: CreateSessionsProps) {
               "createEventPage.createSessions.addNewSessionButtonToolTip",
             )}
           >
-            <Button onClick={addSession}>
+            <Button
+              onClick={addSession}
+              aria-label={t(
+                "createEventPage.createSessions.ariaLabels.addNewSessionButton",
+              )}
+            >
               <AddIcon></AddIcon>
             </Button>
           </Tooltip>
-          <FileButton
-            callback={function(e) {
-              readFile(
-                e,
-                state.setSessions,
-                state.setSessionBlocks,
-                handleListChange,
-              );
-            }}
-          ></FileButton>
+          <Tooltip
+            title={t("createEventPage.createSessions.loadFileButtonTooltip")}
+          >
+            <Button
+              onClick={function () {
+                setOpenLoadData(true);
+              }}
+              aria-label={t(
+                "createEventPage.createSessions.ariaLabels.loadFileButton",
+              )}
+            >
+              <CloudUpload></CloudUpload>
+            </Button>
+          </Tooltip>
         </Box>
         {state.sessions.length > 0 ? (
           state.sessions.map(function(e) {
@@ -382,6 +283,12 @@ export default function CreateSessions(props: CreateSessionsProps) {
           setOpenConfirm(false);
         }}
       ></ConfirmActionModal>
+      <ReadSessionsDataModal
+        open={openLoadData}
+        onClose={function () {
+          setOpenLoadData(false);
+        }}
+      ></ReadSessionsDataModal>
     </StyledContainer>
   );
 }

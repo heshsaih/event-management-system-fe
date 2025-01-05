@@ -25,14 +25,8 @@ export default function StyledModal(props: StyledModalProps) {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
-      const first =
-        focusableElements[0].nodeName === "DIV"
-          ? focusableElements[1]
-          : focusableElements[0];
-      const last =
-        focusableElements[focusableElements.length - 1].nodeName === "DIV"
-          ? focusableElements[focusableElements.length - 2]
-          : focusableElements[focusableElements.length - 1];
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
 
       ref.addEventListener("keydown", function(e) {
         if (e.key === "Tab") {

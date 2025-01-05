@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { EventBlockDto } from "./useEvent";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type CreateEventBlockDto = {
   eventId: string;
@@ -22,7 +23,7 @@ export default function useEventBlock() {
         "/manager/event-blocks",
         data,
       );
-      toast.success("Blok wydarzenia został utworzony");
+      toast.success(i18next.t("dataHooks.eventBlock.createSuccess"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

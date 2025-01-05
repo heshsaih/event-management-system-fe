@@ -120,18 +120,24 @@ export default function SpeakersPage() {
                   {mappedSpeakers.map(function(e) {
                     return (
                       <Tooltip
-                        tabIndex={0}
-                        onKeyUp={function(ev) {
-                          if (ev.key === "Enter") {
-                            navigate(`/manager/speakers/${e.id}`);
-                          }
-                        }}
-                        onClick={function() {
-                          navigate(`/manager/speakers/${e.id}`);
-                        }}
                         title={t("speakersPage.speakerTableEntryTooltip")}
                       >
-                        <TableRow hover>
+                        <TableRow
+                          tabIndex={0}
+                          onKeyUp={function(ev) {
+                            if (ev.key === "Enter") {
+                              navigate(`/manager/speakers/${e.id}`);
+                            }
+                          }}
+                          onClick={function() {
+                            navigate(`/manager/speakers/${e.id}`);
+                          }}
+                          hover
+                          aria-label={
+                            t("speakersPage.ariaLabels.tableEntry") +
+                            e[t("speakersPage.tableColumns.personalData")]
+                          }
+                        >
                           {Object.keys(e).map(function(val) {
                             if (val === "id") return;
                             return (

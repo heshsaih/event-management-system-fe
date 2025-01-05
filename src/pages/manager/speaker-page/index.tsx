@@ -1,4 +1,5 @@
 import {
+    Box,
   Button,
   CircularProgress,
   Table,
@@ -19,6 +20,7 @@ import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
 import Breadcrumb from "../../../components/Breadcrumb";
+import toast from "react-hot-toast";
 
 function mapToColumns(data: Speaker | undefined, t: TFunction) {
   let backupEmail;
@@ -36,6 +38,7 @@ function mapToColumns(data: Speaker | undefined, t: TFunction) {
   }
 
   return {
+    [t("speakerPage.columnRows.id")]: data?.id,
     [t("speakerPage.columnRows.personalData")]:
       `${data?.titleName?.name ?? ""} ${data?.firstName} ${data?.lastName}`,
     [t("speakerPage.columnRows.email")]: data?.email,
@@ -107,6 +110,7 @@ export default function SpeakerPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+            <Box>
             <Tooltip title={t("speakerPage.updateSpeakerButtonTooltip")}>
               <Button
                 aria-label={t("speakerPage.ariaLabels.updateSpeakerButton")}
@@ -117,6 +121,19 @@ export default function SpeakerPage() {
                 {t("speakerPage.updateSpeakerButtonText")}
               </Button>
             </Tooltip>
+            <Tooltip title={t("speakerPage.copyButtonTooltip")}>
+              <Button 
+                aria-label={t("speakerPage.ariaLabels.copyButton")}
+                onClick={function () {
+                  window.navigator.clipboard.writeText(speaker.id).then(function () {
+                    toast.success(t("speakerPage.copySuccess"))
+                  });
+                }}
+              >
+                {t("speakerPage.copyButtonText")}
+              </Button>
+            </Tooltip>
+            </Box>
           </>
         )}
         {speaker && editingMode && (

@@ -10,6 +10,7 @@ import {
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { OtherParam, OtherParamDto, Pageable, UpdateOtherParamDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type OrganizationDto = OtherParamDto;
 
@@ -32,7 +33,7 @@ export function useOrganization() {
         "/manager/organizations",
         data,
       );
-      toast.success(`Podane organizacje zostały utworzone`);
+      toast.success(i18next.t("dataHooks.organization.createSuccess"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -75,7 +76,7 @@ export function useOrganization() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/organizations/${id}`, data);
-      toast.success("Organizacja została zaktualizowana");
+      toast.success(i18next.t("dataHooks.organization.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -110,7 +111,7 @@ export function useOrganization() {
       await apiWithEtag.patch(
         `/manager/organizations/${id}/set-active?active=${active}`,
       );
-      toast.success("Status organizacji został zmieniony");
+      toast.success(i18next.t("dataHooks.organization.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

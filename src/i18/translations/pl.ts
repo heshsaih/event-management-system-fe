@@ -1,3 +1,183 @@
+const dataHooks = {
+  emailNotification: {
+    createSuccess:
+      "Nowy szablon powiadomień mailowych został utworzony pomyślnie",
+    updateSuccess:
+      "Szablon powiadomień mailowych został zaktualizowany pomyślnie",
+  },
+  event: {
+    createSuccess: "Nowe wydarzenie zostało utworzone pomyślnie",
+    updateSuccess: "Wydarzenie zostało zaktualizowane pomyślnie",
+    changeActiveSuccess: "Status wydarzenia został zmieniony pomyślnie",
+  },
+  eventBlock: {
+    createSuccess: "Nowy blok wydarzenia został utworzony pomyślnie",
+  },
+  location: {
+    createSuccess: "Nowa lokacja została utworzona pomyślnie",
+    updateSuccess: "Lokacja została zaktualizowana pomyślnie",
+    changeActiveSuccess: "Status lokacji został zmieniony pomyślnie",
+  },
+  organization: {
+    createSuccess: "Nowa lokacja została utworzona pomyślnie",
+    updateSuccess: "Organizacja została zaktualizowana pomyślnie",
+    changeActiveSuccess: "Status organizacji został zmieniony pomyślnie",
+  },
+  room: {
+    createSuccesss: "Nowe pomieszczenie zostało utworzone pomyślnie",
+    updateSuccess: "Pomieszczenie zostało zaktualizowane pomyślnie",
+    changeActiveSuccess: "Status pomieszczenia został zmieniony pomyślnie",
+  },
+  session: {
+    createSuccess: "Nowa konferencja została utworzona pomyślnie",
+    updateSuccess: "Konferencja została zaktualizowana pomyślnie",
+    changeActiveSuccess: "Status konferencji został zmieniony pomyślnie",
+  },
+  sessionType: {
+    createSuccess: "Nowy typ konferencji został utworzony pomyślnie",
+    updateSuccess: "Typ konferencji został zaktualizowany pomyślnie",
+    changeActiveSuccess: "Status typu konferencji został zmieniony pomyślnie",
+  },
+  speaker: {
+    createSuccess: "Nowy prelegent został utworzony pomyślnie",
+    updateSuccess: "Prelegent został zaktualizowany pomyślnie",
+    changeActiveSuccess: "Status prelegenta został zmieniony pomyślnie",
+  },
+  speakerTitle: {
+    createSuccess: "Nowy tytuł prelegenta został utworzony pomyślnie",
+    updateSuccess: "Tytuł prelegenta został zaktualizowany pomyślnie",
+    changeActiveSuccess: "Status tytułu prelegenta został zmieniony pomyślnie",
+  },
+};
+
+const readFileModal = {
+  sessionsData: {
+    pageHeading: "Wczytaj dane konferencji",
+    readDataHeading: "Wczytane dane",
+    instruction: {
+      intro:
+        "Przykładowy plik .csv o poprawniej strukturze można pobrać przy pomocy przycisku poniżej. Składa się on z nagłówka i wierszy z danymi. Nagłówek pliku musi zostać taki sam, natomiast dane odnośnie konferencji powinny być umieszczone w kolejnych wierszach, po 1 wierszu na konferencję. Opis poszczególnych kolumn w pliku:",
+      name: "nazwa_konferencji: Nazwa konferencji (długość od 2 do 64 znaków)",
+      descriptionPl:
+        "opis_pl: Opis w wersji polskiej (długość od 2 do 2000 znaków)",
+      descriptionEn:
+        "opis_en: Opis w wersji angielskiej (jest opcjonalny, w celu usunięcia opisu należy usunąć domyślną wartość, zostawiając przecinki)",
+      sessionType:
+        'typ_konferencji: Identyfikator odpowiadający jednemu z typów konferencji dodanych w systemie (można go zdobyć w panelu "Zarządzanie pozostałymi parametrami" w zakładce "Typy konferencji" poprzez kliknięcie na wybrany typ i skopiowanie identyfikatora)',
+      sessionBlock:
+        "blok_wydarzenia: Blok, do którego należeć będzie konferencja (długość od 2 do 64 znaków; Zostawiając wartość pustą, konferencja zostanie przypisana do domyślnego bloku)",
+      room: 'pomieszczenie: Identyfikator odpowiadający jednemu z pomieszczeń dodanych w systemie (można go zdobyć w panelu "Zarządzanie lokacjami" poprzez wybranie z listy odpowiedniej lokacji, z widoku lokacji odszukanie odpowiedniego pomieszczenia i skopiowania jego identyfikatora)',
+      speaker:
+        'prelegent: Identyfikator odpowiadający jednemu z prelegentów dodanych w systemie (można go zdobyć w panelu "Zarządzanie prelegentami" poprzez wybranie z listy odpowiedniego prelegenta i z poziomu widoku prelegenta skopiowanie jego identyfikatora)',
+      maxSeats:
+        "ilosc_miejsc: Liczba określająca ilość miejsc w konferencji dla uczestników (liczba musi być większa od 0)",
+      minutesBeforeSignUpCloses:
+        "czas_zakonczenia_zapisow: Liczba podana w minutach, reprezentująca, ile minut przed rozpoczęciem konferencji, zapisy na nią mają się zamknąć (liczba musi być więszka od 0)",
+      startTime:
+        "data_rozpoczęcia: Data rozpoczęcia konferencji (podana w formacie określonym przez standard ISO 8601)",
+      endTime:
+        "data_zakonczenia: Data zakończenia konferencji (podana w formacie określonym przez standard ISO 8601)",
+    },
+    ariaLabels: {
+      downloadExampleButton:
+        "Przycisk do pobrania przykładowego pliku CSV do wczytania danych",
+      submitButton: "Przycisk do potwierdzenia poprawności danych",
+      cancelButton: "Przycisk do odrzucenia danych",
+    },
+    tableKeys: {
+      name: "Nazwa konferencji",
+      descriptionPl: "Opis w wersji polskiej",
+      descriptionEn: "Opis w wersji angielskiej",
+      sessionType: "Typ konferencji",
+      sessionBlock: "Blok wydarzenia",
+      room: "Pomieszczenie",
+      location: "Lokacja",
+      speaker: "Prelegent",
+      maxSeats: "Ilość miejsc",
+      minutesBeforeSignUpCloses:
+        "Czas do zakończenia zapisów od rozpoczęcia konferencji",
+      startTime: "Data rozpoczęcia",
+      endTime: "Data zakończenia",
+      wrongDateFormat:
+        "Format daty był niepoprawny, wartość zostanie ustawiona na datę teraźniejszą",
+      yes: "Tak",
+      no: "Nie",
+      wrongNumberFormat:
+        "Została podana niepoprawna liczba, wartość zostanie ustawiona na 15",
+      emptyValue:
+        "Wartość nie została podana, zostanie zastąpioną pustym tekstem",
+      valueNotFound:
+        "Wartość o tym indentyfikatorze nie została odnaleziona, zostanie zastąpiona pustą wartośćią",
+      emptySessionBlock:
+        "Wartość nie została podana, zostanie nadpisana domyślnym blokiem",
+    },
+    downloadExampleButtonTooltip: "Kliknij, aby pobrać przykład",
+    downloadExampleButtonText: "Pobierz przykładowy plik",
+    submitButtonTooltip: "Kliknij, aby wczytać dane",
+    isDataCorrect: "Czy dane są poprawne?",
+    submitButtonText: "Tak",
+    cancelButtonTooltip: "Kliknij, aby odrzucić dane",
+    cancelButtonText: "Nie",
+    loadFileButtonText: "Wczytaj plik",
+  },
+  eventData: {
+    pageHeading: "Wczytaj dane wydarzenia",
+    readDataHeading: "Wczytane dane",
+    instruction: {
+      intro:
+        "Przykładowy plik .csv o poprawniej strukturze można pobrać przy pomocy przycisku poniżej. Składa się on z dwóch wierszy: nagłówka i wiersza z danymi. Nagłówek pliku musi zostać taki sam, natomiast dane zawarte w 2 wierszu należy podmienić prawdziwymi informacjami. Opis poszczególnych kolumn w pliku:",
+      name: "nazwa_wydarzenia: Nazwa wydarzenia (długość od 2 do 64 znaków)",
+      descriptionPl:
+        "opis_pl: Opis w wersji polskiej (długość od 2 do 2000 znaków)",
+      descriptionEn:
+        "opis_en: Opis w wersji angielskiej (jest opcjonalny, w celu usunięcia opisu należy usunąć domyślną wartość, zostawiając przecinki)",
+      minutesBetweenSessions:
+        "przerwa_pomiedzy_konferencjami: Przerwa czasowa pomiędzy konferencjami w wydarzeniu (liczba większa od 0)",
+      startDate:
+        "data_rozpoczęcia: Data rozpoczęcia wydarzenia (podana w formacie określonym przez standard ISO 8601)",
+      endDate:
+        "data_zakonczenia: Data zakończenia wydarzenia (podana w formacie określonym przez standard ISO 8601)",
+      registrationStartDate:
+        "data_rozpoczecia_zapisow: Data, od której wydarzenie będzie widoczne dla uczestników do zapisania się (podana w formacie określonym przez standard ISO 8601)",
+      outsidersAllowed:
+        'wstep_spoza_politechniki: Wartość określająca, czy uczestnicy niebędący pracownikami/studentami Politechniki Łódzkiej będą mogli zapisać się na wydarzenie (cyfra 1 dla "tak", cyfra 0 dla "nie")',
+    },
+    ariaLabels: {
+      downloadExampleButton:
+        "Przycisk do pobrania przykładowego pliku CSV do wczytania danych",
+      submitButton: "Przycisk do potwierdzenia poprawności danych",
+      cancelButton: "Przycisk do odrzucenia danych",
+    },
+    tableKeys: {
+      name: "Nazwa wydarzenia",
+      descriptionPl: "Opis wydarzenia w wersji polskiej",
+      descriptionEn: "Opis wydarzenia w wersji angielskiej",
+      startDate: "Data rozpoczęcia wydarzenia",
+      endDate: "Data zakończenia wydarzenia",
+      registrationStartDate: "Data rozpoczęcia zapisów na wydarzenie",
+      outsidersAllowed: "Wstęp dla uczestników spoza Politechinki?",
+      minutesBetweenSessions:
+        "Przerwa czasowa pomiędzy konferencjami (w minutach)",
+      wrongDateFormat:
+        "Format daty był niepoprawny, wartość zostanie ustawiona na datę teraźniejszą",
+      yes: "Tak",
+      no: "Nie",
+      wrongNumberFormat:
+        "Została podana niepoprawna liczba, wartość zostanie ustawiona na 15",
+      emptyValue:
+        "Wartość nie została podana, zostanie zastąpioną pustym tekstem",
+    },
+    downloadExampleButtonTooltip: "Kliknij, aby pobrać przykład",
+    downloadExampleButtonText: "Pobierz przykładowy plik",
+    submitButtonTooltip: "Kliknij, aby wczytać dane",
+    isDataCorrect: "Czy dane są poprawne?",
+    submitButtonText: "Tak",
+    cancelButtonTooltip: "Kliknij, aby odrzucić dane",
+    cancelButtonText: "Nie",
+    loadFileButtonText: "Wczytaj plik",
+  },
+};
+
 const breadcrumbsLabels = {
   home: "Strona główna",
   events: "Wydarzenia",
@@ -18,10 +198,10 @@ const backendErrors = {
     "Received data contains duplicate emails":
       "Przesłane dane posiadają zduplikowane adresy e-mail",
     "Registration date must be before event start date":
-      "Data rozpoczęcia zapisów na wydarzenie musi być przed datą rozpoczęcia wydarzenia",
+      "Data rozpoczęciazapisów na wydarzenie musi być przed datą rozpoczęcia wydarzenia",
     "Start date must be before end date":
       "Data rozpoczęcia wydarzenia musi być przed datą zakończenia wydarzenia",
-"Session dates outside event dates":
+    "Session dates outside event dates":
       "Przynajmniej jedna konferencja ma datę spoza czasu trwania wydarzenia",
     "Email template contains forbidden keyword default":
       "Szablon powiadomienia e-mail zawiera niedopuszczalne słowa kluczowe",
@@ -48,7 +228,7 @@ const backendErrors = {
     "speaker title cannot be null": "Tytuł prelegenta jest wymagany",
     "organization id cannot be null": "Organizacja prelegenta jest wymagana",
     "speaker id cannot be null": "Prelegent jest wymagany",
-"room id cannot be null": "Pomieszczenie jest wymagane",
+    "room id cannot be null": "Pomieszczenie jest wymagane",
     "Max seats cannot be null": "Ilość miejsc jest wymagana",
     "Event block id cannot be null": "Blok wydarzenia jest wymagany",
     "Minutes before sign up closes cannot be null":
@@ -96,7 +276,7 @@ const backendErrors = {
       "Nazwa ulicy musi mieć od 2 do 64 znaków",
     "City cannot be blank": "Nazwa miasta jest wymagana",
     "City must be between 2 and 64 characters":
-      "Nazwa miasta musi mieć od 2 do 64 znaków",
+      "Nazwa miastamusi mieć od 2 do 64 znaków",
     "Postal code cannot be blank": "Kod pocztowy jest wymagany",
     "Postal code must have 6 characters":
       "Kod pocztowy musi mieć dokładnie 6 znaków (w formacie XX-XXX)",
@@ -134,6 +314,8 @@ const backendErrors = {
     "Unknown error": "Coś poszło nie tak",
     "Connection Error":
       "Nie udało połączyć się z serwerem, spróbuj ponownie później",
+    "Email template contains forbidden keyword: default":
+      "Podane dane posiadają zabrionione słowo kluczowe: default",
   },
   titles: {
     "Not Found": "Nie znaleziono",
@@ -195,19 +377,60 @@ const createEventPage = {
     mailNotifications: "Powiadomienia mailowe",
     summary: "Podsumowanie",
   },
+  mailTemplates: {
+    pageHeading: "Zmień powiadomienia mailowe dla wydarzenia",
+    defaultTemplate: "Domyślne",
+    chosenTemplate: "Wybrane",
+    signUpHeading: "Powiadomienie o zapisaniu się na wydarzenie",
+    reminderHeading: "Przypomnienie o nadchodzącym wydarzeniu",
+    surveyHeading: "Prośba o wypełnienie ankiety po wydarzeniu",
+    ariaLabels: {
+      signUpAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o zapisie na konferencje",
+      surveyAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o ankiecie",
+      reminderAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o nadchodzącym wydarzeniu",
+      nextStepButton:
+        "Przycisk do przejścia do kolejnego etapu tworzenia wydarzenia",
+      previousStepButton:
+        "Przycisk do przejścia do poprzedniego etapu tworzenia wydarzenia",
+    },
+    labels: {
+      signUpAutocomplete: "Powiadomienie o zapisaniu się",
+      surveyAutocomplete: "Prośba o wypełnienie ankiety po wydarzeniu",
+      reminderAutocomplete: "Przypomnienie o nadchodzącym wydarzeniu",
+    },
+    nextStepButtonTooltip: "Kliknij, aby przejść do następnego kroku",
+    nextStepButtonText: "Dalej",
+    previousStepButtonTooltip: "Kliknij, aby wrócić do poprzedniego kroku",
+    previousStepButtonText: "Powrót",
+  },
   createSessions: {
+    ariaLabels: {
+      deleteAllSessionsButton:
+        "Przycisk do usunięcia wszystkich konferencji z wydarzenia",
+      previousStepButton:
+        "Przycisk do przejścia do poprzedniego etapu tworzenia wydarzenia",
+      nextStepButton:
+        "Przycisk do przejścia do kolejnego etapu tworzenia wydarzenia",
+      addNewSessionButton:
+        "Przycisk do utworzenia nowej konferencji w wydarzeniu",
+      loadFileButton: "Przycisk do wczytania danych o konferencjach z pliku",
+    },
     newSessionName: "Nowa konferencja",
     newSessionCreateSuccess: "Nowa konferencja została utworzona",
     pageHeader: "Dodaj konferencje",
-    deleteAllSessionsButtonTooltip: "Wyczyść listę konferencji",
+    deleteAllSessionsButtonTooltip: "Kliknij, aby wyczyścić listę konferencji",
     deleteAllSessionsSuccess: "Konferencje z tego wydarzenia zostały usunięte",
-    addNewSessionButtonToolTip: "Dodaj nową konferencję",
+    addNewSessionButtonToolTip: "Kliknij, aby dodać nową konferencję",
     noSessionsPresentMessage: "Wydarzenie nie posiada żadnych konferencji",
     previousStepButtonTooltip: "Kliknij, aby wrócić do poprzedniego kroku",
     previousStepButtonText: "Powrót",
     nextStepButtonTooltip: "Kliknij, aby przejść do kolejnego kroku",
     nextStepButtonText: "Dalej",
-},
+    loadFileButtonTooltip: "Kliknij, aby wczytać dane z pliku",
+  },
   eventForm: {
     validation: {
       nameTooShort: "Nazwa wydarzenia musi być dłuższa niż 2 znaki",
@@ -226,6 +449,7 @@ const createEventPage = {
         "Data roczpoczęcia zapisów na wydarzenie musi być przed jego rozpoczęciem",
     },
     ariaLabels: {
+      readFromFileButton: "Przycisk do wczytania danych o wydarzeniu z pliku",
       eventNameInput: "Pole tekstowe z nazwą wydarzenia",
       eventDescriptionPl: "Pole tekstowe z opisem wydarzenia w wersji polskiej",
       eventDescriptionEn:
@@ -257,6 +481,8 @@ const createEventPage = {
     nextStepButtonTooltip: "Kliknij, aby przejść do kolejnego kroku",
     nextStepButtonText: "Dalej",
     pageHeader: "Dane o wydarzeniu",
+    readFromFileButtonTooltip: "Kliknij, aby wczytać dane z pliku",
+    readFromFileButtonText: "Wczytaj dane z pliku",
   },
   sessionForm: {
     validation: {
@@ -359,7 +585,14 @@ const createEventPage = {
       sessionType: "Typ konferencji",
       eventBlock: "Blok wydarzenia",
     },
+    emailTemplatesColumns: {
+      signUp: "Powiadomienie o zapisaniu się na wydarzenie",
+      survey: "Prośba o wypełnienie ankiety po wydarzeniu",
+      reminder: "Przypomnienie o nadchodzącym wydarzeniu",
+      default: "Domyślne powiadomienie",
+    },
     pageHeading: "Podsumowanie",
+    emailTEmplatesHeading: "Powiadomienia mailowe",
     eventDataHeading: "Dane wydarzenia",
     sessionsDataHeading: "Konferencje",
     previousStepButtonTooltip: "Kliknij, aby wrócić do poprzedniego kroku",
@@ -481,6 +714,22 @@ const eventPageManager = {
       registrationStartDate: "Data rozpoczęcia zapisów*",
       outsidersAllowed: "Wstęp dla uczestników spoza Politechniki*",
     },
+    validation: {
+      nameTooShort: "Nazwa wydarzenia musi być dłuższa niż 2 znaki",
+      nameTooLong: "Nazwa wydarzenia nie może być dłuższa niż 64 znaki",
+      descriptionPlTooShort:
+        "Opis wydarzenia w wersji polskiej musi być dłuższy niż 2 znaki",
+      descriptionPlTooLong:
+        "Opis wydarzenia w wersji polskiej nie może być dłuższy niż 2000 znaków",
+      minutesBetweenSessionsTooLow:
+        "Przerwa pomiędzy konferencjami musi być większa od 0",
+      startDateBeforeEndDate:
+        "Data rozpoczęcia wydarzenia musi być przed datą jego zakończenia",
+      endDateAfterStartDate:
+        "Data zakończenia wydarzenia musi być przed datą jego rozpoczęcia",
+      registrationStartDateBeforeStartDate:
+        "Data roczpoczęcia zapisów na wydarzenie musi być przed jego rozpoczęciem",
+    },
     pageHeading: "Edytuj wydarzenie",
     eventDataHeading: "Dane wydarzenia",
     activeHeading: "Aktywność",
@@ -560,6 +809,55 @@ const eventPageManager = {
     saveSessionButtonTooltip: "Kliknij, aby  zapisać konferencję",
     saveSessionButtonText: "Zapisz",
   },
+  eventTemplates: {
+    pageHeading: "Powiadomienia mailowe",
+    signUpTemplateTitle: "Powiadomienie o zapisaniu się na konferencje",
+    reminderTemplateTitle: "Przypomnienie o zapisaniu się na wydarzenie",
+    surveyTemplateTitle: "Powiadomienie o wypełnienie ankiety",
+    ariaLabels: {
+      editTemplatesButton:
+        "Przycisk do otworzenia formularza do modyfikacji powiadomień mailowych dla wydarzenia",
+    },
+    editTemplatesButtonTooltip: "Kliknij, aby zmienić powiadomienia mailowe",
+    editTemplatesButtonText: "Edytuj",
+    eventTemplateEntry: {
+      defaultValue: "Domyślny szablon",
+      table: {
+        name: "Nazwa szablonu",
+        subject: "Temat maila",
+        contentPrefix: "Przedrostek maila",
+        contentSuffix: "Przyrostek maila",
+      },
+    },
+  },
+  updateEventTemplates: {
+    pageHeading: "Zmień powiadomienia mailowe dla wydarzenia",
+    defaultTemplate: "Domyślne",
+    chosenTemplate: "Wybrane",
+    signUpHeading: "Powiadomienie o zapisaniu się na wydarzenie",
+    reminderHeading: "Przypomnienie o nadchodzącym wydarzeniu",
+    surveyHeading: "Prośba o wypełnienie ankiety po wydarzeniu",
+    ariaLabels: {
+      signUpAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o zapisie na konferencje",
+      surveyAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o ankiecie",
+      reminderAutocomplete:
+        "Pole wyboru szablonu powiadomienia mailowego o nadchodzącym wydarzeniu",
+      submitButton:
+        "Przycisk do potwierdzenia zmian w powiadomieniach mailowych",
+      cancelButton: "Przycisk do odrzucenia zmian w powiadomieniach mailowych",
+    },
+    labels: {
+      signUpAutocomplete: "Powiadomienie o zapisaniu się",
+      surveyAutocomplete: "Prośba o wypełnienie ankiety po wydarzeniu",
+      reminderAutocomplete: "Przypomnienie o nadchodzącym wydarzeniu",
+    },
+    submitButtonTooltip: "Kliknij, aby zapisać zmiany",
+    submitButtonText: "Zapisz",
+    cancelButtonTooltip: "Kliknij, aby odrzucić zmiany",
+    cancelButtonText: "Anuluj",
+  },
 };
 
 const eventsPageManager = {
@@ -579,10 +877,15 @@ const eventsPageManager = {
     updatedAt: "Data aktualizacji",
     noUpdatedAt: "Brak daty aktualizacji",
   },
+  ariaLabels: {
+    tableEntry: "Opcja w liście wydarzeń z wydarzeniem o nazwie ",
+    addEventButton: "Przycisk do utworzenia nowego wydarzenia",
+  },
   noTableEntries: "Brak wydarzeń spełniających kryteria wyszukiwania",
   pageHeader: "Panel podglądu wydarzeń",
   addEventButtonTooltip: "Kliknij, aby utworzyć wydarzenie",
   addEventButtonAriaLabel: "Przycisk do utworzenia wydarzenia",
+  tableEntryTooltip: "Kliknij, aby wyświetlić dane o wydarzeniu",
 };
 
 const addRoomForm = {
@@ -667,6 +970,7 @@ const updateRoomForm = {
 
 const locationPage = {
   locationData: {
+    id: "Identyfikator",
     name: "Nazwa",
     address: "Adres",
     createdAt: "Data utworzenia",
@@ -687,10 +991,14 @@ const locationPage = {
     active: "Czy aktywne?",
     yes: "Tak",
     no: "Nie",
+    options: "Opcje",
   },
   ariaLabels: {
     editLocationButton: "Przycisk do edycji danych lokacji",
     addRoomButton: "Przycisk do utworzenia pomieszczenia",
+    updateRoomButton: "Przycisk do modyfikacji pomieszczenia",
+    copyButton:
+      "Przycisk do skopiowania identyfikatora pomieszczenia do schowka",
   },
   locationHasNoRooms: "Lokacja nie ma utworzonych żadnych pomieszczeń",
   pageHeading: "Panel zarządzania lokacją",
@@ -698,9 +1006,12 @@ const locationPage = {
   editLocationButtonTooltip: "Kliknij, aby edytować lokację",
   editLocationButtonText: "Edytuj",
   roomsDataHeading: "Pomieszczenia",
-  updateRoomTooltip: "Kliknij, aby edytować pomieszczenie",
+  updateRoomButtonTooltip: "Kliknij, aby edytować pomieszczenie",
   addRoomButtonTooltip: "Kliknij, aby utworzyć pomieszczenie",
   addRoomButtonText: "Utwórz pomieszczenie",
+  copyButtonTooltip:
+    "Kliknij, aby skopiować identyfikator pomieszczenia do schowka",
+  copySuccess: "Identyfikator został skopiowany do schowka",
 };
 
 const locationsPage = {
@@ -717,9 +1028,11 @@ const locationsPage = {
   },
   ariaLabels: {
     addLocationButton: "Przycisk do utworzenia lokacji",
+    tableEntry: "Wpis w liście lokacji o wartości ",
   },
   pageHeading: "Panel zarządzania lokacjami",
   addLocationButtonTooltip: "Kliknij, aby utworzyć lokację",
+  tableEntryTooltip: "Kliknij, aby wyświetlić dane o lokacji",
 };
 
 const addLocationForm = {
@@ -783,6 +1096,7 @@ const sessionTypePage = {
   ariaLabels: {
     sessionTypeName: "Pole tekstowe z nazwą nowo tworzonego typu konferencji",
     addNewSessionTypeButton: "Przycisk do utworzenia nowego typu konferencji",
+    tableEntry: "Wpis w liście typów konferencji o wartości ",
   },
   labels: {
     sessionTypeName: "Nazwa nowego typu*",
@@ -810,6 +1124,7 @@ const organizationPage = {
   ariaLabels: {
     organizationName: "Pole tekstowe z nazwą nowo tworzonej organizacji",
     addOrganizationButton: "Przycisk do utworzenia nowegj organizacji",
+    tableEntry: "Wpis w liście organizacji o wartości ",
   },
   labels: {
     organizationName: "Nazwa nowej organizacji*",
@@ -837,6 +1152,7 @@ const speakerTitlePage = {
   ariaLabels: {
     speakerTitleName: "Pole tekstowe z nazwą nowo tworzonego tytułu prelegenta",
     addNewSpeakerTitleButton: "Przycisk do utworzenia nowego tytułu prelegenta",
+    tableEntry: "Wpis w liście z tytułami prelegentów o wartości ",
   },
   labels: {
     speakerTitleName: "Nazwa nowego tytułu*",
@@ -872,6 +1188,7 @@ const speakersPage = {
   },
   ariaLabels: {
     addSpeakerButton: "Przycisk do utworzenia nowego prelegenta",
+    tableEntry: "Wpis w liście prelegentów o wartości ",
   },
   pageHeading: "Panel zarządzania prelegentami",
   speakerTableEntryTooltip: "Kliknij, aby wyświetlić dane o prelegencie",
@@ -888,13 +1205,18 @@ const updateOtherParamForm = {
     name: "Pole tekstowe z nazwą parametru",
     active: "Przełącznik do ustawiania aktywności parametru",
     submitButton: "Przycisk do zapisania zmian",
+    copyButton: "Przycisk do skopiowania indentyfikatora parametru do schowka",
   },
   labels: {
     name: "Nazwa*",
   },
+  idHeading: "Identyfikator parametru",
   submitButtonTooltip: "Kliknij, aby zapisać zmiany",
   submitButtonText: "Zapisz",
   activeHeading: "Aktywność",
+  copyButtonTooltip: "Kliknij, aby skopiować identyfikator do schowka",
+  copyButtonText: "Kopiuj",
+  copySuccess: "Identyfikator został skopiowany do schowka",
 };
 
 const otherPage = {
@@ -957,6 +1279,7 @@ const updateSpeakerForm = {
 
 const speakerPage = {
   columnRows: {
+    id: "Identyfikator",
     none: "Brak",
     personalData: "Dane personalne",
     email: "Adres e-mail",
@@ -972,11 +1295,15 @@ const speakerPage = {
   },
   ariaLabels: {
     updateSpeakerButton: "Przycisk do edycji danych prelegenta",
+    copyButton: "Przycisk do skopiowania identyfikatora prelegenta do schowka",
   },
   pageHeading: "Panel zarządzania prelegentem",
   dataHeading: "Dane o prelegencie",
   updateSpeakerButtonTooltip: "Kliknij, aby edytować prelegenta",
   updateSpeakerButtonText: "Edytuj",
+  copyButtonTooltip: "Kliknij, aby skopiować indentyfikator do schowka",
+  copyButtonText: "Kopiuj",
+  copySuccess: "Identyfikator został skopiowany do schowka",
 };
 
 const addSessionForm = {
@@ -1093,6 +1420,11 @@ const otherEmailNotifPage = {
     yes: "Tak",
     no: "Nie",
   },
+  ariaLabels: {
+    addTemplateButton:
+      "Przycisk do utworzenia nowego szablonu powiadomień mailowych",
+    tableEntry: "Wpis w liście szablonów powiadomień mailowych o wartości ",
+  },
   pageHeading: "Szablony powiadomień mailowych",
   addTemplateHeading: "Utwórz nowy szablon",
   addTemplateButtonText: "Utwórz",
@@ -1100,6 +1432,38 @@ const otherEmailNotifPage = {
   tableEntryTooltip: "Kliknij, aby edytować szablon",
   tableEntryGlobalTooltip: 'Szablonów typu "GLOBAL" nie można edytować',
   emptyTableMessage: "Brak szablonów",
+};
+
+const updateEmailNotifForm = {
+  validation: {
+    nameTooShort: "Nazwa musi być dłuższa niż 2 znaki",
+    nameTooLong: "Nazwa nie może być dłuższa niż 64 znaki",
+    subjectTooShort: "Temat maila musi być dłuższy niż 2 znaki",
+    subjectTooLong: "Temat maila nie może być dłuższy niż 64 znaki",
+    contentPrefixTooShort: "Przedrostek maila musi być dłuższy niż 2 znaki",
+    contentPrefiXTooLong:
+      "Przedrostek maila nie może być dłuższy niż 255 znaków",
+    contentSuffixTooShort: "Przyrostek maila musi być dłuższy niż 2 znaki",
+    contentSuffixTooLong:
+      "Przyrostek maila nie może być dłuższy niż 255 znaków",
+  },
+  ariaLabels: {
+    name: "Pole tekstowe z nazwą szablonu",
+    subject: "Pole tekstowe z tematem maila",
+    contentPrefix: "Pole tekstowe z przedrostkiem maila",
+    contentSuffix: "Pole tekstowe z przyrostkiem maila",
+    submitButton:
+      "Przycisk do zapisania zmian w szablonie powiadomień mailowych",
+  },
+  labels: {
+    name: "Nazwa*",
+    subject: "Temat maila*",
+    contentPrefix: "Przedrostek maila*",
+    contentSuffix: "Przyrostek maila*",
+  },
+  pageHeading: "Zaktualizuj szablon powiadomień mailowych",
+  submitButtonTooltip: "Kliknij, aby zapisać zmiany",
+  submitButtonText: "Zapisz",
 };
 
 const addEmailNotifForm = {
@@ -1196,11 +1560,11 @@ const sidePanel = {
     login: "Zaloguj się",
     register: "Zarejestruj się",
     events: "Wydarzenia",
-    forgotPassword: "Przypomnij hasło"
+    forgotPassword: "Przypomnij hasło",
   },
   authenticatedLinks: {
     events: "Wydarzenia",
-    myProfile: "Mój profil"
+    myProfile: "Mój profil",
   },
   managerLinks: {
     events: "Zarządzanie wydarzeniami",
@@ -1210,14 +1574,14 @@ const sidePanel = {
     other: "Zarządzanie pozostałymi parametrami",
   },
   adminLinks: {
-    users: "Zarządzanie użytkownikami"
+    users: "Zarządzanie użytkownikami",
   },
   publicLinksHeading: "Użytkownik nieuwierzytelniony",
   authenticatedLinksHeading: "Użytkownik uwierzytelniony",
   managerLinksHeading: "Zarządca",
   adminLinksHeading: "Administrator",
-  closeSidePanelTooltip: "Kliknij, aby zamknąć panel"
-}
+  closeSidePanelTooltip: "Kliknij, aby zamknąć panel",
+};
 
 export default {
   eventImage,
@@ -1249,5 +1613,8 @@ export default {
   useSession,
   addSpeakerForm,
   breadcrumbsLabels,
-  sidePanel
+  sidePanel,
+  updateEmailNotifForm,
+  readFileModal,
+  dataHooks,
 } as const;

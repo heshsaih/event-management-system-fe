@@ -10,6 +10,7 @@ import {
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { Entity, EntityDto, Pageable, UpdateOtherParamDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type SessionTypeDto = EntityDto;
 
@@ -23,6 +24,19 @@ export function useSessionType() {
   const [sessionTypes, setSessionTypes] = useState<Pageable<SessionType>>();
   const [params, setParams] = useState<FilterOptions>();
 
+  const findSessionTypeForCSVParsing = async function(
+    id: string,
+  ): Promise<SessionTypeDto | null> {
+    try {
+      const response = await apiWithToken.get<SessionTypeDto>(
+        `/manager/session-types/${id}`,
+      );
+      return response.data;
+    } catch {
+      return null;
+    }
+  };
+
   const createSessionType = async function(
     data: SessionTypeForm[],
   ): Promise<SessionTypeDto | undefined> {
@@ -32,7 +46,7 @@ export function useSessionType() {
         "/manager/session-types",
         data,
       );
-      toast.success(`Podane typy konferncji zostały utworzone pomyślnie`);
+      toast.success(i18next.t("dataHooks.sessionType.createSuccess"));
       return response.data;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -74,7 +88,7 @@ export function useSessionType() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/session-types/${id}`, data);
-      toast.success("Typ sesji został zaktualizowany");
+      toast.success(i18next.t("dataHooks.sessionType.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -109,7 +123,7 @@ export function useSessionType() {
       await apiWithEtag.patch(
         `/manager/session-types/${id}/set-active?active=${active}`,
       );
-      toast.success("Status typu sesji został zmieniony");
+      toast.success(i18next.t("dataHooks.sessionType.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -131,5 +145,6 @@ export function useSessionType() {
     getSessionType,
     isFetchingSingle,
     changeSessionTypeActive,
+    findSessionTypeForCSVParsing
   };
 }

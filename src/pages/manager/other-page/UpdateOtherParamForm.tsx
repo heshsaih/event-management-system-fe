@@ -6,7 +6,12 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Form from "../../../components/Form";
 import StyledModal from "../../../components/StyledModal";
-import { Button, CircularProgress, Tooltip, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import TextInput from "../../../components/TextInput";
 import { useEffect, useState } from "react";
 import { Colors } from "../../../constants/styling";
@@ -14,6 +19,8 @@ import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
 import { OtherParam, UpdateOtherParamDto } from "../../../types";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import StyledContainer from "../../../components/StyledContainer";
+import toast from "react-hot-toast";
 
 const updateOtherParamForm = z.object({
   name: z
@@ -92,6 +99,31 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
     >
       <>
         <Typography variant="h4">{props.heading}</Typography>
+        <StyledContainer
+          inner
+          sx={{
+            paddingY: "1rem",
+          }}
+        >
+          <Typography variant="h5">
+            {t("updateOtherParamForm.idHeading")}
+          </Typography>
+          <Typography>{param?.id}</Typography>
+          <Tooltip title={t("updateOtherParamForm.copyButtonTooltip")}>
+            <Button
+              aria-label={t("updateOtherParamForm.ariaLabels.copyButton")}
+              onClick={function() {
+                window.navigator.clipboard
+                  .writeText(param?.id ?? "")
+                  .then(function() {
+                    toast.success(t("updateOtherParamForm.copySuccess"));
+                  });
+              }}
+            >
+              {t("updateOtherParamForm.copyButtonText")}
+            </Button>
+          </Tooltip>
+        </StyledContainer>
         <Typography variant="h5">
           {t("updateOtherParamForm.dataHeading")}
         </Typography>

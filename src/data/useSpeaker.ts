@@ -13,6 +13,7 @@ import { SpeakerTitle, SpeakerTitleDto } from "./useSpeakerTitle";
 import { Organization, OrganizationDto } from "./useOrganization";
 import { EntityDto, Pageable } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
+import i18next from "i18next";
 
 export type SpeakerBriefDto = Omit<EntityDto, "name"> & {
   firstName: string;
@@ -65,13 +66,26 @@ export default function useSpeaker() {
   const [speaker, setSpeaker] = useState<Speaker>();
   const [params, setParams] = useState<FilterOptions>();
 
+  const findSpeakerForCSVParsing = async function(
+    id: string,
+  ): Promise<SpeakerDto | null> {
+    try {
+      const response = await apiWithToken.get<SpeakerDto>(
+        `/manager/speakers/${id}`,
+      );
+      return response.data;
+    } catch {
+      return null;
+    }
+  };
+
   const createSpeaker = async function(
     data: CreateSpeakerDto[],
   ): Promise<boolean> {
     try {
       setIsCreating(true);
       await apiWithToken.post("/manager/speakers", data);
-      toast.success(`Podani prelegenci zostali utworzeni`);
+      toast.success(i18next.t("dataHooks.speaker.createSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -128,7 +142,7 @@ export default function useSpeaker() {
     try {
       setIsUpdating(true);
       await apiWithEtag.put(`/manager/speakers/${id}`, data);
-      toast.success("Prelegent został zaktualizowany");
+      toast.success(i18next.t("dataHooks.speaker.updateSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -144,7 +158,7 @@ export default function useSpeaker() {
       await apiWithEtag.patch(
         `/manager/speakers/${id}/set-active?active=${active}`,
       );
-      toast.success("Prelegent został zaktualizowany");
+      toast.success(i18next.t("dataHooks.speaker.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
@@ -166,5 +180,6 @@ export default function useSpeaker() {
     isUpdating,
     isCreating,
     setSpeakerActive,
+    findSpeakerForCSVParsing,
   };
 }
