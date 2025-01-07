@@ -52,18 +52,21 @@ export default function UpdateEventMailTemplateForm(
       label: props.signUpTemplate.name,
       value: props.signUpTemplate.id,
     },
+    "SESSION_SIGN_UP"
   );
   const reminderTemplates = useAsyncEmailTemplate(
     props.reminderTemplate && {
       label: props.reminderTemplate.name,
       value: props.reminderTemplate.id,
     },
+    "SESSION_REMINDER"
   );
   const surveyTemplates = useAsyncEmailTemplate(
     props.surveyTemplate && {
       label: props.surveyTemplate.name,
       value: props.surveyTemplate.id,
     },
+    "SURVEY"
   );
 
   const [signUpChecked, setSignUpChecked] = useState<boolean>(
@@ -164,6 +167,9 @@ export default function UpdateEventMailTemplateForm(
             setComponentState={signUpTemplates.setComponentState}
             name="signUp"
             options={signUpTemplates.options ?? []}
+            filterCallback={function (phrase) {
+              signUpTemplates.setInput(phrase);
+            }}
             aria-label={t(
               "eventPageManager.updateEventTemplates.ariaLabels.signUpAutocomplete",
             )}
@@ -192,7 +198,7 @@ export default function UpdateEventMailTemplateForm(
                 }}
               ></Radio>
               <Typography>
-                {t("eventPageManager.updateEventTemplates.defaultTemplate")}
+                {t("eventPageManager.updateEventTemplates.noTemplate")}
               </Typography>
             </Box>
             <Box display={"flex"} alignItems={"center"}>
@@ -215,6 +221,9 @@ export default function UpdateEventMailTemplateForm(
             setComponentState={surveyTemplates.setComponentState}
             name="survey"
             options={surveyTemplates.options ?? []}
+            filterCallback={function (phrase) {
+              surveyTemplates.setInput(phrase);
+            }}
             label={t(
               "eventPageManager.updateEventTemplates.labels.surveyAutocomplete",
             )}
@@ -232,7 +241,7 @@ export default function UpdateEventMailTemplateForm(
           }}
         >
           <Typography variant="h5">
-            {t("eventPageManager.updateEventTemplates.surveyHeading")}
+            {t("eventPageManager.updateEventTemplates.reminderHeading")}
           </Typography>
           <RadioGroup>
             <Box display={"flex"} alignItems={"center"}>
@@ -265,7 +274,10 @@ export default function UpdateEventMailTemplateForm(
             componentState={reminderTemplates.componentState}
             setComponentState={reminderTemplates.setComponentState}
             name="reminder"
-            options={surveyTemplates.options ?? []}
+            options={reminderTemplates.options ?? []}
+            filterCallback={function (phrase) {
+              reminderTemplates.setInput(phrase);
+            }}
             label={t(
               "eventPageManager.updateEventTemplates.labels.reminderAutocomplete",
             )}

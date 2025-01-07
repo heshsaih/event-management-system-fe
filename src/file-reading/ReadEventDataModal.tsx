@@ -165,6 +165,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
                 )}
               >
                 <Button
+                  autoFocus
                   aria-label={t(
                     "readFileModal.eventData.ariaLabels.downloadExampleButton",
                   )}

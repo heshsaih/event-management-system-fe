@@ -37,7 +37,7 @@ export type CreateEventStore = CreateEventForm & {
 
 const useCreateEventStore = create<CreateEventStore>()(
   persist(
-    function(set, get) {
+    function (set, get) {
       return {
         name: "",
         descriptionPL: "",
@@ -62,33 +62,33 @@ const useCreateEventStore = create<CreateEventStore>()(
           label: "",
           value: "",
         },
-        updateSession: function(session: CreateSessionForm) {
+        updateSession: function (session: CreateSessionForm) {
           set({
-            sessions: get().sessions.map(function(e) {
+            sessions: get().sessions.map(function (e) {
               return e.id === session.id ? session : e;
             }),
           });
         },
-        updateMailNotifications: function(data: MailNotifications) {
+        updateMailNotifications: function (data: MailNotifications) {
           set({
             sessionSignUpManagerEmailTemplateId: data.signUp,
             surveyManagerEmailTemplateId: data.survey,
             sessionReminderManagerEmailTemplateId: data.reminder,
           });
         },
-        createSession: function(newSession: CreateSessionForm) {
+        createSession: function (newSession: CreateSessionForm) {
           set({
             sessions: [...get().sessions, newSession],
           });
         },
-        removeSession: function(sessionId: string) {
+        removeSession: function (sessionId: string) {
           set({
-            sessions: get().sessions.filter(function(e) {
+            sessions: get().sessions.filter(function (e) {
               return e.id !== sessionId;
             }),
           });
         },
-        setImage: function(name: string, value: string) {
+        setImage: function (name: string, value: string) {
           set({
             image: {
               name: name,
@@ -96,7 +96,7 @@ const useCreateEventStore = create<CreateEventStore>()(
             },
           });
         },
-        updateEvent: function(event: CreateEventForm) {
+        updateEvent: function (event: CreateEventForm) {
           set({
             ...event,
             startDate: event.startDate
@@ -116,12 +116,12 @@ const useCreateEventStore = create<CreateEventStore>()(
               .millisecond(999),
           });
         },
-        setSessions: function(sessions: CreateSessionForm[]) {
+        setSessions: function (sessions: CreateSessionForm[]) {
           set({
             sessions: sessions,
           });
         },
-        clearStore: function() {
+        clearStore: function () {
           set({
             name: "",
             descriptionEN: "",
@@ -133,17 +133,29 @@ const useCreateEventStore = create<CreateEventStore>()(
             sessionBlocks: [DEFAULT_SESSION_BLOCK],
             outsidersAllowed: true,
             image: undefined,
+            surveyManagerEmailTemplateId: {
+              label: "",
+              value: "",
+            },
+            sessionSignUpManagerEmailTemplateId: {
+              label: "",
+              value: "",
+            },
+            sessionReminderManagerEmailTemplateId: {
+              label: "",
+              value: "",
+            },
             minutesBetweenSessions: 1,
           });
         },
-        setSessionBlocks: function(sessionBlocks: string[]) {
+        setSessionBlocks: function (sessionBlocks: string[]) {
           if (sessionBlocks.length === 0) {
             set({
               sessionBlocks: [DEFAULT_SESSION_BLOCK],
             });
           } else {
             set({
-              sessionBlocks: sessionBlocks.map(function(e) {
+              sessionBlocks: sessionBlocks.map(function (e) {
                 const color =
                   e === DEFAULT_SESSION_BLOCK.name
                     ? DEFAULT_SESSION_BLOCK.color
@@ -156,7 +168,7 @@ const useCreateEventStore = create<CreateEventStore>()(
             });
           }
         },
-        addSessionBlock: function(newSessionBlock: string) {
+        addSessionBlock: function (newSessionBlock: string) {
           set({
             sessionBlocks: [
               ...get().sessionBlocks,
@@ -169,15 +181,15 @@ const useCreateEventStore = create<CreateEventStore>()(
     {
       name: "createEventStore",
       storage: createJSONStorage(
-        function() {
+        function () {
           return localStorage;
         },
         {
-          replacer: function(key, value) {
+          replacer: function (key, value) {
             if (key === "imageFile") return JSON.stringify(value);
             return value;
           },
-          reviver: function(key, value) {
+          reviver: function (key, value) {
             if (
               key === "startDate" ||
               key === "endDate" ||
@@ -188,7 +200,7 @@ const useCreateEventStore = create<CreateEventStore>()(
 
             if (key === "imageFile") return JSON.parse(value as string);
             if (key === "sessions") {
-              return (value as CreateSessionForm[]).map(function(e) {
+              return (value as CreateSessionForm[]).map(function (e) {
                 return {
                   ...e,
                   startTime: dayjs(e.startTime),

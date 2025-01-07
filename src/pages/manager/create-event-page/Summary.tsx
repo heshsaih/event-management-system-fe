@@ -81,7 +81,7 @@ export default function Summary({ previousStep }: SummaryProps) {
   });
 
   if (state.name.length < 3 || state.descriptionPL.length < 3) {
-    return <Navigate to={"/events/create?step=0"}></Navigate>;
+    return <Navigate to={"/manager/events/create?step=0"}></Navigate>;
   }
 
   const eventDetailsMap = mapStateToTable(state, t);
@@ -217,7 +217,7 @@ export default function Summary({ previousStep }: SummaryProps) {
             <TableCell>
               {state.surveyManagerEmailTemplateId.value.length > 0
                 ? state.surveyManagerEmailTemplateId.label
-                : t("createEventPage.summary.emailTemplatesColumns.default")}
+                : t("createEventPage.summary.emailTemplatesColumns.noTemplate")}
             </TableCell>
           </TableRow>
           <TableRow>
@@ -286,8 +286,10 @@ export default function Summary({ previousStep }: SummaryProps) {
           const id = await createEvent(mappedData);
 
           if (id) {
+            setTimeout(function () {
+              state.clearStore();
+            }, 100);
             navigate(`/manager/events/${id}`);
-            state.clearStore();
           }
           setOpenConfirm(false);
         }}

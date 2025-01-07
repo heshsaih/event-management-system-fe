@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { parseToken } from "../util/converters";
 
 export enum Role {
   PARTICIPANT = "PARTICIPANT",
@@ -9,17 +8,21 @@ export enum Role {
 };
 
 export type ParsedToken = {
-  exp: number;
-  iat: number;
-  jti: string;
-  role: {authority: Role}[];
   sub: string;
+  iss: string;
+  external_id: string;
+  exp: number;
+  given_name: string;
+  iat: number;
+  family_name: string;
+  authorities: Role[];
+  email: string;
 };
 
 type AccountStore = {
   token: string | undefined;
   parsedToken: ParsedToken | undefined;
-  setToken: (newToken: string) => void;
+  setToken: (newToken: string | undefined, newParsedToken: ParsedToken | undefined) => void;
   clearStore: () => void;
 };
 
@@ -32,11 +35,11 @@ const useAccountStore = create(persist<AccountStore>(function (set) {
   return {
     token: undefined,
     parsedToken: undefined,
-    setToken: function(newToken: string) {
+    setToken: function(newToken: string | undefined, newParsedToken: ParsedToken | undefined) {
       set({
         token: newToken,
-        parsedToken: parseToken(newToken)
-      });
+        parsedToken: newParsedToken
+      })
     },
     clearStore: function () {
       set({

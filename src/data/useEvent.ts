@@ -71,6 +71,7 @@ export type CreateSessionWithEventDto = {
   sessionTypeId: string;
   eventBlockName: string;
   maxSeats: number;
+  minutesBeforeSignUpCloses: number;
 };
 
 export type CreateEventDto = {
@@ -148,7 +149,7 @@ export default function useEvent() {
       setIsCreating(true);
       const response = await apiWithToken.post<{ id: string }>(
         `/manager/events`,
-        data,
+        data
       );
       toast.success(i18next.t("dataHooks.event.createSuccess"));
       return response.data.id;

@@ -5,8 +5,11 @@ import {
   Fab,
   Grid2,
   Grid2Props,
+  IconButton,
   List,
   ListItem,
+  Menu,
+  MenuItem,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -19,6 +22,8 @@ import StyledLink from "./StyledLink";
 import { useNavigate } from "react-router-dom";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { Person } from "@mui/icons-material";
+import useAccountStore from "../data/useAccountStore";
 
 const breakpoints: Grid2Props["size"] = {
   xs: 12,
@@ -103,6 +108,9 @@ const adminLinks = function (t: TFunction): LinkType[] {
 
 export default function SidePanel() {
   const navigate = useNavigate();
+  const state = useAccountStore(function (state) {
+    return state;
+  });
   //const parsedToken = useAccountStore(function (state) {
   //return state.parsedToken;
   //});
@@ -141,6 +149,16 @@ export default function SidePanel() {
 
   const [open, setOpen] = useState<boolean>(false);
   const { t } = useTranslation();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const openAccount = !!anchorEl;
+
+  const handleOpen = function (e: React.MouseEvent<HTMLElement>) {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleClose = function () {
+    setAnchorEl(undefined);
+  };
 
   return (
     <>
@@ -184,7 +202,37 @@ export default function SidePanel() {
           }}
         >
           <Typography flexGrow={1}></Typography>
-          <Typography>siema eniu</Typography>
+          <Tooltip onClick={handleOpen} title="Konto">
+            <IconButton
+              sx={{
+                borderRadius: "0.5rem",
+                color: "white"
+              }}
+            >
+              <Person></Person>
+              <Typography>{`${state.parsedToken?.given_name} ${state.parsedToken?.family_name}`}</Typography>
+            </IconButton>
+          </Tooltip>
+          <Menu open={openAccount} onClose={handleClose} anchorEl={anchorEl}>
+            <MenuItem
+              onClick={function () {
+                navigate("/my-profile");
+                handleClose();
+                setOpen(false);
+              }}
+            >
+              <Typography>Mój profil</Typography>
+            </MenuItem>
+            <MenuItem
+              onClick={function () {
+                navigate("/logout");
+                handleClose();
+                setOpen(false);
+              }}
+            >
+              <Typography>Wyloguj się</Typography>
+            </MenuItem>
+          </Menu>
         </Container>
         <Container
           maxWidth="lg"

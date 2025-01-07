@@ -31,15 +31,27 @@ function mapEventData(data: Event | undefined, t: TFunction<"pl">) {
         : t("eventPageManager.summary.eventDataColumns.noDescriptionEn"),
     [t("eventPageManager.summary.eventDataColumns.startDate")]:
       data?.startDate.isValid()
-        ? data.startDate.toDate().toLocaleString("pl-PL")
+        ? data.startDate.toDate().toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })
         : t("eventPageManager.summary.eventDataColumns.noStartDate"),
     [t("eventPageManager.summary.eventDataColumns.endDate")]:
       data?.endDate.isValid()
-        ? data.endDate.toDate().toLocaleString("pl-PL")
+        ? data.endDate.toDate().toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })
         : t("eventPageManager.summary.eventDataColumns.noEndDate"),
     [t("eventPageManager.summary.eventDataColumns.registrationStartDate")]:
       data?.registrationStartDate.isValid()
-        ? data.registrationStartDate.toDate().toLocaleString("pl-PL")
+        ? data.registrationStartDate.toDate().toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })
         : t(
             "eventPageManager.summary.eventDataColumns.noRegistrationStartDate",
           ),
@@ -71,7 +83,7 @@ type EventPageSummaryManager = {
 export default function EventPageSummaryManager({
   state,
 }: EventPageSummaryManager) {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const { getEvent, event, isFetching } = state;
   const [editingMode, setEditingMode] = useState<boolean>(false);
 
@@ -89,7 +101,9 @@ export default function EventPageSummaryManager({
       )}
       {!isFetching && event && !editingMode && (
         <>
-          <Typography variant="h4">{t("eventPageManager.summary.pageHeading")}</Typography>
+          <Typography variant="h4">
+            {t("eventPageManager.summary.pageHeading")}
+          </Typography>
           <TableContainer>
             <Table>
               <TableBody>
@@ -117,9 +131,13 @@ export default function EventPageSummaryManager({
           </Typography>
           <EventImage data={event.image.data}></EventImage>
           <Typography variant="body1">{event.image.imageName}</Typography>
-          <Tooltip title={t("eventPageManager.summary.updateEventButtonTooltip")}>
+          <Tooltip
+            title={t("eventPageManager.summary.updateEventButtonTooltip")}
+          >
             <Button
-              aria-label={t("eventPageManager.summary.ariaLabels.updateEventButton")}
+              aria-label={t(
+                "eventPageManager.summary.ariaLabels.updateEventButton",
+              )}
               onClick={function () {
                 setEditingMode(true);
                 window.scrollTo({

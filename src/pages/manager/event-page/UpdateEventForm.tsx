@@ -71,7 +71,7 @@ const updateEventSchema = z
     surveyTemplateId: z.string().nullable(),
   })
   .refine(
-    function(e) {
+    function (e) {
       return !e.startDate.isAfter(e.endDate);
     },
     {
@@ -81,7 +81,7 @@ const updateEventSchema = z
     },
   )
   .refine(
-    function(e) {
+    function (e) {
       return !e.endDate.isBefore(e.startDate);
     },
     {
@@ -91,7 +91,7 @@ const updateEventSchema = z
     },
   )
   .refine(
-    function(e) {
+    function (e) {
       return e.registrationStartDate.isBefore(e.startDate);
     },
     {
@@ -130,7 +130,7 @@ export default function UpdateEventForm({
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
 
   useEffect(
-    function() {
+    function () {
       async function get() {
         await getEvent(id ?? "");
       }
@@ -140,7 +140,7 @@ export default function UpdateEventForm({
   );
 
   useEffect(
-    function() {
+    function () {
       setImage(
         event?.image || {
           imageName: "",
@@ -173,9 +173,9 @@ export default function UpdateEventForm({
     mode: "all",
   });
 
-  const submit = a.handleSubmit(function() {
-    setConfirmAction(function() {
-      return async function() {
+  const submit = a.handleSubmit(function () {
+    setConfirmAction(function () {
+      return async function () {
         setOpenConfirm(false);
         const result = await updateEvent(
           id ?? "",
@@ -270,7 +270,7 @@ export default function UpdateEventForm({
                       "eventPageManager.updateEventForm.labels.startDate",
                     )}
                     name="startDate"
-                    triggerCallback={function() {
+                    triggerCallback={function () {
                       a.trigger("endDate");
                       a.trigger("registrationStartDate");
                     }}
@@ -292,7 +292,7 @@ export default function UpdateEventForm({
                     name="endDate"
                     label={t("eventPageManager.updateEventForm.labels.endDate")}
                     minDate={a.getValues().startDate.add(1, "day")}
-                    triggerCallback={function() {
+                    triggerCallback={function () {
                       a.trigger("startDate");
                       a.trigger("registrationStartDate");
                     }}
@@ -308,7 +308,7 @@ export default function UpdateEventForm({
                 )}
                 name="registrationStartDate"
                 maxDate={a.getValues().startDate.subtract(1, "day")}
-                triggerCallback={function() {
+                triggerCallback={function () {
                   a.trigger("endDate");
                   a.trigger("registrationStartDate");
                 }}
@@ -331,8 +331,8 @@ export default function UpdateEventForm({
                 aria-label={t(
                   "eventPageManager.updateEventForm.ariaLabels.uploadImageButton",
                 )}
-                callback={function(e) {
-                  readFile(e, function(name, data) {
+                callback={function (e) {
+                  readFile(e, function (name, data) {
                     setImage({
                       imageName: name,
                       data: data,
@@ -382,9 +382,9 @@ export default function UpdateEventForm({
               </Typography>
               <StyledSwitch
                 checked={event.active}
-                onChange={function() {
-                  setConfirmAction(function() {
-                    return async function() {
+                onChange={function () {
+                  setConfirmAction(function () {
+                    return async function () {
                       const response = await changeEventActive(
                         event.id,
                         !event.active,
@@ -403,7 +403,7 @@ export default function UpdateEventForm({
       </FormProvider>
       <ConfirmActionModal
         open={openConfirm}
-        onClose={function() {
+        onClose={function () {
           setOpenConfirm(false);
         }}
         confirmAction={confrimAction as () => void}

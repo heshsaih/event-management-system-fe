@@ -5,8 +5,6 @@ import LoginPage from "../pages/public/login-page";
 import AuthGuard from "./AuthGuard";
 import AdminGuard from "./AdminGuard";
 import ManagerGuard from "./ManagerGuard";
-import RegisterPage from "../pages/public/register-page";
-import ForgotPasswordPage from "../pages/public/forgot-password-page";
 import { lazy, Suspense } from "react";
 import { CircularProgress } from "@mui/material";
 import EventsPage from "../pages/public/events-page";
@@ -18,12 +16,13 @@ import SpeakersPage from "../pages/manager/speakers-page";
 import SpeakerPage from "../pages/manager/speaker-page";
 import LocationsPage from "../pages/manager/locations-page";
 import LocationPage from "../pages/manager/location-page";
-import UsersPage from "../pages/admin/users-page";
-import UserPage from "../pages/admin/user-page";
+import UsersPage from "../pages/admin/accounts-page";
+import UserPage from "../pages/admin/account-page";
 import LogoutPage from "../pages/public/logout-page";
 import OtherPage from "../pages/manager/other-page";
 import { Colors } from "../constants/styling";
 import NotFoundPage from "../pages/public/not-found-page";
+import LoginSuccessPage from "../pages/login-success";
 const CreateEventPageComp = lazy(
   () => import("../pages/manager/create-event-page/index"),
 );
@@ -74,12 +73,8 @@ const routes: RouteObject[] = [
             Component: LoginPage,
           },
           {
-            path: "/register",
-            Component: RegisterPage,
-          },
-          {
-            path: "/forgot-password",
-            Component: ForgotPasswordPage,
+            path: "/login/success",
+            Component: LoginSuccessPage
           },
           {
             path: "/events",

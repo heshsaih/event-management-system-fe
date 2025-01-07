@@ -15,20 +15,22 @@ import { Colors } from "../constants/styling";
 import useAccountStore from "../data/useAccountStore";
 import PersonIcon from "@mui/icons-material/Person";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const open = !!anchorEl;
+  const navigate = useNavigate();
 
-  const state = useAccountStore(function (state) {
+  const state = useAccountStore(function(state) {
     return state;
   });
 
-  const handleOpen = function (e: React.MouseEvent<HTMLElement>) {
+  const handleOpen = function(e: React.MouseEvent<HTMLElement>) {
     setAnchorEl(e.currentTarget);
   };
 
-  const handleClose = function () {
+  const handleClose = function() {
     setAnchorEl(undefined);
   };
 
@@ -86,15 +88,25 @@ export default function Navbar() {
                   }}
                 >
                   <PersonIcon></PersonIcon>
-                  <Typography>{state.parsedToken?.sub}</Typography>
+                  <Typography>{`${state.parsedToken?.given_name} ${state.parsedToken?.family_name}`}</Typography>
                 </IconButton>
               </Tooltip>
               <Menu open={open} onClose={handleClose} anchorEl={anchorEl}>
-                <MenuItem onClick={handleClose}>
-                  <StyledLink to={"/my-profile"}>Mój profil</StyledLink>
+                <MenuItem
+                  onClick={function() {
+                    navigate("/my-profile");
+                    handleClose();
+                  }}
+                >
+                  <Typography>Mój profil</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
-                  <StyledLink to={"/logout"}>Wyloguj się</StyledLink>
+                <MenuItem
+                  onClick={function() {
+                    navigate("/logout");
+                    handleClose();
+                  }}
+                >
+                  <Typography>Wyloguj się</Typography>
                 </MenuItem>
               </Menu>
             </>

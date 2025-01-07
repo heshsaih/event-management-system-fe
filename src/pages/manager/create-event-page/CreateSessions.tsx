@@ -70,8 +70,10 @@ export default function CreateSessions(props: CreateSessionsProps) {
   });
 
   if (state.name.length < 3 || state.descriptionPL.length < 3) {
-    return <Navigate to={"/events/create?step=0"}></Navigate>;
+    return <Navigate to={"/manager/events/create?step=0"}></Navigate>;
   }
+
+
 
   const addSession = function() {
     const newSession: CreateSessionForm = {

@@ -75,7 +75,24 @@ export default function useEmailNotification() {
     }
   };
 
-  const getAllTemplates = async function(filterParams?: FilterOptions) {
+  const getAllTemplates = async function(
+    filterParams?: FilterOptions,
+    type?: EmailTemplateType,
+  ) {
+    let emailType: string;
+    switch (type) {
+      case "SURVEY":
+        emailType = "/survey-templates";
+        break;
+      case "SESSION_REMINDER":
+        emailType = "/session-reminder-templates";
+        break;
+      case "SESSION_SIGN_UP":
+        emailType = "/session-sign-up-templates";
+        break;
+      default:
+        emailType = "";
+    }
     const newFilterOptions = {
       ...options,
       ...filterParams,
@@ -86,7 +103,7 @@ export default function useEmailNotification() {
     try {
       setIsFetching(true);
       const response = await apiWithToken.get<Pageable<EmailTemplateDto>>(
-        `/manager/manager-email-templates?${uri}`,
+        `/manager/manager-email-templates${emailType}?${uri}`,
       );
       setTemplates({
         ...response.data,

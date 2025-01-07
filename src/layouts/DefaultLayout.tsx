@@ -1,5 +1,5 @@
 import { Container, CssBaseline, ThemeProvider } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import SidePanel from "../components/SidePanel";
@@ -8,9 +8,15 @@ import { useEffect } from "react";
 import ScrollToTop from "../components/ScrollToTop";
 
 export default function DefaultLayout() {
+  const location = useLocation();
+
   useEffect(function () {
-    window.scrollTo(0, 0);
-  }, []);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }, [location]);
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <ScrollToTop></ScrollToTop>

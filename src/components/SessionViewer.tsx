@@ -24,7 +24,7 @@ const muiDefaultTheme = createTheme({
   },
 });
 
-const translations = function(t: TFunction) {
+const translations = function (t: TFunction) {
   return {
     navigation: {
       month: t("sessionViewer.translations.navigation.month"),
@@ -69,30 +69,34 @@ type SessionViewerProps = {
 
 export default function SessionViewer({
   events,
-  selectedDate,
   scrollOnClose,
   initialState,
+  selectedDate,
 }: SessionViewerProps) {
   const [open, setOpen] = useState<boolean>(initialState ?? false);
   const ref = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
-  const openAccordion = function() {
+  const openAccordion = function () {
     setOpen(true);
     const currentRect = ref.current?.getBoundingClientRect() as DOMRect;
-    const scrollValue = currentRect.top + window.scrollY - 250;
+    const scrollValue = currentRect.top + window.scrollY;
     window.scrollTo({
       top: scrollValue,
       behavior: "smooth",
     });
   };
 
-  const closeAccordion = function() {
+  const closeAccordion = function () {
     setOpen(false);
     if (scrollOnClose) {
       scrollOnClose();
     }
   };
+
+  const startDateFromEvents = events.sort(function (previous, next) {
+    return previous.start.getTime() - next.start.getTime();
+  })[0];
 
   return (
     <Accordion
@@ -127,22 +131,22 @@ export default function SessionViewer({
           <ThemeProvider theme={muiDefaultTheme}>
             <Scheduler
               selectedDate={
-                new Date(selectedDate.setDate(selectedDate.getDate() - 1))
+                startDateFromEvents ? startDateFromEvents.start : selectedDate
               }
               view="week"
               week={{
                 /*@ts-ignore*/
-                weekDays: [1, 2, 3, 4, 5, 6, 7],
+                weekDays: [0, 1, 2, 3, 4, 5, 6],
                 startHour: 0,
                 endHour: 24,
                 step: 60,
-                weekStartOn: 0,
+                weekStartOn: 1,
               }}
               hourFormat="24"
               editable={false}
               deletable={false}
               stickyNavigation
-              events={events.map(function(e) {
+              events={events.map(function (e) {
                 return {
                   color: Colors.RED,
                   ...e,

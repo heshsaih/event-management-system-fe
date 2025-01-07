@@ -1,4 +1,83 @@
+const accountsPage = {
+  pageHeading: "Panel zarządzania użytkownikami",
+  tableData: {
+    personalData: "Dane personalne",
+    lastSuccessfulLogin: "Czas ostatniej udanej próby logowania",
+    createdAt: "Data utworzenia",
+    updatedAt: "Data aktualizacji",
+    active: "Czy aktywny?",
+    yes: "Tak",
+    no: "Nie",
+    noDate: "Brak daty"
+  },
+  ariaLabels: {
+    tableEntry: "Wpis w liście użytkowników o wartości "
+  },
+  accountTableEntryTooltip: "Kliknij, aby wyświetlić dane o użytkowniku",
+};
+
+const loginPage = {
+  pageHeading: "Zaloguj się",
+  pageBody: "Do uwierzytelnienia w systemie potrzebne jest aktywne konto Google. Kliknij przycisk poniżej, aby uwierzytelnić się w systemie za jego pomocą",
+  loginButtonAriaLabel: "Przycisk do uwierzytelnienia się w systemie",
+  loginButtonTooltip: "Kliknij, aby się uwierzytelnić",
+  loginButtonText: "Zaloguj się za pomocą konta Google"
+};
+
+const eventPageParticipant = {
+  pageHeading: "Podgląd wydarzenia",
+  eventDataHeading: "Informacje o wydarzeniu",
+  sessionsDataHeading: "Konferencje",
+  noSessions: "Wydarzenie nie posiada konferencji",
+  eventTable: {
+    name: "Nazwa wydarzenia",
+    descriptionPl: "Opis w wersji polskiej",
+    descriptionEn: "Opis w wersji angielskiej",
+    startDate: "Data rozpoczęcia",
+    endDate: "Data zakończenia",
+    noDate: "Brak daty",
+  },
+  sessionTableRow: {
+    name: "Nazwa konferencji",
+    descriptionPl: "Opis w wersji polskiej",
+    descriptionEn: "Opis w wersji angielskiej",
+    startDate: "Data rozpoczęcia",
+    endDate: "Data zakończenia",
+    noDate: "Brak daty",
+    location: "Miejsce odbywania konferencji",
+    address: "Adres lokacji",
+    maxSeats: "Ilość miejsc",
+    availableSeats: "Pozostałe miejsca",
+    speaker: "Prelegent",
+    sessionType: "Typ konferencji",
+    eventBlock: "Blok konferencji",
+    room: "Pomieszczenie",
+    building: "budynek",
+  },
+  sessionAvailableSeats: "Ilość miejsc: "
+};
+
+const eventsPageParticipant = {
+  tableColumns: {
+    name: "Nazwa wydarzenia",
+    startDate: "Data rozpoczęcia",
+    endDate: "Data zakończenia",
+    noDate: "Brak daty",
+  },
+  ariaLabels: {
+    tableEntry: "Wpis w liście wydarzeń o nazwie ",
+  },
+  pageHeaading: "Wydarzenia",
+  noTableEntries: "W tej chwili nie odbywają się żadne wydarzenia",
+  tableEntryTooltip: "Kliknij, aby wyświetlić dane o wydarzeniu",
+};
+
 const dataHooks = {
+  account: {
+    addRoleSuccess: "Nowa rola została nadana pomyślnie",
+    removeRoleSuccess: "Rola została odebrana pomyślnie",
+    changeActiveSuccess: "Status użytkownika został zmieniony pomyślnie"
+  },
   emailNotification: {
     createSuccess:
       "Nowy szablon powiadomień mailowych został utworzony pomyślnie",
@@ -188,6 +267,8 @@ const breadcrumbsLabels = {
   speaker: "Prelegent",
   other: "Pozostałe parametry",
   createEvent: "Stwórz wydarzenie",
+  accounts: "Użytkownicy",
+  account: "Użytkownik"
 };
 const backendErrors = {
   messages: {
@@ -380,6 +461,7 @@ const createEventPage = {
   mailTemplates: {
     pageHeading: "Zmień powiadomienia mailowe dla wydarzenia",
     defaultTemplate: "Domyślne",
+    noTemplate: "Brak",
     chosenTemplate: "Wybrane",
     signUpHeading: "Powiadomienie o zapisaniu się na wydarzenie",
     reminderHeading: "Przypomnienie o nadchodzącym wydarzeniu",
@@ -590,6 +672,7 @@ const createEventPage = {
       survey: "Prośba o wypełnienie ankiety po wydarzeniu",
       reminder: "Przypomnienie o nadchodzącym wydarzeniu",
       default: "Domyślne powiadomienie",
+      noTemplate: "Brak szablonu powiadomienia",
     },
     pageHeading: "Podsumowanie",
     emailTEmplatesHeading: "Powiadomienia mailowe",
@@ -676,6 +759,7 @@ const eventPageManager = {
       yes: "Tak",
       no: "Nie",
     },
+    noSessions: "Brak konferencji w tym wydarzeniu",
     ariaLabels: {
       createSessionButton:
         "Przycisk do otworzenia formularza do tworzenia konferencji",
@@ -822,6 +906,7 @@ const eventPageManager = {
     editTemplatesButtonText: "Edytuj",
     eventTemplateEntry: {
       defaultValue: "Domyślny szablon",
+      noTemplate: "Brak szablonu powiadomienia",
       table: {
         name: "Nazwa szablonu",
         subject: "Temat maila",
@@ -833,6 +918,7 @@ const eventPageManager = {
   updateEventTemplates: {
     pageHeading: "Zmień powiadomienia mailowe dla wydarzenia",
     defaultTemplate: "Domyślne",
+    noTemplate: "Brak",
     chosenTemplate: "Wybrane",
     signUpHeading: "Powiadomienie o zapisaniu się na wydarzenie",
     reminderHeading: "Przypomnienie o nadchodzącym wydarzeniu",
@@ -1617,4 +1703,8 @@ export default {
   updateEmailNotifForm,
   readFileModal,
   dataHooks,
+  eventsPageParticipant,
+  eventPageParticipant,
+  loginPage,
+  accountsPage
 } as const;

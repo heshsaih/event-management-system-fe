@@ -16,6 +16,7 @@ import Form from "../../../components/Form";
 import ControlledAutocomplete from "../../../components/ControlledAutocomplete";
 import useAsyncEmailTemplate from "../../../data/useAsyncEmailTemplate";
 import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router-dom";
 
 type MailNotificationsProps = {
   previousStep: () => void;
@@ -43,14 +44,22 @@ export default function MailNotifications(props: MailNotificationsProps) {
   const state = useCreateEventStore(function(state) {
     return state;
   });
+
+  if (state.name.length < 3 || state.descriptionPL.length < 3) {
+    return <Navigate to={"/manager/events/create?step=0"}></Navigate>;
+  }
+
   const signUpTemplates = useAsyncEmailTemplate(
     state.sessionSignUpManagerEmailTemplateId,
+    "SESSION_SIGN_UP"
   );
   const reminderTemplates = useAsyncEmailTemplate(
     state.sessionReminderManagerEmailTemplateId,
+    "SESSION_REMINDER"
   );
   const surveyTemplates = useAsyncEmailTemplate(
     state.surveyManagerEmailTemplateId,
+    "SURVEY"
   );
 
   const [signUpChecked, setSignUpChecked] = useState<boolean>(
@@ -149,6 +158,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 setComponentState={signUpTemplates.setComponentState}
                 name="signUp"
                 options={signUpTemplates.options ?? []}
+                filterCallback={function (phrase) {
+                  signUpTemplates.setInput(phrase);
+                }}
                 label={t(
                   "createEventPage.mailTemplates.labels.signUpAutocomplete",
                 )}
@@ -177,7 +189,7 @@ export default function MailNotifications(props: MailNotificationsProps) {
                     }}
                   ></Radio>
                   <Typography>
-                    {t("createEventPage.mailTemplates.defaultTemplate")}
+                    {t("createEventPage.mailTemplates.noTemplate")}
                   </Typography>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
@@ -200,6 +212,9 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 setComponentState={surveyTemplates.setComponentState}
                 name="survey"
                 options={surveyTemplates.options ?? []}
+                filterCallback={function (phrase) {
+                  surveyTemplates.setInput(phrase);
+                }}
                 label={t(
                   "createEventPage.mailTemplates.labels.surveyAutocomplete",
                 )}
@@ -250,7 +265,10 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 componentState={reminderTemplates.componentState}
                 setComponentState={reminderTemplates.setComponentState}
                 name="reminder"
-                options={surveyTemplates.options ?? []}
+                filterCallback={function (phrase) {
+                  reminderTemplates.setInput(phrase);
+                }}
+                options={reminderTemplates.options ?? []}
                 label={t(
                   "createEventPage.mailTemplates.labels.surveyAutocomplete",
                 )}

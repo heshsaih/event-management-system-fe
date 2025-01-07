@@ -21,6 +21,10 @@ type EmailTemplateEntryProps = {
 
 export default function EmailTemplateEntry(props: EmailTemplateEntryProps) {
   const { t } = useTranslation();
+
+  const isSurvey =
+    props.title === t("eventPageManager.eventTemplates.surveyTemplateTitle");
+
   return (
     <StyledContainer
       inner
@@ -38,9 +42,13 @@ export default function EmailTemplateEntry(props: EmailTemplateEntryProps) {
       {!props.isFetching &&
         (props.templateId === null ? (
           <Typography>
-            {t(
-              "eventPageManager.eventTemplates.eventTemplateEntry.defaultValue",
-            )}
+            {isSurvey
+              ? t(
+                "eventPageManager.eventTemplates.eventTemplateEntry.noTemplate",
+              )
+              : t(
+                "eventPageManager.eventTemplates.eventTemplateEntry.defaultValue",
+              )}
           </Typography>
         ) : (
           <TableContainer>

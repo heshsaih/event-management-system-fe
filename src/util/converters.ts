@@ -44,11 +44,20 @@ import { UpdateSessionSchema } from "../pages/manager/event-page/UpdateSessionFo
 import { OtherParam, OtherParamDto } from "../types";
 import { EmailTemplate, EmailTemplateDto } from "../data/useEmailNotification";
 import { LocationForm } from "../components/AddLocationForm";
+import {
+  EventForParticipant,
+  EventForParticipantBrief,
+  EventForParticipantBriefDto,
+  EventForParticipantDto,
+  SessionForParticipant,
+  SessionForParticipantDto,
+} from "../data/useEventParticipant";
+import { Account, AccountDto } from "../data/useAccount";
 
 export function arrayBufferToBase64(array: ArrayBuffer): string {
   let binary = "";
   const bytes = new Uint8Array(array);
-  bytes.forEach(function(byte) {
+  bytes.forEach(function (byte) {
     binary += String.fromCharCode(byte);
   });
   return window.btoa(binary);
@@ -66,10 +75,30 @@ export function base64ToArrayBuffer(string: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-export function parseToken(token: string): ParsedToken {
-  const claims = token.split(".")[1];
-  const decodedToken = atob(claims);
-  return JSON.parse(decodedToken);
+export function parseToken(token: string): ParsedToken | undefined {
+  try {
+    const claims = token.split(".")[1];
+    const decodedToken = atob(claims);
+    const parsedToken = JSON.parse(decodedToken) as ParsedToken;
+    console.log(parsedToken);
+    if (
+      !parsedToken.family_name ||
+      !parsedToken.given_name ||
+      !parsedToken.exp ||
+      !parsedToken.iat ||
+      !parsedToken.iss ||
+      !parsedToken.sub ||
+      !parsedToken.email ||
+      !parsedToken.authorities ||
+      !parsedToken.external_id
+    ) {
+      return undefined;
+    }
+    return parsedToken;
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
 }
 
 export function mapRoomDtoToRoom(dto: RoomDto): Room {
@@ -118,7 +147,7 @@ export function mapLocationFormToCreateLocationDto(
     street: data.street,
     city: data.city,
     postalCode: data.postalCode,
-    rooms: data.rooms.map(function(e): CreateRoomWithLocationDto {
+    rooms: data.rooms.map(function (e): CreateRoomWithLocationDto {
       return {
         roomNumber: e.roomNumber,
         capacity: e.capacity,
@@ -199,13 +228,20 @@ export function mapCreateSessionFormToCreateSessionWithEventDto(
     sessionName: data.name,
     descriptionPl: data.descriptionPL,
     descriptionEn: data.descriptionEN,
-    startDate: data.startTime.toISOString(),
-    endDate: data.endTime.toISOString(),
+    startDate: data.startTime
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
+    endDate: data.endTime
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
     speakerId: data.speaker.value,
     roomId: data.room.value,
     sessionTypeId: data.sessionType.value,
     eventBlockName: data.sessionBlock,
     maxSeats: data.maxSeats,
+    minutesBeforeSignUpCloses: data.minutesBeforeSignUpCloses,
   };
 }
 
@@ -222,14 +258,29 @@ export function mapEventDataToCreateEventDto(
     descriptionEn: data.descriptionEN,
     eventBlocksNames: Array.from(
       new Set(
-        data.sessions.map(function(e) {
+        data.sessions.map(function (e) {
           return e.sessionBlock;
         }),
       ),
     ),
-    startDate: data.startDate.toISOString(),
-    endDate: data.endDate.toISOString(),
-    registrationStartDate: data.registrationStartDate.toISOString(),
+    startDate: data.startDate
+      .set("hours", 1)
+      .set("minutes", 0)
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
+    endDate: data.endDate
+      .set("hours", 24)
+      .set("minutes", 59)
+      .set("seconds", 59)
+      .set("milliseconds", 999)
+      .toISOString(),
+    registrationStartDate: data.registrationStartDate
+      .set("hours", 1)
+      .set("minutes", 0)
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
     outsidersAllowed: data.outsidersAllowed,
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
     surveyManagerEmailTemplateId:
@@ -268,10 +319,25 @@ export function mapUpdateEventSchemaToUpdateEventDto(
     name: data.name,
     descriptionPl: data.descriptionPl,
     descriptionEn: data.descriptionEn,
-    startDate: data.startDate.toISOString(),
+    startDate: data.startDate
+      .set("hour", 1)
+      .set("minute", 0)
+      .set("second", 0)
+      .set("millisecond", 0)
+      .toISOString(),
     outsidersAllowed: data.outsidersAllowed,
-    endDate: data.endDate.toISOString(),
-    registrationStartDate: data.registrationStartDate.toISOString(),
+    endDate: data.endDate
+      .set("hour", 24)
+      .set("minute", 59)
+      .set("second", 59)
+      .set("millisecond", 999)
+      .toISOString(),
+    registrationStartDate: data.registrationStartDate
+      .set("hour", 1)
+      .set("minute", 0)
+      .set("second", 0)
+      .set("millisecond", 0)
+      .toISOString(),
     minutesBetweenDifferentSessions: data.minutesBetweenSessions,
     image: data.image,
     surveyManagerEmailTemplateId: data.surveyTemplateId,
@@ -282,7 +348,7 @@ export function mapUpdateEventSchemaToUpdateEventDto(
 
 export function mapEventToUpdateEventDtoForMailTemplateUpdate(
   event: Event,
-): UpdateEventDto { 
+): UpdateEventDto {
   return {
     name: event.name,
     descriptionPl: event.descriptionPl,
@@ -293,10 +359,12 @@ export function mapEventToUpdateEventDtoForMailTemplateUpdate(
     minutesBetweenDifferentSessions: event.minutesBetweenDifferentSessions,
     image: event.image,
     surveyManagerEmailTemplateId: event.surveyManagerEmailTemplateId,
-    sessionSignUpManagerEmailTemplateId: event.sessionSignUpManagerEmailTemplateId,
-    sessionReminderManagerEmailTemplateId: event.sessionReminderManagerEmailTemplateId,
-    outsidersAllowed: event.outsidersAllowed
-  }
+    sessionSignUpManagerEmailTemplateId:
+      event.sessionSignUpManagerEmailTemplateId,
+    sessionReminderManagerEmailTemplateId:
+      event.sessionReminderManagerEmailTemplateId,
+    outsidersAllowed: event.outsidersAllowed,
+  };
 }
 
 export function mapAddSessionSchemaToCreateSessionDto(
@@ -311,8 +379,15 @@ export function mapAddSessionSchemaToCreateSessionDto(
     sessionName: data.sessionName,
     descriptionPl: data.descriptionPl,
     descriptionEn: data.descriptionEn,
-    startDate: data.startDate.toISOString(),
-    endDate: data.endDate.toISOString(),
+    startDate: data.startDate
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
+    endDate: data.endDate
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
+
     maxSeats: data.maxSeats,
     minutesBeforeSignUpCloses: data.minutesBeforeSignUpCloses,
   };
@@ -342,8 +417,14 @@ export function mapUpdateSessionSchemaToUpdateSessionDto(
     eventBlockId: data.eventBlock.value,
     descriptionPl: data.descriptionPl,
     descriptionEn: data.descriptionEn,
-    startDate: data.startDate.toISOString(),
-    endDate: data.endDate.toISOString(),
+    startDate: data.startDate
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
+    endDate: data.endDate
+      .set("seconds", 0)
+      .set("milliseconds", 0)
+      .toISOString(),
     maxSeats: data.maxSeats,
     minutesBeforeSignUpCloses: data.minutesBeforeSignUpCloses,
   };
@@ -356,5 +437,44 @@ export function mapEmailTemplateDtoToEmailTemplate(
     ...dto,
     createdAt: dayjs(dto.createdAt),
     updatedAt: dayjs(dto.updatedAt),
+  };
+}
+
+export function mapEventForParticipantBtiefDtoToEventForParticipantBrief(
+  data: EventForParticipantBriefDto,
+): EventForParticipantBrief {
+  return {
+    ...data,
+    startDate: dayjs(data.startDate),
+    endDate: dayjs(data.endDate),
+  };
+}
+
+export function mapSessionForParticipantDtoToSessionForParticipant(
+  data: SessionForParticipantDto,
+): SessionForParticipant {
+  return {
+    ...data,
+    startDate: dayjs(data.startDate),
+    endDate: dayjs(data.endDate),
+  };
+}
+
+export function mapEventForParticipantDtoToEventForParticipant(
+  data: EventForParticipantDto,
+): EventForParticipant {
+  return {
+    ...data,
+    startDate: dayjs(data.startDate),
+    endDate: dayjs(data.endDate),
+  };
+}
+
+export function mapAccountDtoToAccount(data: AccountDto): Account {
+  return {
+    ...data,
+    createdAt: dayjs(data.createdAt),
+    updatedAt: dayjs(data.updatedAt),
+    lastSuccessfulLogin: dayjs(data.lastSuccessfulLogin),
   };
 }

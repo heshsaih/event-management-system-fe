@@ -168,7 +168,7 @@ export default function useLocation() {
       await apiWithEtag.patch(
         `/manager/locations/${id}/set-active?active=${active}`,
       );
-      toast.success("Status lokacji został zmieniony pomyśłnie");
+      toast.success(i18next.t("dataHooks.location.changeActiveSuccess"));
       return true;
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);

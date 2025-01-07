@@ -12,6 +12,7 @@ import getRandomColor from "../../../util/randomColor";
 import AddSessionForm from "../../../components/AddSessionForm";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { DEFAULT_SESSION_BLOCK } from "../../../constants/session";
 
 function mapSessionData(data: Session | undefined, t: TFunction<"pl">) {
   return {
@@ -29,16 +30,29 @@ function mapSessionData(data: Session | undefined, t: TFunction<"pl">) {
       t("eventPageManager.sessionsPage.sessionDataColumns.noDescriptionEn"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.startDate")]:
       data?.startDate.isValid()
-        ? data.startDate.toDate().toLocaleString("pl-PL")
+        ? data.startDate.toDate().toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : t("eventPageManager.sessionsPage.sessionDataColumns.noStartDate"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.endDate")]:
       data?.endDate.isValid()
-        ? data.endDate.toDate().toLocaleString("pl-PL")
+        ? data.endDate.toDate().toLocaleString("pl-PL", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : t("eventPageManager.sessionsPage.sessionDataColumns.noEndDate"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.maxSeats")]:
       data?.maxSeats,
-    [t("eventPageManager.sessionsPage.sessionDataColumns.minutesBeforeSignUpCloses")]:
-      data?.minutesBeforeSignUpCloses,
+    [t(
+      "eventPageManager.sessionsPage.sessionDataColumns.minutesBeforeSignUpCloses",
+    )]: data?.minutesBeforeSignUpCloses,
     [t("eventPageManager.sessionsPage.sessionDataColumns.speaker")]:
       `${data?.speaker.titleName ?? ""} ${data?.speaker.firstName} ${data?.speaker.lastName}`,
     [t("eventPageManager.sessionsPage.sessionDataColumns.address")]:
@@ -78,6 +92,12 @@ export default function SessionsPageManager({
     return mapSessionData(e, t);
   });
   const colors = event?.eventBlocks.map(function (e) {
+    if (e.name === DEFAULT_SESSION_BLOCK.name) {
+      return {
+        id: e.id,
+        color: DEFAULT_SESSION_BLOCK.color,
+      };
+    }
     return {
       id: e.id,
       color: getRandomColor(),
@@ -110,7 +130,12 @@ export default function SessionsPageManager({
             sx={{ color: Colors.RED }}
           ></CircularProgress>
         )}
-        {!isFetching && mappedSessions && (
+        {!isFetching && mappedSessions && mappedSessions.length === 0 && (
+          <Typography>
+            {t("eventPageManager.sessionsPage.noSessions")}
+          </Typography>
+        )}
+        {!isFetching && mappedSessions && mappedSessions.length > 0 && (
           <StyledContainer inner sx={{ paddingY: 0 }}>
             {mappedSessions.map(function (e) {
               return (
