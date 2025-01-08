@@ -80,7 +80,6 @@ export function parseToken(token: string): ParsedToken | undefined {
     const claims = token.split(".")[1];
     const decodedToken = atob(claims);
     const parsedToken = JSON.parse(decodedToken) as ParsedToken;
-    console.log(parsedToken);
     if (
       !parsedToken.family_name ||
       !parsedToken.given_name ||

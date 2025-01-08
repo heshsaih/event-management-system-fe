@@ -525,7 +525,6 @@ export default function SessionForm({
                   onCreateCallback={function() {
                     setRetrieveRooms(function() {
                       return async function() {
-                        console.log(chosenLocationId);
                         if (chosenLocationId) {
                           setRoomOptions(
                             await retrieveRoomOptions(chosenLocationId),

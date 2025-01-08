@@ -110,7 +110,7 @@ export default function EventPageSummaryManager({
                 {Object.keys(mappedData).map(function (e) {
                   if (e === "id") return;
                   return (
-                    <TableRow>
+                    <TableRow key={e}>
                       <TableCell>{e}</TableCell>
                       <TableCell
                         sx={{

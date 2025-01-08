@@ -9,6 +9,7 @@ type StyledSwitchProps = SwitchProps & {
 
 export default function StyledSwitch(props: StyledSwitchProps) {
   const {t} = useTranslation();
+
   return (
     <Box
       display={"flex"}

@@ -44,7 +44,6 @@ export default function useAsyncEmailTemplate(
       async function fetch() {
         try {
           setIsFetching(true);
-          console.log("sigma")
           const response = await apiWithToken.get<Pageable<EventBlockDto>>(
             `/manager/manager-email-templates${emailType}?${mapFilterParamsToUri(
               {

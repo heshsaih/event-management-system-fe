@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export enum Role {
   PARTICIPANT = "PARTICIPANT",
   MANAGER = "MANAGER",
-  ADMIN = "ADMIN" 
+  ADMIN = "ADMINISTRATOR" 
 };
 
 export type ParsedToken = {

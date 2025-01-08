@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StyledContainer from "../../../components/StyledContainer";
 import useLocation, { Location } from "../../../data/useLocation";
 import { useEffect, useState } from "react";
@@ -115,7 +115,7 @@ export default function LocationPage() {
                   <TableBody>
                     {Object.keys(data).map(function(e) {
                       return (
-                        <TableRow>
+                        <TableRow key={e}>
                           <TableCell>{e}</TableCell>
                           <TableCell>{data[e as keyof typeof data]}</TableCell>
                         </TableRow>
@@ -166,17 +166,17 @@ export default function LocationPage() {
               <Table>
                 <TableHead>
                   {Object.keys(rooms[0]).map(function(e) {
-                    return <TableCell>{e}</TableCell>;
+                    return <TableCell key={e}>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
                   {rooms.map(function(e) {
                     return (
-                      <TableRow>
+                      <TableRow key={e[t("locationPage.locationData.id")]}>
                         {Object.keys(e).map(function(val) {
                           if (val === t("locationPage.roomData.options")) {
                             return (
-                              <TableCell>
+                              <TableCell key={val}>
                                 <Box>
                                   <Tooltip
                                     title={t(

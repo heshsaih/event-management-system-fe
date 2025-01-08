@@ -161,8 +161,8 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
             checked={props.location?.active ?? true}
             onChange={function() {
               setConfirmAction(function() {
-                setOpenConfirm(false);
                 return async function() {
+                  setOpenConfirm(false);
                   const result = await changeLocationActive(
                     props.location?.id ?? "",
                     props.location?.active ? false : true,

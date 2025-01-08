@@ -116,13 +116,16 @@ export default function LocationsPage() {
                 <TableHead>
                   {Object.keys(mappedLocations[0]).map(function(e) {
                     if (e === "id") return;
-                    return <TableCell>{e}</TableCell>;
+                    return <TableCell key={e}>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
                   {mappedLocations.map(function(e) {
                     return (
-                      <Tooltip title={t("locationsPage.tableEntryTooltip")}>
+                      <Tooltip
+                        key={e.id}
+                        title={t("locationsPage.tableEntryTooltip")}
+                      >
                         <TableRow
                           tabIndex={0}
                           onKeyUp={function(ev) {
@@ -142,7 +145,9 @@ export default function LocationsPage() {
                           {Object.keys(e).map(function(val) {
                             if (val === "id") return;
                             return (
-                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                              <TableCell key={val}>
+                                {e[val as keyof typeof e]}
+                              </TableCell>
                             );
                           })}
                         </TableRow>

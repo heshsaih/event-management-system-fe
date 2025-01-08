@@ -38,7 +38,7 @@ type LinkType = {
   uri: string;
 };
 
-const publicLinks = function (t: TFunction): LinkType[] {
+const publicLinks = function(t: TFunction): LinkType[] {
   return [
     {
       name: t("sidePanel.publicLinks.login"),
@@ -59,7 +59,7 @@ const publicLinks = function (t: TFunction): LinkType[] {
   ];
 };
 
-const authenticatedLinks = function (t: TFunction): LinkType[] {
+const authenticatedLinks = function(t: TFunction): LinkType[] {
   return [
     {
       name: t("sidePanel.authenticatedLinks.events"),
@@ -72,7 +72,7 @@ const authenticatedLinks = function (t: TFunction): LinkType[] {
   ];
 };
 
-const managerLinks = function (t: TFunction): LinkType[] {
+const managerLinks = function(t: TFunction): LinkType[] {
   return [
     {
       name: t("sidePanel.managerLinks.events"),
@@ -97,7 +97,7 @@ const managerLinks = function (t: TFunction): LinkType[] {
   ];
 };
 
-const adminLinks = function (t: TFunction): LinkType[] {
+const adminLinks = function(t: TFunction): LinkType[] {
   return [
     {
       name: t("sidePanel.adminLinks.users"),
@@ -108,7 +108,7 @@ const adminLinks = function (t: TFunction): LinkType[] {
 
 export default function SidePanel() {
   const navigate = useNavigate();
-  const state = useAccountStore(function (state) {
+  const state = useAccountStore(function(state) {
     return state;
   });
   //const parsedToken = useAccountStore(function (state) {
@@ -152,11 +152,11 @@ export default function SidePanel() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const openAccount = !!anchorEl;
 
-  const handleOpen = function (e: React.MouseEvent<HTMLElement>) {
+  const handleOpen = function(e: React.MouseEvent<HTMLElement>) {
     setAnchorEl(e.currentTarget);
   };
 
-  const handleClose = function () {
+  const handleClose = function() {
     setAnchorEl(undefined);
   };
 
@@ -170,16 +170,19 @@ export default function SidePanel() {
           zIndex: 1,
         }}
       >
-        <Fab
-          onClick={() => setOpen(true)}
-          size="small"
-          sx={{
-            borderRadius: "0 50% 50% 0",
-            padding: "1.5rem 1.5rem 1.5rem 1.5rem",
-          }}
-        >
-          <MenuIcon></MenuIcon>
-        </Fab>
+        <Tooltip title={t("sidePanel.openSidePanelButtonTooltip")}>
+          <Fab
+            onClick={() => setOpen(true)}
+            size="small"
+            sx={{
+              borderRadius: "0 50% 50% 0",
+              padding: "1.5rem 1.5rem 1.5rem 1.5rem",
+            }}
+            aria-label={t("sidePanel.ariaLabel.openSidePanelButton")}
+          >
+            <MenuIcon></MenuIcon>
+          </Fab>
+        </Tooltip>
       </Box>
       <Drawer
         open={open}
@@ -202,37 +205,49 @@ export default function SidePanel() {
           }}
         >
           <Typography flexGrow={1}></Typography>
-          <Tooltip onClick={handleOpen} title="Konto">
-            <IconButton
-              sx={{
-                borderRadius: "0.5rem",
-                color: "white"
-              }}
-            >
-              <Person></Person>
-              <Typography>{`${state.parsedToken?.given_name} ${state.parsedToken?.family_name}`}</Typography>
-            </IconButton>
-          </Tooltip>
-          <Menu open={openAccount} onClose={handleClose} anchorEl={anchorEl}>
-            <MenuItem
-              onClick={function () {
-                navigate("/my-profile");
-                handleClose();
-                setOpen(false);
-              }}
-            >
-              <Typography>Mój profil</Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={function () {
-                navigate("/logout");
-                handleClose();
-                setOpen(false);
-              }}
-            >
-              <Typography>Wyloguj się</Typography>
-            </MenuItem>
-          </Menu>
+          {state.parsedToken && (
+            <>
+              <Tooltip onClick={handleOpen} title="Konto">
+                <IconButton
+                  sx={{
+                    borderRadius: "0.5rem",
+                    color: "white",
+                  }}
+                >
+                  <Person></Person>
+                  <Typography>{`${state.parsedToken?.given_name} ${state.parsedToken?.family_name}`}</Typography>
+                </IconButton>
+              </Tooltip>
+              <Menu
+                open={openAccount}
+                onClose={handleClose}
+                anchorEl={anchorEl}
+              >
+                <MenuItem
+                  onClick={function() {
+                    navigate("/my-profile");
+                    handleClose();
+                    setOpen(false);
+                  }}
+                >
+                  <Typography>
+                    {t("sidePanel.authenticatedLinks.myProfile")}
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={function() {
+                    navigate("/logout");
+                    handleClose();
+                    setOpen(false);
+                  }}
+                >
+                  <Typography>
+                    {t("sidePanel.authenticatedLinks.logout")}
+                  </Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Container>
         <Container
           maxWidth="lg"
@@ -270,11 +285,11 @@ export default function SidePanel() {
                   {t("sidePanel.publicLinksHeading")}
                 </Typography>
                 <List>
-                  {publicLinks(t).map(function (e) {
+                  {publicLinks(t).map(function(e) {
                     return (
                       <ListItem key={e.name}>
                         <StyledLink
-                          onClick={function () {
+                          onClick={function() {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -295,11 +310,11 @@ export default function SidePanel() {
                   {t("sidePanel.authenticatedLinksHeading")}
                 </Typography>
                 <List>
-                  {authenticatedLinks(t).map(function (e) {
+                  {authenticatedLinks(t).map(function(e) {
                     return (
                       <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function () {
+                          onClick={function() {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -320,11 +335,11 @@ export default function SidePanel() {
                   {t("sidePanel.managerLinksHeading")}
                 </Typography>
                 <List>
-                  {managerLinks(t).map(function (e) {
+                  {managerLinks(t).map(function(e) {
                     return (
                       <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function () {
+                          onClick={function() {
                             navigate(e.uri);
                             setOpen(false);
                           }}
@@ -345,11 +360,11 @@ export default function SidePanel() {
                   {t("sidePanel.adminLinksHeading")}
                 </Typography>
                 <List>
-                  {adminLinks(t).map(function (e) {
+                  {adminLinks(t).map(function(e) {
                     return (
                       <ListItem key={e.uri}>
                         <StyledLink
-                          onClick={function () {
+                          onClick={function() {
                             navigate(e.uri);
                             setOpen(false);
                           }}

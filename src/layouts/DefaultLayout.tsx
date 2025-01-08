@@ -6,16 +6,20 @@ import SidePanel from "../components/SidePanel";
 import { defaultTheme } from "../style/defaultTheme";
 import { useEffect } from "react";
 import ScrollToTop from "../components/ScrollToTop";
+import RefreshSessionModal from "../components/RefreshSessionModal";
 
 export default function DefaultLayout() {
   const location = useLocation();
 
-  useEffect(function () {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    })
-  }, [location]);
+  useEffect(
+    function() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    },
+    [location],
+  );
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -39,6 +43,7 @@ export default function DefaultLayout() {
         <Outlet></Outlet>
       </Container>
       <Footer></Footer>
+      <RefreshSessionModal></RefreshSessionModal>
     </ThemeProvider>
   );
 }

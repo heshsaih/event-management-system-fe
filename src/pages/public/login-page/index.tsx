@@ -3,9 +3,11 @@ import StyledContainer from "../../../components/StyledContainer";
 import useLogin from "../../../data/useLogin";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const { isFetching, login } = useLogin();
+  const navigate = useNavigate();
+  const { isFetching, login } = useLogin(navigate);
   const { t } = useTranslation();
 
   return (

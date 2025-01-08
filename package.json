@@ -27,6 +27,7 @@
     "react-hook-form": "^7.53.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^15.1.2",
+    "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^6.26.2",
     "uni-fe": "file:",
     "zod": "^3.23.8",

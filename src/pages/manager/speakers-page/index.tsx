@@ -113,7 +113,7 @@ export default function SpeakersPage() {
                 <TableHead>
                   {Object.keys(mappedSpeakers[0]).map(function(e) {
                     if (e === "id") return;
-                    return <TableCell>{e}</TableCell>;
+                    return <TableCell key={e}>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
@@ -121,6 +121,7 @@ export default function SpeakersPage() {
                     return (
                       <Tooltip
                         title={t("speakersPage.speakerTableEntryTooltip")}
+                        key={e.id}
                       >
                         <TableRow
                           tabIndex={0}
@@ -141,7 +142,9 @@ export default function SpeakersPage() {
                           {Object.keys(e).map(function(val) {
                             if (val === "id") return;
                             return (
-                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                              <TableCell key={val}>
+                                {e[val as keyof typeof e]}
+                              </TableCell>
                             );
                           })}
                         </TableRow>

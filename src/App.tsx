@@ -4,7 +4,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Toaster } from "react-hot-toast";
 import "dayjs/locale/pl";
-import "./i18/config"
+import "./i18/config";
 import { Colors } from "./constants/styling";
 
 export default function App() {

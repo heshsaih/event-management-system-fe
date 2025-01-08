@@ -21,6 +21,7 @@ export default function EventListParticipant() {
         paddingTop: "0",
       }}
     >
+      <Typography variant="h4">{t("eventsPageParticipant.eventListHeading")}</Typography>
       {isFetching && (
         <CircularProgress
           size={"3rem"}
@@ -30,7 +31,7 @@ export default function EventListParticipant() {
       {!isFetching &&
         events &&
         events.length > 0 &&
-        events.map(function (e) {
+        events.map(function(e) {
           return <EventEntry event={e}></EventEntry>;
         })}
       {(!isFetching && !events) ||

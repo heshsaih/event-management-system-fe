@@ -14,15 +14,15 @@ export const apiWithEtag = axios.create({
 
 apiWithToken.interceptors.request.use(
   function (config) {
-    //    const accountStore = localStorage.getItem("accountStore");
-    //    if (accountStore) {
-    //      const parsedStore = JSON.parse(accountStore) as {
-    //        state: { token: string | undefined };
-    //      };
-    //      if (parsedStore.state.token) {
-    //        config.headers.Authorization = `Bearer ${parsedStore.state.token}`;
-    //      }
-    //    }
+        const accountStore = localStorage.getItem("accountStore");
+        if (accountStore) {
+          const parsedStore = JSON.parse(accountStore) as {
+            state: { token: string | undefined };
+          };
+          if (parsedStore.state.token) {
+            config.headers.Authorization = `Bearer ${parsedStore.state.token}`;
+          }
+        }
     return config;
   },
   function (error) {

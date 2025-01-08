@@ -26,7 +26,10 @@ function mapAccountsToTable(data: Account, t: TFunction) {
   return {
     id: data.id,
     [t("accountsPage.tableData.personalData")]:
-      `${data.firstName} ${data.lastName}`,
+      data.firstName && data.lastName
+        ? `${data.firstName} ${data.lastName}`
+        : t("accountsPage.tableData.noInfo"),
+    [t("accountsPage.tableData.accountType")]: data.accountType,
     [t("accountsPage.tableData.lastSuccessfulLogin")]:
       data.lastSuccessfulLogin.isValid()
         ? data.lastSuccessfulLogin.toDate().toLocaleString("pl-PL")
@@ -43,15 +46,17 @@ function mapAccountsToTable(data: Account, t: TFunction) {
   };
 }
 
-export default function UsersPage() {
+export default function AccountsPage() {
   const { isFetching, accounts, getAllAccounts, params } = useAccount();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const mappedAccounts = accounts && accounts.content.map(function (e) {
-    return mapAccountsToTable(e, t);
-  });
+  const mappedAccounts =
+    accounts &&
+    accounts.content.map(function(e) {
+      return mapAccountsToTable(e, t);
+    });
 
-  useEffect(function () {
+  useEffect(function() {
     getAllAccounts();
   }, []);
 
@@ -96,25 +101,25 @@ export default function UsersPage() {
             {!isFetching && mappedAccounts && mappedAccounts.length > 0 && (
               <>
                 <TableHead>
-                  {Object.keys(mappedAccounts[0]).map(function (e) {
+                  {Object.keys(mappedAccounts[0]).map(function(e) {
                     if (e === "id") return;
                     return <TableCell>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
-                  {mappedAccounts.map(function (e) {
+                  {mappedAccounts.map(function(e) {
                     return (
                       <Tooltip
                         title={t("accountsPage.accountTableEntryTooltip")}
                       >
                         <TableRow
                           tabIndex={0}
-                          onKeyUp={function (ev) {
+                          onKeyUp={function(ev) {
                             if (ev.key === "Enter") {
                               navigate(`/admin/users/${e.id}`);
                             }
                           }}
-                          onClick={function () {
+                          onClick={function() {
                             navigate(`/admin/users/${e.id}`);
                           }}
                           hover
@@ -123,7 +128,7 @@ export default function UsersPage() {
                             e[t("accountsPage.tableData.personalData")]
                           }
                         >
-                          {Object.keys(e).map(function (val) {
+                          {Object.keys(e).map(function(val) {
                             if (val === "id") return;
                             return (
                               <TableCell>{e[val as keyof typeof e]}</TableCell>
@@ -139,13 +144,13 @@ export default function UsersPage() {
             <TablePagination
               count={accounts?.totalElements ?? 10}
               rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
-              onRowsPerPageChange={function (e) {
+              onRowsPerPageChange={function(e) {
                 const cast = Number(e.target.value);
                 getAllAccounts({
                   size: Number.isNaN(cast) ? 20 : cast,
                 });
               }}
-              onPageChange={function (_, page) {
+              onPageChange={function(_, page) {
                 getAllAccounts({
                   page: page,
                 });

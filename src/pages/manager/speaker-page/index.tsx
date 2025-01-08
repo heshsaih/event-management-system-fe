@@ -99,7 +99,7 @@ export default function SpeakerPage() {
                 <TableBody>
                   {Object.keys(columns).map(function(e) {
                     return (
-                      <TableRow>
+                      <TableRow key={e}>
                         <TableCell>{e}</TableCell>
                         <TableCell>
                           {columns[e as keyof typeof columns]}

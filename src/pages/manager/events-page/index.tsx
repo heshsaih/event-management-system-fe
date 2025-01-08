@@ -33,25 +33,25 @@ function mapToColumns(event: EventBrief, t: TFunction) {
       : t("eventsPageManager.tableColumns.no"),
     [t("eventsPageManager.tableColumns.startDate")]: event.startDate.isValid()
       ? event.startDate.toDate().toLocaleString("pl-PL", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
       : t("eventsPageManager.tableColumns.noStartDate"),
     [t("eventsPageManager.tableColumns.endDate")]: event.endDate.isValid()
       ? event.endDate.toDate().toLocaleString("pl-PL", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
       : t("eventsPageManager.tableColumns.noEndDate"),
     [t("eventsPageManager.tableColumns.registrationStartDate")]:
       event.registrationStartDate.isValid()
         ? event.registrationStartDate.toDate().toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
         : t("eventsPageManager.tableColumns.noRegistrationStartDate"),
     [t("eventsPageManager.tableColumns.createdAt")]: event.createdAt.isValid()
       ? event.createdAt.toDate().toLocaleString("pl-PL")
@@ -67,13 +67,13 @@ export default function EventsPageManager() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(function () {
+  useEffect(function() {
     getAllEvents();
   }, []);
 
   const mappedEvents =
     events &&
-    events.content.map(function (e) {
+    events.content.map(function(e) {
       return mapToColumns(e, t);
     });
 
@@ -105,7 +105,7 @@ export default function EventsPageManager() {
             <Tooltip title={t("eventsPageManager.addEventButtonTooltip")}>
               <Button
                 aria-label={t("eventsPageManager.ariaLabels.addEventButton")}
-                onClick={function () {
+                onClick={function() {
                   navigate("/manager/events/create?step=0");
                 }}
               >
@@ -130,13 +130,13 @@ export default function EventsPageManager() {
             {!isFetching && mappedEvents && mappedEvents.length > 0 && (
               <>
                 <TableHead>
-                  {Object.keys(mappedEvents[0]).map(function (e) {
+                  {Object.keys(mappedEvents[0]).map(function(e) {
                     if (e === "id") return;
-                    return <TableCell>{e}</TableCell>;
+                    return <TableCell key={e}>{e}</TableCell>;
                   })}
                 </TableHead>
                 <TableBody>
-                  {mappedEvents.map(function (e) {
+                  {mappedEvents.map(function(e) {
                     return (
                       <Tooltip
                         key={e.id}
@@ -149,19 +149,21 @@ export default function EventsPageManager() {
                             e[t("eventsPageManager.tableColumns.name")]
                           }
                           hover
-                          onClick={function () {
+                          onClick={function() {
                             navigate(`/manager/events/${e.id}`);
                           }}
-                          onKeyUp={function (ev) {
+                          onKeyUp={function(ev) {
                             if (ev.key === "Enter") {
                               navigate(`/manager/events/${e.id}`);
                             }
                           }}
                         >
-                          {Object.keys(e).map(function (val) {
+                          {Object.keys(e).map(function(val) {
                             if (val === "id") return;
                             return (
-                              <TableCell>{e[val as keyof typeof e]}</TableCell>
+                              <TableCell key={val}>
+                                {e[val as keyof typeof e]}
+                              </TableCell>
                             );
                           })}
                         </TableRow>
@@ -174,11 +176,11 @@ export default function EventsPageManager() {
             <TablePagination
               count={events?.totalElements ?? 10}
               rowsPerPageOptions={[1, 2, 5, 10, 20, 50]}
-              onRowsPerPageChange={function (e) {
+              onRowsPerPageChange={function(e) {
                 const cast = Number(e.target.value);
                 getAllEvents({ size: Number.isNaN(cast) ? 20 : cast });
               }}
-              onPageChange={function (_, page) {
+              onPageChange={function(_, page) {
                 getAllEvents({
                   page: page,
                 });

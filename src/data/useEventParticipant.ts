@@ -18,6 +18,8 @@ export type EventForParticipantBriefDto = {
   name: string;
   startDate: string;
   endDate: string;
+  descriptionPl: string;
+  descriptionEn?: string;
   outsidersAllowed: boolean;
   minutesBetweenDifferentSessions: number;
   image: {

@@ -9,14 +9,14 @@ import {
 } from "../util/converters";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
 import { AxiosError } from "axios";
-import { apiWithToken } from "../api/config";
+import { apiWithEtag, apiWithToken } from "../api/config";
 import toast from "react-hot-toast";
 import i18next from "i18next";
 
 export type AccountDto = Omit<EntityDto, "name"> & {
-  email: string;
-  firstName: string;
-  lastName: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
   accountType: string;
   lastSuccessfulLogin: string;
   externalId: string;
@@ -69,7 +69,7 @@ export default function useAccount() {
   const getAccount = async function (id: string) {
     try {
       setIsFetching(true);
-      const response = await apiWithToken.get<AccountDto>(
+      const response = await apiWithEtag.get<AccountDto>(
         `/administrator/accounts/${id}`,
       );
       setAccount(mapAccountDtoToAccount(response.data));
@@ -86,8 +86,8 @@ export default function useAccount() {
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithToken.post(
-        `/administrator/accounts/${accountId}?roleName=${role}`,
+      await apiWithEtag.post(
+        `/administrator/accounts/${accountId}/roles?roleName=${role}`,
       );
       toast.success(i18next.t("dataHooks.account.addRoleSuccess"));
       return true;
@@ -105,8 +105,8 @@ export default function useAccount() {
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithToken.delete(
-        `/administrator/accounts/${accountId}?roleName=${role}`,
+      await apiWithEtag.delete(
+        `/administrator/accounts/${accountId}/roles?roleName=${role}`,
       );
       toast.success(i18next.t("dataHooks.account.removeRoleSuccess"));
       return true;
@@ -124,7 +124,7 @@ export default function useAccount() {
   ): Promise<boolean> {
     try {
       setIsUpdating(true);
-      await apiWithToken.delete(
+      await apiWithEtag.patch(
         `/administrator/accounts/${accountId}/set-active?active=${active}`,
       );
       toast.success(i18next.t("dataHooks.account.changeActiveSuccess"));

@@ -16,8 +16,8 @@ import SpeakersPage from "../pages/manager/speakers-page";
 import SpeakerPage from "../pages/manager/speaker-page";
 import LocationsPage from "../pages/manager/locations-page";
 import LocationPage from "../pages/manager/location-page";
-import UsersPage from "../pages/admin/accounts-page";
-import UserPage from "../pages/admin/account-page";
+import AccountsPage from "../pages/admin/accounts-page";
+import AccountPage from "../pages/admin/account-page";
 import LogoutPage from "../pages/public/logout-page";
 import OtherPage from "../pages/manager/other-page";
 import { Colors } from "../constants/styling";
@@ -147,11 +147,11 @@ const routes: RouteObject[] = [
         children: [
           {
             path: "/admin/users",
-            Component: UsersPage,
+            Component: AccountsPage,
           },
           {
             path: "/admin/users/:id",
-            Component: UserPage,
+            Component: AccountPage,
           },
         ],
       },

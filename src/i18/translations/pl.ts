@@ -1,27 +1,99 @@
+const carousel = {
+  ariaLabels: {
+    carousel: "Karuzela wyświetlająca nadchodzące wydarzenia",
+    leftArrow:
+      "Przycisk pozwalający wyświetlić poprzednie wydarzenie w karuzeli",
+    rightArrow:
+      "Przycisk pozwalający wyświetlić następne wydarzenie w karuzeli",
+    item: "Element w karuzeli wyświetlający wydarzenie",
+    showEventButton: "Przycisk do wyświetlenia szczegółów o wydarzeniu",
+  },
+  imageAltText: "Zdjęcie tematyczne wydarzenia",
+  showEventButtonTooltip: "Kliknij, aby dowiedzieć się więcej",
+  showEventButtonText: "Więcej",
+};
+
+const auth = {
+  loginSuccess: "Zalogowano pomyślnie",
+  sessionRefreshSuccess: "Sesja została wydłużona pomyślnie",
+  loginFail: "Nie udało się zalogować",
+};
+
+const refreshSessionModal = {
+  pageHeading: "Sesja wygaśnie",
+  pageBody:
+    "Twoja sesja wygaśnie w ciągu mnie niż 60 sekund. Czy chcesz ją przedłużyć?",
+  ariaLabels: {
+    confirmButton: "Przycisk do wydłużenia sesji",
+    cancelButton: "Przycisk do odrzucenia akcji",
+  },
+  confirmButtonTooltip: "Kliknij, aby wydłużyć sesję",
+  confirmButtonText: "Tak",
+  cancelButtonTooltip: "Kliknij, aby odrzucić akcję",
+  cancelButtonText: "Nie",
+};
+
+const accountPage = {
+  tableData: {
+    personalData: "Dane personalne",
+    accountType: "Rodzaj konta",
+    email: "Adres e-mail",
+    lastSuccessfulLogin: "Ostatnia udana próba logowania",
+    externalId: "Zewnętrzny identyfikator",
+    createdAt: "Data utworzenia",
+    updatedAt: "Data aktualizacji",
+    active: "Czy aktywny?",
+    noDate: "Brak daty",
+    noInfo: "Brak danych",
+    yes: "Tak",
+    no: "Nie",
+  },
+  dataHeading: "Informacje o użytkowniku",
+  rolesHeading: "Role",
+  pageHeading: "Panel zarządzania użytkownikiem",
+  ariaLabels: {
+    participantCheckbox: "Pole wyboru roli Uczestnik dla użytkownika",
+    managerCheckgox: "Pole wyboru roli Zarządca dla użytkownika",
+    adminCheckbox: "Pole wyboru roli Administrator dla użytkownika",
+    submitRolesButton: "Przycisk do zmiany wybranych ról użytkownikowi",
+    activeSwitch: "Przełącznik do zmiany aktywności użytkownika",
+    addRoleButton: "Przycisk do przyznania roli użytkownikowi",
+    removeRoleButton: "Przycisk do odebrania roli użytkownikowi",
+  },
+  participant: "Uczestnik",
+  manager: "Zarządca",
+  admin: "Administrator",
+  addRoleButtonTooltip: "Kliknij, aby przyznać rolę użytkownikowi",
+  removeRoleButtonTooltip: "Kliknij, aby odebrać rolę użytkownikowi",
+};
+
 const accountsPage = {
   pageHeading: "Panel zarządzania użytkownikami",
   tableData: {
     personalData: "Dane personalne",
+    accountType: "Rodzaj konta",
     lastSuccessfulLogin: "Czas ostatniej udanej próby logowania",
     createdAt: "Data utworzenia",
     updatedAt: "Data aktualizacji",
     active: "Czy aktywny?",
     yes: "Tak",
     no: "Nie",
-    noDate: "Brak daty"
+    noDate: "Brak daty",
+    noInfo: "Brak danych",
   },
   ariaLabels: {
-    tableEntry: "Wpis w liście użytkowników o wartości "
+    tableEntry: "Wpis w liście użytkowników o wartości ",
   },
   accountTableEntryTooltip: "Kliknij, aby wyświetlić dane o użytkowniku",
 };
 
 const loginPage = {
   pageHeading: "Zaloguj się",
-  pageBody: "Do uwierzytelnienia w systemie potrzebne jest aktywne konto Google. Kliknij przycisk poniżej, aby uwierzytelnić się w systemie za jego pomocą",
+  pageBody:
+    "Do uwierzytelnienia w systemie potrzebne jest aktywne konto Google. Kliknij przycisk poniżej, aby uwierzytelnić się w systemie za jego pomocą",
   loginButtonAriaLabel: "Przycisk do uwierzytelnienia się w systemie",
   loginButtonTooltip: "Kliknij, aby się uwierzytelnić",
-  loginButtonText: "Zaloguj się za pomocą konta Google"
+  loginButtonText: "Zaloguj się za pomocą konta Google",
 };
 
 const eventPageParticipant = {
@@ -54,7 +126,7 @@ const eventPageParticipant = {
     room: "Pomieszczenie",
     building: "budynek",
   },
-  sessionAvailableSeats: "Ilość miejsc: "
+  sessionAvailableSeats: "Ilość miejsc: ",
 };
 
 const eventsPageParticipant = {
@@ -70,13 +142,14 @@ const eventsPageParticipant = {
   pageHeaading: "Wydarzenia",
   noTableEntries: "W tej chwili nie odbywają się żadne wydarzenia",
   tableEntryTooltip: "Kliknij, aby wyświetlić dane o wydarzeniu",
+  eventListHeading: "Nadchodzące wydarzenia",
 };
 
 const dataHooks = {
   account: {
     addRoleSuccess: "Nowa rola została nadana pomyślnie",
     removeRoleSuccess: "Rola została odebrana pomyślnie",
-    changeActiveSuccess: "Status użytkownika został zmieniony pomyślnie"
+    changeActiveSuccess: "Status użytkownika został zmieniony pomyślnie",
   },
   emailNotification: {
     createSuccess:
@@ -268,10 +341,11 @@ const breadcrumbsLabels = {
   other: "Pozostałe parametry",
   createEvent: "Stwórz wydarzenie",
   accounts: "Użytkownicy",
-  account: "Użytkownik"
+  account: "Użytkownik",
 };
 const backendErrors = {
   messages: {
+    "Account already has given role": "Użytkownik już posiada daną rolę",
     "Event block in session does not exist in event":
       "Podany blok wydarzenia nie istnieje w tym wydarzeniu",
     "Received data contains duplicate names":
@@ -1651,6 +1725,7 @@ const sidePanel = {
   authenticatedLinks: {
     events: "Wydarzenia",
     myProfile: "Mój profil",
+    logout: "Wyloguj się"
   },
   managerLinks: {
     events: "Zarządzanie wydarzeniami",
@@ -1662,11 +1737,15 @@ const sidePanel = {
   adminLinks: {
     users: "Zarządzanie użytkownikami",
   },
+  ariaLabel: {
+    openSidePanelButton: "Przycisk otwierający panel boczny"
+  },
   publicLinksHeading: "Użytkownik nieuwierzytelniony",
   authenticatedLinksHeading: "Użytkownik uwierzytelniony",
   managerLinksHeading: "Zarządca",
   adminLinksHeading: "Administrator",
   closeSidePanelTooltip: "Kliknij, aby zamknąć panel",
+  openSidePanelButtonTooltip: "Kliknij, aby otworzyć panel boczny"
 };
 
 export default {
@@ -1706,5 +1785,9 @@ export default {
   eventsPageParticipant,
   eventPageParticipant,
   loginPage,
-  accountsPage
+  accountsPage,
+  accountPage,
+  refreshSessionModal,
+  auth,
+  carousel,
 } as const;

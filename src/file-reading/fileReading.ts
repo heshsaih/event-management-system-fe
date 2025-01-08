@@ -167,7 +167,6 @@ export function parseEventData(
           result.data[0].przerwa_pomiedzy_konferencjami,
         ),
       };
-      console.log(parsedResult);
       setResult(parsedResult);
       setIsReading(false);
     },
@@ -233,8 +232,6 @@ async function parseLoadedSession(
     sessionBlock: params.data.blok_wydarzenia ?? "",
     maxSeats: Number(params.data.ilosc_miejsc),
   };
-
-  console.log("data", params.data);
 
   const foundValues = await Promise.all([
     params.findRoom(params.data.pomieszczenie ?? ""),

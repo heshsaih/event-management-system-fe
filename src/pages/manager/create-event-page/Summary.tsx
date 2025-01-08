@@ -158,7 +158,7 @@ export default function Summary({ previousStep }: SummaryProps) {
           <TableBody>
             {state.sessions.map(function(e) {
               return (
-                <TableRow>
+                <TableRow key={e.id}>
                   <TableCell>{e.name}</TableCell>
                   <TableCell align={"right"} sx={{ whiteSpace: "pre" }}>
                     {e.descriptionPL}
