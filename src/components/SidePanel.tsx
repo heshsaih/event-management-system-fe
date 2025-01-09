@@ -17,7 +17,6 @@ import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { Colors } from "../constants/styling";
-//import useAccountStore, { Role } from "../data/useAccountStore";
 import StyledLink from "./StyledLink";
 import { useNavigate } from "react-router-dom";
 import { TFunction } from "i18next";

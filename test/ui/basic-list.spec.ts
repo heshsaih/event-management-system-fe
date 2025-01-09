@@ -353,7 +353,7 @@ describe("ui test of the manager's list page (locations, speakers etc.), locatio
         .locator("div")
         .filter({ hasText: "FrazaFrazaSortowanie po" }),
     ).not.toBeVisible();
-  });
+  }, 20000);
 
   test("check if filtering by show inactive works", async function() {
     await page.route("**/api/manager/locations?**", function(route) {

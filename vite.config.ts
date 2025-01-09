@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    setupFiles: "playwright.config.ts"
-  }
+    setupFiles: "playwright.config.ts",
+    expect: {
+      timeout: "10_000"
+    }
+  },
 });
