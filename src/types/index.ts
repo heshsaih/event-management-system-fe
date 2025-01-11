@@ -38,7 +38,7 @@ export type Pageable<T> = {
 export type EntityDto = {
   id: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   active: boolean;
   name: string;
 };

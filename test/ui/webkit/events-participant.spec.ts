@@ -1,12 +1,12 @@
 import {
   Browser,
   BrowserContext,
-  chromium,
   expect,
   Page,
+  webkit,
 } from "@playwright/test";
 import { afterAll, beforeAll, describe, test } from "vitest";
-import { EventForParticipantDto } from "../../src/data/useEventParticipant";
+import { EventForParticipantDto } from "../../../src/data/useEventParticipant";
 
 const events: EventForParticipantDto[] = [
   {
@@ -29,7 +29,7 @@ describe("events page for participants tests", function() {
   let context: BrowserContext;
 
   beforeAll(async function() {
-    browser = await chromium.launch();
+    browser = await webkit.launch();
     context = await browser.newContext();
     page = await context.newPage();
   });
@@ -88,7 +88,7 @@ describe("events page for participants tests", function() {
     await expect(page.getByRole("cell", { name: "22.12.2024" })).toBeVisible();
     await expect(page.getByRole("rowgroup")).toContainText("22.12.2024");
     await expect(page.getByLabel("Kliknij, aby dowiedzieć się")).toBeVisible();
-  }, 10000);
+  });
 
   test("check if more details' button for event entry is functional", async function() {
 

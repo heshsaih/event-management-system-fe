@@ -100,7 +100,7 @@ const adminLinks = function(t: TFunction): LinkType[] {
   return [
     {
       name: t("sidePanel.adminLinks.users"),
-      uri: "/admin/users",
+      uri: "/admin/accounts",
     },
   ];
 };

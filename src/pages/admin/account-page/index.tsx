@@ -111,7 +111,7 @@ export default function AccountPage() {
     >
       <StyledBreadcrumbs>
         <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
-        <Breadcrumb navigateTo="/admin/users">
+        <Breadcrumb navigateTo="/admin/accounts">
           {t("breadcrumbsLabels.accounts")}
         </Breadcrumb>
         <Breadcrumb current navigateTo="#">

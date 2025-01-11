@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, test } from "vitest";
 import {
   EventForParticipantDto,
   SessionForParticipantDto,
-} from "../../src/data/useEventParticipant";
+} from "../../../src/data/useEventParticipant";
 
 const event: EventForParticipantDto = {
   id: "beea2fca-9158-4ba1-9c9c-3e2b723ce021",

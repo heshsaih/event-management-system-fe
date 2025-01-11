@@ -1,12 +1,12 @@
 import {
   Browser,
   BrowserContext,
-  chromium,
   expect,
+  firefox,
   Page,
 } from "@playwright/test";
 import { afterAll, beforeAll, describe, test } from "vitest";
-import { EventForParticipantDto } from "../../src/data/useEventParticipant";
+import { EventForParticipantDto } from "../../../src/data/useEventParticipant";
 
 const events: EventForParticipantDto[] = [
   {
@@ -29,7 +29,7 @@ describe("ui test for the home page", function() {
   let context: BrowserContext;
 
   beforeAll(async function() {
-    browser = await chromium.launch();
+    browser = await firefox.launch();
     context = await browser.newContext();
     page = await context.newPage();
   });

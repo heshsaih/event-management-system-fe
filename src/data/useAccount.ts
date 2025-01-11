@@ -18,7 +18,7 @@ export type AccountDto = Omit<EntityDto, "name"> & {
   firstName: string | null;
   lastName: string | null;
   accountType: string;
-  lastSuccessfulLogin: string;
+  lastSuccessfulLogin: string | null;
   externalId: string;
   roles: Role[];
 };

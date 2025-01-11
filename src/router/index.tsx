@@ -146,11 +146,11 @@ const routes: RouteObject[] = [
         Component: AdminGuard,
         children: [
           {
-            path: "/admin/users",
+            path: "/admin/accounts",
             Component: AccountsPage,
           },
           {
-            path: "/admin/users/:id",
+            path: "/admin/accounts/:id",
             Component: AccountPage,
           },
         ],

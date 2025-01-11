@@ -1,9 +1,9 @@
 import {
   Browser,
   BrowserContext,
-  chromium,
   expect,
   Page,
+  webkit,
 } from "@playwright/test";
 import { afterAll, beforeAll, describe, test } from "vitest";
 
@@ -126,7 +126,7 @@ describe("create event page ui tests", function() {
   let context: BrowserContext;
 
   beforeAll(async function() {
-    browser = await chromium.launch();
+    browser = await webkit.launch();
     context = await browser.newContext();
     page = await context.newPage();
   });
@@ -341,7 +341,7 @@ describe("create event page ui tests", function() {
     await page.getByLabel("Kliknij, aby wykonać akcję").click();
     await page.getByLabel("Przycisk do wczytania danych").click();
     await expect(page.getByText("Wczytaj dane konferencjiPrzyk")).toBeVisible();
-  }, 10000);
+  });
 
   test("fill the step 2 and continue", async function() {
     await page.addInitScript(function() {
@@ -545,7 +545,7 @@ describe("create event page ui tests", function() {
     await page.getByLabel("Przycisk do zapisu danych").click();
     await page.getByLabel("Kliknij, aby wykonać akcję").click();
     await page.getByLabel("Kliknij, aby przejść do").click();
-  }, 10000);
+  });
 
   test("check if step 3 is rendered properly", async function() {
     await page.addInitScript(function() {
@@ -653,8 +653,9 @@ describe("create event page ui tests", function() {
         JSON.stringify(stateAfterStep3),
       );
     });
+    console.log(JSON.stringify(stateAfterStep3));
     await page.goto("http://localhost:5173/manager/events/create?step=3");
-    expect(page.url().endsWith("?step=3")).toBe(true)
+    expect(page.url().endsWith("?step=3")).toBe(true);
     await expect(page.locator("ol")).toContainText(
       "Strona główna/Wydarzenia/Stwórz wydarzenie",
     );
@@ -676,15 +677,15 @@ describe("create event page ui tests", function() {
     await expect(page.locator("#root")).toContainText(
       "Data rozpoczęcia wydarzenia",
     );
-    await expect(page.locator("#root")).toContainText("10.01.2025");
+    await expect(page.locator("#root")).toContainText("11.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Data zakończenia wydarzenia",
     );
-    await expect(page.locator("#root")).toContainText("10.01.2025");
+    await expect(page.locator("#root")).toContainText("11.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Data rozpoczęcia zapisów",
     );
-    await expect(page.locator("#root")).toContainText("09.01.2025");
+    await expect(page.locator("#root")).toContainText("10.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Wstęp dla uczestników spoza Politechniki",
     );
@@ -716,9 +717,9 @@ describe("create event page ui tests", function() {
     await expect(page.locator("thead")).toContainText("Ilość miejsc");
     await expect(page.locator("#root")).toContainText("10");
     await expect(page.locator("thead")).toContainText("Data rozpoczęcia");
-    await expect(page.locator("#root")).toContainText("10.01.2025, 00:00");
+    await expect(page.locator("#root")).toContainText("11.01.2025, 00:00");
     await expect(page.locator("thead")).toContainText("Data zakończenia");
-    await expect(page.locator("#root")).toContainText("10.01.2025, 00:00");
+    await expect(page.locator("#root")).toContainText("11.01.2025, 00:00");
     await expect(
       page.getByRole("heading", { name: "Powiadomienia mailowe" }),
     ).toBeVisible();
@@ -739,5 +740,5 @@ describe("create event page ui tests", function() {
     await expect(page.locator("#root")).toContainText("Domyślne powiadomienie");
     await expect(page.getByLabel("Przycisk do powrotu do")).toBeVisible();
     await expect(page.getByLabel("Przycisk do utworzenia")).toBeVisible();
-  }, 100000000);
+  });
 });

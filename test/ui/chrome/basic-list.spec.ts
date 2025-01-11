@@ -6,8 +6,8 @@ import {
   Page,
 } from "@playwright/test";
 import { afterAll, beforeAll, describe, test } from "vitest";
-import { Pageable } from "../../src/types";
-import { LocationBriefDto } from "../../src/data/useLocation";
+import { Pageable } from "../../../src/types";
+import { LocationBriefDto } from "../../../src/data/useLocation";
 
 const locationsNoFilters: Pageable<LocationBriefDto> = {
   content: [
@@ -332,7 +332,7 @@ describe("ui test of the manager's list page (locations, speakers etc.), locatio
     await page.getByRole("combobox", { name: "Kierunek sortowania" }).click();
     await page.getByRole("option", { name: "Malejąco" }).click();
     await expect(page.getByRole("checkbox")).toBeChecked();
-    await page.getByRole("checkbox").uncheck();
+    await page.getByRole("checkbox").click();
     await expect(page.getByRole("checkbox")).not.toBeChecked();
     await page.getByLabel("Przycisk do wyczyszczenia").click();
     await expect(

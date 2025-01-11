@@ -116,11 +116,11 @@ export default function AccountsPage() {
                           tabIndex={0}
                           onKeyUp={function(ev) {
                             if (ev.key === "Enter") {
-                              navigate(`/admin/users/${e.id}`);
+                              navigate(`/admin/accounts/${e.id}`);
                             }
                           }}
                           onClick={function() {
-                            navigate(`/admin/users/${e.id}`);
+                            navigate(`/admin/accounts/${e.id}`);
                           }}
                           hover
                           aria-label={
