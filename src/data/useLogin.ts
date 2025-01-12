@@ -31,7 +31,6 @@ export default function useLogin(navigate: NavigateFunction) {
       if (parsedToken) {
         state.setToken(response.data, parsedToken);
         toast.success(t("auth.sessionRefreshSuccess"));
-        navigate("/");
       } else {
         state.setToken(undefined, undefined);
         toast.success(t("auth.loginFail"));

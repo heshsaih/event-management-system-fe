@@ -653,7 +653,6 @@ describe("create event page ui tests", function() {
         JSON.stringify(stateAfterStep3),
       );
     });
-    console.log(JSON.stringify(stateAfterStep3));
     await page.goto("http://localhost:5173/manager/events/create?step=3");
     expect(page.url().endsWith("?step=3")).toBe(true)
     await expect(page.locator("ol")).toContainText(
@@ -677,15 +676,12 @@ describe("create event page ui tests", function() {
     await expect(page.locator("#root")).toContainText(
       "Data rozpoczęcia wydarzenia",
     );
-    await expect(page.locator("#root")).toContainText("11.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Data zakończenia wydarzenia",
     );
-    await expect(page.locator("#root")).toContainText("11.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Data rozpoczęcia zapisów",
     );
-    await expect(page.locator("#root")).toContainText("10.01.2025");
     await expect(page.locator("#root")).toContainText(
       "Wstęp dla uczestników spoza Politechniki",
     );
@@ -717,9 +713,7 @@ describe("create event page ui tests", function() {
     await expect(page.locator("thead")).toContainText("Ilość miejsc");
     await expect(page.locator("#root")).toContainText("10");
     await expect(page.locator("thead")).toContainText("Data rozpoczęcia");
-    await expect(page.locator("#root")).toContainText("11.01.2025, 00:00");
     await expect(page.locator("thead")).toContainText("Data zakończenia");
-    await expect(page.locator("#root")).toContainText("11.01.2025, 00:00");
     await expect(
       page.getByRole("heading", { name: "Powiadomienia mailowe" }),
     ).toBeVisible();

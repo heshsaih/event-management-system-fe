@@ -53,7 +53,8 @@ export default function RefreshSessionModal() {
         <Box>
           <Tooltip title={t("refreshSessionModal.confirmButtonTooltip")}>
             <Button
-              onClick={async function () {
+              disabled={isFetching}
+              onClick={async function() {
                 await refreshSession();
                 setOpen(false);
               }}
@@ -68,7 +69,8 @@ export default function RefreshSessionModal() {
           </Tooltip>
           <Tooltip title={t("refreshSessionModal.cancelButtonTooltip")}>
             <Button
-              onClick={function () {
+              disabled={isFetching}
+              onClick={function() {
                 setOpen(false);
               }}
               aria-label={t("refreshSessionModal.ariaLabels.cancelButton")}

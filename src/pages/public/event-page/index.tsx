@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import useEventParticipant, {
   EventForParticipant,
 } from "../../../data/useEventParticipant";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
 import { useTranslation } from "react-i18next";
 import Breadcrumb from "../../../components/Breadcrumb";
@@ -23,6 +23,8 @@ import SessionEntryParticipant from "./SessionEntryParticipant";
 import getRandomColor from "../../../util/randomColor";
 import { DEFAULT_SESSION_BLOCK } from "../../../constants/session";
 import { SessionBlock } from "../../../data/useCreateEventStore";
+import useAccountStore, { Role } from "../../../data/useAccountStore";
+import SignInModal from "./SignInModal";
 
 function mapEventDataToColumn(data: EventForParticipant, t: TFunction) {
   return {
@@ -48,9 +50,21 @@ function mapEventDataToColumn(data: EventForParticipant, t: TFunction) {
 
 export default function EventPage() {
   const { id } = useParams();
-  const { isFetching, isFetchingSessions, event, getEvent, sessions } =
-    useEventParticipant();
+  const parsedToken = useAccountStore(function(store) {
+    return store.parsedToken;
+  });
+  const {
+    isFetching,
+    getSessions,
+    isFetchingSessions,
+    event,
+    getEvent,
+    sessions,
+  } = useEventParticipant(
+    !!parsedToken && parsedToken.authorities.includes(Role.PARTICIPANT),
+  );
   const { t } = useTranslation();
+  const [chosenSessionSignInId, setChosenSessionSignInId] = useState<string>();
 
   useEffect(
     function() {
@@ -145,7 +159,10 @@ export default function EventPage() {
             </Typography>
             {sessions.map(function(e) {
               return (
-                <SessionEntryParticipant session={e}></SessionEntryParticipant>
+                <SessionEntryParticipant
+                  setChosenSessionSignInId={setChosenSessionSignInId}
+                  session={e}
+                ></SessionEntryParticipant>
               );
             })}
           </>
@@ -195,6 +212,14 @@ export default function EventPage() {
           ></SessionViewer>
         </Suspense>
       )}
+      <SignInModal
+        getSessions={getSessions}
+        open={!!chosenSessionSignInId}
+        onClose={function() {
+          setChosenSessionSignInId(undefined);
+        }}
+        sessionId={chosenSessionSignInId!}
+      ></SignInModal>
     </StyledContainer>
   );
 }

@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: "playwright.config.ts",
     testTimeout: 1_000_000,
     minWorkers: 1,
-    maxWorkers: 4,
+    maxWorkers: 1,
     expect: {
       poll: {
         timeout: 1_000_000

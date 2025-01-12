@@ -3,15 +3,36 @@ import { useEffect, useState } from "react";
 import {
   mapEventForParticipantBtiefDtoToEventForParticipantBrief,
   mapEventForParticipantDtoToEventForParticipant,
+  mapFilterParamsToUri,
   mapSessionForParticipantDtoToSessionForParticipant,
 } from "../util/converters";
-import { apiWithToken } from "../api/config";
+import { apiWithEtag, apiWithToken } from "../api/config";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
 import { AxiosError } from "axios";
+import toast from "react-hot-toast";
+import i18next from "i18next";
+import { Pageable } from "../types";
+import { FilterOptions } from "../components/FilterParams";
 
-export type TicketDto = {};
+export enum TicketTime {
+  PAST = "past",
+  FUTURE = "future",
+}
 
-export type Ticket = {};
+export type TicketDto = {
+  id: string;
+  accountId: string;
+  sessionId: string;
+  eventId: string;
+  sessionName: string;
+  reserve: boolean;
+  active: boolean;
+  createdAt: string;
+};
+
+export type Ticket = Omit<TicketDto, "createdAt"> & {
+  createdAt: Dayjs;
+};
 
 export type EventForParticipantBriefDto = {
   id: string;
@@ -97,12 +118,19 @@ export type SessionForParticipant = Omit<
   ticket?: Ticket | null;
 };
 
-export default function useEventParticipant() {
+export default function useEventParticipant(isParticipant?: boolean) {
   const [events, setEvents] = useState<EventForParticipantBrief[]>();
   const [event, setEvent] = useState<EventForParticipant>();
   const [sessions, setSessions] = useState<SessionForParticipant[]>();
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isFetchingSessions, setIsFetchingSessions] = useState<boolean>(false);
+  const [isFetchingSession, setIsFetchingSession] = useState<boolean>(false);
+  const [session, setSession] = useState<SessionForParticipant>();
+  const [isSigning, setIsSigning] = useState<boolean>(false);
+  const [tickets, setTickets] = useState<Pageable<SessionForParticipant>>();
+  const [params, setParams] = useState<FilterOptions>({
+    orderBy: "createdAt"
+  });
 
   const getAllEvents = async function() {
     try {
@@ -139,9 +167,14 @@ export default function useEventParticipant() {
     if (event) {
       try {
         setIsFetchingSessions(true);
-        const response = await apiWithToken.get<SessionForParticipantDto[]>(
-          `/open/events/${event.id}/sessions`,
-        );
+        let uri: string;
+        if (isParticipant) {
+          uri = `/participant/event/${event.id}/sessions`;
+        } else {
+          uri = `/open/events/${event.id}/sessions`;
+        }
+        const response =
+          await apiWithToken.get<SessionForParticipantDto[]>(uri);
         setSessions(
           response.data.map(mapSessionForParticipantDtoToSessionForParticipant),
         );
@@ -150,6 +183,75 @@ export default function useEventParticipant() {
       } finally {
         setIsFetchingSessions(false);
       }
+    }
+  };
+
+  const getSession = async function(id: string) {
+    try {
+      setIsFetchingSession(true);
+      const response = await apiWithEtag.get<SessionForParticipantDto>(
+        `/participant/sessions/${id}`,
+      );
+      setSession(
+        mapSessionForParticipantDtoToSessionForParticipant(response.data),
+      );
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError>);
+    } finally {
+      setIsFetchingSession(false);
+    }
+  };
+
+  const signIn = async function(sessionId: string): Promise<boolean> {
+    try {
+      setIsSigning(true);
+      await apiWithEtag.post(`/participant/sessions/${sessionId}/ticket`);
+      toast.success(i18next.t("dataHooks.eventParticipant.signInSuccess"));
+      return true;
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError>);
+      return false;
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  const signOut = async function(ticketId: string): Promise<boolean> {
+    try {
+      setIsSigning(true);
+      await apiWithToken.delete(`/participant/sessions/${ticketId}/ticket`);
+      toast.success(i18next.t("dataHooks.eventParticipant.signOutSuccess"));
+      return true;
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError>);
+      return false;
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  const getTickets = async function(type: TicketTime, filterOptions?: FilterOptions) {
+    const newOptions = {
+      ...params,
+      ...filterOptions,
+    };
+    const uri = mapFilterParamsToUri(newOptions).replace("name", "sessionName");
+    try {
+      setIsFetching(true);
+      const response = await apiWithToken.get<
+        Pageable<SessionForParticipantDto>
+      >(`/participant/sessions/${type}?${uri}`);
+      setTickets({
+        ...response.data,
+        content: response.data.content.map(
+          mapSessionForParticipantDtoToSessionForParticipant,
+        ),
+      });
+      setParams(newOptions);
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError>);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -170,5 +272,16 @@ export default function useEventParticipant() {
     isFetchingSessions,
     getAllEvents,
     getEvent,
+    getSession,
+    session,
+    isFetchingSession,
+    signIn,
+    isSigning,
+    setSession,
+    getSessions,
+    signOut,
+    getTickets,
+    tickets,
+    params,
   };
 }

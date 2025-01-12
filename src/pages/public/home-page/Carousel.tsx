@@ -36,6 +36,7 @@ export default function Carousel() {
         <LibCarousel
           infiniteLoop
           autoPlay
+          showThumbs={false}
           showStatus={false}
           aria-label={t("carousel.ariaLabels.carousel")}
           labels={{

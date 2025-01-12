@@ -5,16 +5,20 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import { Colors, Styling } from "../../../constants/styling";
 import { ExpandMore } from "@mui/icons-material";
+import StyledContainer from "../../../components/StyledContainer";
+import { useNavigate } from "react-router-dom";
 
 function mapSessionDataToColumn(session: SessionForParticipant, t: TFunction) {
   return {
@@ -25,22 +29,22 @@ function mapSessionDataToColumn(session: SessionForParticipant, t: TFunction) {
     [t("eventPageParticipant.sessionTableRow.startDate")]:
       session.startDate.isValid()
         ? session.startDate.toDate().toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : t("eventPageParticipant.sessionTableRow.noDate"),
     [t("eventPageParticipant.sessionTableRow.endDate")]:
       session.endDate.isValid()
         ? session.endDate.toDate().toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : t("eventPageParticipant.sessionTableRow.noDate"),
     [t("eventPageParticipant.sessionTableRow.location")]:
       `${t("eventPageParticipant.sessionTableRow.room")} ${session.room.roomNumber}, ${t("eventPageParticipant.sessionTableRow.building")} ${session.room.locationName}`,
@@ -57,6 +61,7 @@ function mapSessionDataToColumn(session: SessionForParticipant, t: TFunction) {
 
 type SessionEntryParticipantProps = {
   session: SessionForParticipant;
+  setChosenSessionSignInId: (id: string) => void;
 };
 
 export default function SessionEntryParticipant(
@@ -66,8 +71,9 @@ export default function SessionEntryParticipant(
   const mappedSession = mapSessionDataToColumn(props.session, t);
   const [open, setOpen] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  const openAccordion = function () {
+  const openAccordion = function() {
     setOpen(true);
     const currentRect = ref.current?.getBoundingClientRect() as DOMRect;
     const scrollValue = currentRect.top + window.scrollY - 100;
@@ -77,7 +83,7 @@ export default function SessionEntryParticipant(
     });
   };
 
-  const closeAccordion = function () {
+  const closeAccordion = function() {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -97,11 +103,16 @@ export default function SessionEntryParticipant(
       }}
       ref={ref}
       expanded={open}
-      onChange={function () {
+      onChange={function() {
         open ? closeAccordion() : openAccordion();
       }}
     >
-      <AccordionSummary expandIcon={<ExpandMore></ExpandMore>}>
+      <AccordionSummary
+        expandIcon={<ExpandMore></ExpandMore>}
+        sx={{
+          color: props.session.availableSeats === 0 ? Colors.RED : "black",
+        }}
+      >
         <Typography variant="h5">{`${props.session.sessionName} - ${props.session.sessionType}`}</Typography>
         <Typography flexGrow={1}></Typography>
         <Typography variant="h6">{`${t("eventPageParticipant.sessionAvailableSeats")}: ${props.session.availableSeats}`}</Typography>
@@ -110,7 +121,35 @@ export default function SessionEntryParticipant(
         <TableContainer>
           <Table>
             <TableBody>
-              {Object.keys(mappedSession).map(function (e) {
+              {Object.keys(mappedSession).map(function(e) {
+                if (
+                  e === t("eventPageParticipant.sessionTableRow.availableSeats")
+                ) {
+                  return (
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          color:
+                            props.session.availableSeats === 0
+                              ? Colors.RED
+                              : "black",
+                        }}
+                      >
+                        {e}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color:
+                            props.session.availableSeats === 0
+                              ? Colors.RED
+                              : "black",
+                        }}
+                      >
+                        {mappedSession[e as keyof typeof mappedSession]}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
                 return (
                   <TableRow>
                     <TableCell>{e}</TableCell>
@@ -123,6 +162,59 @@ export default function SessionEntryParticipant(
             </TableBody>
           </Table>
         </TableContainer>
+        <StyledContainer inner sx={{ marginY: "1rem", padding: 0 }}>
+          {props.session.ticket === undefined && (
+            <>
+              <Typography>{t("eventPageParticipant.loggedInUsers")}</Typography>
+              <Tooltip title={t("eventPageParticipant.loginButtonTooltip")}>
+                <Button
+                  aria-label={t("eventPageParticipant.ariaLabels.loginButton")}
+                  onClick={function() {
+                    navigate("/login");
+                  }}
+                >
+                  {t("eventPageParticipant.loginButtonText")}
+                </Button>
+              </Tooltip>
+            </>
+          )}
+          {props.session.ticket === null && (
+            <>
+              {props.session.availableSeats === 0 && (
+                <Typography>{t("eventPageParticipant.noSeatsLeft")}</Typography>
+              )}
+              <Tooltip title={t("eventPageParticipant.signInButtonTooltip")}>
+                <Button
+                  aria-label={t("eventPageParticipant.ariaLabels.signInButton")}
+                  onClick={function() {
+                    props.setChosenSessionSignInId(props.session.id);
+                  }}
+                >
+                  {t("eventPageParticipant.signInButtonTexT")}
+                </Button>
+              </Tooltip>
+            </>
+          )}
+          {props.session.ticket && (
+            <>
+              <Typography>
+                {t("eventPageParticipant.alreadySignedIn")}
+              </Typography>
+              <Tooltip title={t("eventPageParticipant.ticketsButtonTooltip")}>
+                <Button
+                  aria-label={t(
+                    "eventPageParticipant.ariaLabels.ticketsButton",
+                  )}
+                  onClick={function() {
+                    navigate("/my-profile");
+                  }}
+                >
+                  {t("eventPageParticipant.ticketsButtonText")}
+                </Button>
+              </Tooltip>
+            </>
+          )}
+        </StyledContainer>
       </AccordionDetails>
     </Accordion>
   );

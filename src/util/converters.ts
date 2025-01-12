@@ -51,13 +51,15 @@ import {
   EventForParticipantDto,
   SessionForParticipant,
   SessionForParticipantDto,
+  Ticket,
+  TicketDto,
 } from "../data/useEventParticipant";
 import { Account, AccountDto } from "../data/useAccount";
 
 export function arrayBufferToBase64(array: ArrayBuffer): string {
   let binary = "";
   const bytes = new Uint8Array(array);
-  bytes.forEach(function (byte) {
+  bytes.forEach(function(byte) {
     binary += String.fromCharCode(byte);
   });
   return window.btoa(binary);
@@ -146,7 +148,7 @@ export function mapLocationFormToCreateLocationDto(
     street: data.street,
     city: data.city,
     postalCode: data.postalCode,
-    rooms: data.rooms.map(function (e): CreateRoomWithLocationDto {
+    rooms: data.rooms.map(function(e): CreateRoomWithLocationDto {
       return {
         roomNumber: e.roomNumber,
         capacity: e.capacity,
@@ -257,7 +259,7 @@ export function mapEventDataToCreateEventDto(
     descriptionEn: data.descriptionEN,
     eventBlocksNames: Array.from(
       new Set(
-        data.sessions.map(function (e) {
+        data.sessions.map(function(e) {
           return e.sessionBlock;
         }),
       ),
@@ -456,6 +458,19 @@ export function mapSessionForParticipantDtoToSessionForParticipant(
     ...data,
     startDate: dayjs(data.startDate),
     endDate: dayjs(data.endDate),
+    ticket: mapTicketDtoToTicket(data.ticket),
+  };
+}
+
+export function mapTicketDtoToTicket(
+  data: TicketDto | undefined | null,
+): Ticket | undefined | null {
+  if (data === undefined || data === null) {
+    return data;
+  }
+  return {
+    ...data,
+    createdAt: dayjs(data.createdAt),
   };
 }
 

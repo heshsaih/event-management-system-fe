@@ -48,6 +48,7 @@ type FilterParamsType = z.infer<typeof filterSchema>;
 
 type FilterParamsProps = {
   callback: (options: FilterOptions) => void;
+  name?: boolean;
 };
 
 const directionOptions = function(t: TFunction): AutocompleteOption[] {
@@ -64,11 +65,7 @@ const directionOptions = function(t: TFunction): AutocompleteOption[] {
 };
 
 const orderByOptions = function(t: TFunction): AutocompleteOption[] {
-  return [
-    {
-      label: t("filterParams.orderByOptions.name"),
-      value: "name",
-    },
+  let options = [
     {
       label: t("filterParams.orderByOptions.createdAt"),
       value: "createdAt",
@@ -77,14 +74,20 @@ const orderByOptions = function(t: TFunction): AutocompleteOption[] {
       label: t("filterParams.orderByOptions.updatedAt"),
       value: "updatedAt",
     },
+    {
+      label: t("filterParams.orderByOptions.name"),
+      value: "name",
+    },
   ];
+  return options;
 };
+
 export default function FilterParams(props: FilterParamsProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<boolean>(false);
   const a = useForm<FilterParamsType>({
     resolver: zodResolver(filterSchema),
-    defaultValues: {
+    values: {
       phrase: "",
       direction: directionOptions(t)[0],
       showInactive: true,

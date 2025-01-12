@@ -1,3 +1,85 @@
+const myProfile = {
+  personalData: {
+    heading: "Dane osobowe",
+    dataTable: {
+      personal: "Imię i nazwisko",
+      email: "Adres e-mail",
+      role: "Role",
+      roles: {
+        PARTICIPANT: "Uczestnik",
+        ADMINISTRATOR: "Administrator",
+        MANAGER: "Zarządca"
+      }
+    }
+  },
+  tickets: {
+    heading: "Bilety",
+    upcomingTab: "Nadchodzące wydarzenia",
+    formerTab: "Odbyte wydarzenia",
+    noEntries: "Nie posiadasz żadnych nadchodzących biletów",
+    tableEntryTooltip: "Kliknij, aby wyświetlić bilet",
+    tableData: {
+      sessionName: "Nazwa konferencji",
+      sessionType: "Typ konferencji",
+      startDate: "Data rozpoczęcia",
+      endDate: "Data zakończenia",
+      place: "Miejsce odbywania się",
+      reserveList: "Lista rezerwowa?",
+      yes: "Tak",
+      no: "Nie"
+    }
+  },
+  ticketModal: {
+    heading: "Dane o konferencji",
+    tableData: {
+      sessionName: "Nazwa konferencji",
+      startDate: "Data rozpoczęcia",
+      endDate: "Data zakończenia",
+      sessionType: "Typ konferencji",
+      eventBlock: "Blok wydarzenia",
+      location: "Lokacja",
+      address: "Adres lokacji",
+      speaker: "Prelegent",
+      reserveList: "Lista rezerwowa?",
+      yes: "Tak",
+      no: "Nie"
+    },
+    ariaLabels: {
+      showEventButton: "Przycisk do przejścia do strony wydarzenia, do której należy ta konferencja",
+      signOutButton: "Przycisk do wypisania się z konferencji",
+    },
+    showEventButtonTooltip: "Kliknij, aby zobaczyć wydarzenie",
+    showEventButtonText: "Wydarzenie",
+    signOutButtonTooltip: "Kliknij, aby wypisać się z konferencji",
+    signOutButtonText: "Wypisz się"
+  }
+}
+
+const signInModal = {
+  pageHeading: "Zapis na konferencję",
+  question: "Czy na pewno chcesz się zapisać?",
+  tableData: {
+    name: "Nazwa konferencji",
+    startDate: "Data rozpoczęcia",
+    endDate: "Data zakończenia",
+    location: "Miejsce odbywania konferencji",
+    address: "Adres lokacji",
+    availableSeats: "Pozostałe miejsca",
+    eventBlock: "Blok wydarzenia",
+    speaker: "Prelegent",
+    room: "Pomieszczenie",
+    building: "budynek",
+  },
+  ariaLabels: {
+    signInButton: "Przycisk do zapisania się na konferencję",
+    cancelButton: "Przycisk do anulowania akcji",
+  },
+  signInButtonTooltip: "Kliknij, aby zapisać się na konfrencję",
+  signInButtonText: "Zapisz się",
+  cancelButtonTooltip: "Kliknij, aby anulować",
+  cancelButtonText: "Anuluj",
+};
+
 const carousel = {
   ariaLabels: {
     carousel: "Karuzela wyświetlająca nadchodzące wydarzenia",
@@ -100,7 +182,9 @@ const eventPageParticipant = {
   pageHeading: "Podgląd wydarzenia",
   eventDataHeading: "Informacje o wydarzeniu",
   sessionsDataHeading: "Konferencje",
+  loggedInUsers: "Tylko zalogowani użytkownicy mogą się zapisać",
   noSessions: "Wydarzenie nie posiada konferencji",
+  noSeatsLeft: "UWAGA! Brak wolnych miejsc, zapis możliwy tylko na listę rezerwową",
   eventTable: {
     name: "Nazwa wydarzenia",
     descriptionPl: "Opis w wersji polskiej",
@@ -126,7 +210,20 @@ const eventPageParticipant = {
     room: "Pomieszczenie",
     building: "budynek",
   },
+  ariaLabels: {
+    loginButton:
+      "Przycisk do przejścia na stronę logowania w przypadku zapisania się na konferencję",
+    signInButton: "Przycisk do zapisania się na konferencję",
+    ticketsButton: "Przycisk do przejścia do strony z biletami użytkownika"
+  },
   sessionAvailableSeats: "Ilość miejsc: ",
+  loginButtonTooltip: "Kliknij, aby przejść na stronę logowania",
+  loginButtonText: "Zaloguj się",
+  signInButtonTooltip: "Kliknij, aby zapisać się na konferencję",
+  signInButtonTexT: "Zapisz się",
+  alreadySignedIn: "Użytkownik jest już zapisany na tę konferencję",
+  ticketsButtonTooltip: "Kliknij, aby zobaczyć swoje bilety",
+  ticketsButtonText: "Zobacz bilety"
 };
 
 const eventsPageParticipant = {
@@ -146,6 +243,10 @@ const eventsPageParticipant = {
 };
 
 const dataHooks = {
+  eventParticipant: {
+    signInSuccess: "Zapis na konferencję został wykonany pomyślnie",
+    signOutSuccess: "Wypisanie się z konferencji zostało wykonane pomyślnie",
+  },
   account: {
     addRoleSuccess: "Nowa rola została nadana pomyślnie",
     removeRoleSuccess: "Rola została odebrana pomyślnie",
@@ -342,9 +443,12 @@ const breadcrumbsLabels = {
   createEvent: "Stwórz wydarzenie",
   accounts: "Użytkownicy",
   account: "Użytkownik",
+  myProfile: "Mój profil"
 };
 const backendErrors = {
   messages: {
+    "Precondition Failed": "Nie masz uprawnień, by wykonać tę akcję",
+    "Signing up for session is closed": "Zapisy na tę konferencję są zamknięte",
     "Account already has given role": "Użytkownik już posiada daną rolę",
     "Event block in session does not exist in event":
       "Podany blok wydarzenia nie istnieje w tym wydarzeniu",
@@ -1725,7 +1829,7 @@ const sidePanel = {
   authenticatedLinks: {
     events: "Wydarzenia",
     myProfile: "Mój profil",
-    logout: "Wyloguj się"
+    logout: "Wyloguj się",
   },
   managerLinks: {
     events: "Zarządzanie wydarzeniami",
@@ -1738,14 +1842,14 @@ const sidePanel = {
     users: "Zarządzanie użytkownikami",
   },
   ariaLabel: {
-    openSidePanelButton: "Przycisk otwierający panel boczny"
+    openSidePanelButton: "Przycisk otwierający panel boczny",
   },
   publicLinksHeading: "Użytkownik nieuwierzytelniony",
   authenticatedLinksHeading: "Użytkownik uwierzytelniony",
   managerLinksHeading: "Zarządca",
   adminLinksHeading: "Administrator",
   closeSidePanelTooltip: "Kliknij, aby zamknąć panel",
-  openSidePanelButtonTooltip: "Kliknij, aby otworzyć panel boczny"
+  openSidePanelButtonTooltip: "Kliknij, aby otworzyć panel boczny",
 };
 
 export default {
@@ -1790,4 +1894,6 @@ export default {
   refreshSessionModal,
   auth,
   carousel,
+  signInModal,
+  myProfile
 } as const;
