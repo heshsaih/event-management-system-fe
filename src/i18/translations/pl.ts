@@ -1,3 +1,31 @@
+const sessionParticipantsModal = {
+  pageHeading: "Uczestnicy konferencji",
+  noEntries: "Ta konferencja nie ma jeszcze żadnych uczestników",
+  tableData: {
+    personalData: "Dane personalne",
+    email: "Adres e-mail",
+    createdAt: "Data zapisu",
+    reserved: "Czy lista rezerwowa?",
+    yes: "Tak",
+    no: "Nie",
+    options: "Opcje",
+  },
+  ariaLabels: {
+    signOutButton: "Przycisk do wypisania użytkownika z konferencji",
+    sendEmailButton:
+      "Przycisk do wysłania do prelegenta wiadomości e-mail z listą uczestników konferencji",
+  },
+  signOutButtonTooltip: "Kliknij, aby wypisać uczestnika z konferencji",
+  sendEmailTooltip: "Kliknij, aby wysłać prelegentowi listę uczestników",
+};
+
+const zustandHooks = {
+  createEvent: {
+    setErrorBody:
+      "Dane, które chcesz zapisać, są za duże. Spróbuj zmniejszyć ich ilość lub wgrać mniejsze zdjęcie",
+  },
+};
+
 const myProfile = {
   personalData: {
     heading: "Dane osobowe",
@@ -8,9 +36,9 @@ const myProfile = {
       roles: {
         PARTICIPANT: "Uczestnik",
         ADMINISTRATOR: "Administrator",
-        MANAGER: "Zarządca"
-      }
-    }
+        MANAGER: "Zarządca",
+      },
+    },
   },
   tickets: {
     heading: "Bilety",
@@ -26,8 +54,8 @@ const myProfile = {
       place: "Miejsce odbywania się",
       reserveList: "Lista rezerwowa?",
       yes: "Tak",
-      no: "Nie"
-    }
+      no: "Nie",
+    },
   },
   ticketModal: {
     heading: "Dane o konferencji",
@@ -42,18 +70,19 @@ const myProfile = {
       speaker: "Prelegent",
       reserveList: "Lista rezerwowa?",
       yes: "Tak",
-      no: "Nie"
+      no: "Nie",
     },
     ariaLabels: {
-      showEventButton: "Przycisk do przejścia do strony wydarzenia, do której należy ta konferencja",
+      showEventButton:
+        "Przycisk do przejścia do strony wydarzenia, do której należy ta konferencja",
       signOutButton: "Przycisk do wypisania się z konferencji",
     },
     showEventButtonTooltip: "Kliknij, aby zobaczyć wydarzenie",
     showEventButtonText: "Wydarzenie",
     signOutButtonTooltip: "Kliknij, aby wypisać się z konferencji",
-    signOutButtonText: "Wypisz się"
-  }
-}
+    signOutButtonText: "Wypisz się",
+  },
+};
 
 const signInModal = {
   pageHeading: "Zapis na konferencję",
@@ -184,7 +213,8 @@ const eventPageParticipant = {
   sessionsDataHeading: "Konferencje",
   loggedInUsers: "Tylko zalogowani użytkownicy mogą się zapisać",
   noSessions: "Wydarzenie nie posiada konferencji",
-  noSeatsLeft: "UWAGA! Brak wolnych miejsc, zapis możliwy tylko na listę rezerwową",
+  noSeatsLeft:
+    "UWAGA! Brak wolnych miejsc, zapis możliwy tylko na listę rezerwową",
   eventTable: {
     name: "Nazwa wydarzenia",
     descriptionPl: "Opis w wersji polskiej",
@@ -206,7 +236,7 @@ const eventPageParticipant = {
     availableSeats: "Pozostałe miejsca",
     speaker: "Prelegent",
     sessionType: "Typ konferencji",
-    eventBlock: "Blok konferencji",
+    eventBlock: "Blok wydarzenia",
     room: "Pomieszczenie",
     building: "budynek",
   },
@@ -214,7 +244,7 @@ const eventPageParticipant = {
     loginButton:
       "Przycisk do przejścia na stronę logowania w przypadku zapisania się na konferencję",
     signInButton: "Przycisk do zapisania się na konferencję",
-    ticketsButton: "Przycisk do przejścia do strony z biletami użytkownika"
+    ticketsButton: "Przycisk do przejścia do strony z biletami użytkownika",
   },
   sessionAvailableSeats: "Ilość miejsc: ",
   loginButtonTooltip: "Kliknij, aby przejść na stronę logowania",
@@ -223,7 +253,7 @@ const eventPageParticipant = {
   signInButtonTexT: "Zapisz się",
   alreadySignedIn: "Użytkownik jest już zapisany na tę konferencję",
   ticketsButtonTooltip: "Kliknij, aby zobaczyć swoje bilety",
-  ticketsButtonText: "Zobacz bilety"
+  ticketsButtonText: "Zobacz bilety",
 };
 
 const eventsPageParticipant = {
@@ -243,6 +273,9 @@ const eventsPageParticipant = {
 };
 
 const dataHooks = {
+  ticket: {
+    signOutSuccess: "Uczestnik został wypisany z konferencji pomyślnie",
+  },
   eventParticipant: {
     signInSuccess: "Zapis na konferencję został wykonany pomyślnie",
     signOutSuccess: "Wypisanie się z konferencji zostało wykonane pomyślnie",
@@ -285,6 +318,8 @@ const dataHooks = {
     createSuccess: "Nowa konferencja została utworzona pomyślnie",
     updateSuccess: "Konferencja została zaktualizowana pomyślnie",
     changeActiveSuccess: "Status konferencji został zmieniony pomyślnie",
+    sendParticipantListSuccess:
+      "Lista uczestników została wysłana do prelegenta pomyślnie",
   },
   sessionType: {
     createSuccess: "Nowy typ konferencji został utworzony pomyślnie",
@@ -443,10 +478,12 @@ const breadcrumbsLabels = {
   createEvent: "Stwórz wydarzenie",
   accounts: "Użytkownicy",
   account: "Użytkownik",
-  myProfile: "Mój profil"
+  myProfile: "Mój profil",
 };
 const backendErrors = {
   messages: {
+    "Sessions outside new given range":
+      "Istnieją konferencje, które znajdują się poza wybranym okresem trwania wydarzenia",
     "Precondition Failed": "Nie masz uprawnień, by wykonać tę akcję",
     "Signing up for session is closed": "Zapisy na tę konferencję są zamknięte",
     "Account already has given role": "Użytkownik już posiada daną rolę",
@@ -906,9 +943,14 @@ const eventPageManager = {
       accordion: "Rozwijany element z informacjami o konferencji",
       updateSessionButton:
         "Przycisk do otworzenia formularza do edycji konferencji",
+      showParticipantsButton:
+        "Przycisk do wyświetlenia uczestników zapisanych na konferencję",
     },
     updateSessionButtonTooltip: "Kliknij, aby edytować konferencję",
     updateSessionButtonText: "Edytuj",
+    showParticipantsButtonTootlip:
+      "Kliknij, aby wyświetlić zapisanych uczestników",
+    showParticipantsButtonText: "Uczestnicy",
   },
   sessionsPage: {
     sessionDataColumns: {
@@ -1510,7 +1552,7 @@ const updateSpeakerForm = {
     speakerTitleRequired: "Tytuł prelegenta jest wymagany",
     organizaitonRequired: "Organizacja prelegenta jest wymagana",
     emailWrongFormat:
-      "Podany adres e-mail prelegenta je jest poprawnym adresem e-mail",
+      "Podany adres e-mail prelegenta nie jest poprawnym adresem e-mail",
   },
   ariaLabels: {
     firstName: "Pole tekstowe z imieniem prelegenta",
@@ -1643,7 +1685,7 @@ const addSpeakerForm = {
     speakerTitleRequired: "Tytuł prelegenta jest wymagany",
     organizaitonRequired: "Organizacja prelegenta jest wymagana",
     emailWrongFormat:
-      "Podany adres e-mail prelegenta je jest poprawnym adresem e-mail",
+      "Podany adres e-mail prelegenta nie jest poprawnym adresem e-mail",
   },
   pageHeading: "Utwórz prelegenta",
   ariaLabels: {
@@ -1845,11 +1887,11 @@ const sidePanel = {
     openSidePanelButton: "Przycisk otwierający panel boczny",
   },
   publicLinksHeading: "Użytkownik nieuwierzytelniony",
-  authenticatedLinksHeading: "Użytkownik uwierzytelniony",
+  authenticatedLinksHeading: "Uczestnik",
   managerLinksHeading: "Zarządca",
   adminLinksHeading: "Administrator",
   closeSidePanelTooltip: "Kliknij, aby zamknąć panel",
-  openSidePanelButtonTooltip: "Kliknij, aby otworzyć panel boczny",
+  openSidePanelButtonTooltip: "Uczestnik",
 };
 
 export default {
@@ -1895,5 +1937,7 @@ export default {
   auth,
   carousel,
   signInModal,
-  myProfile
+  myProfile,
+  zustandHooks,
+  sessionParticipantsModal,
 } as const;

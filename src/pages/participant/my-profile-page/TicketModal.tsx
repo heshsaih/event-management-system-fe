@@ -123,6 +123,7 @@ export default function TicketModal(props: TicketModalProps) {
             <Tooltip title={t("myProfile.ticketModal.showEventButtonTooltip")}>
               <Button
                 disabled={isSigning}
+                autoFocus
                 aria-label={t(
                   "myProfile.ticketModal.ariaLabels.showEventButton",
                 )}

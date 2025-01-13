@@ -79,15 +79,25 @@ export default function FormerTickers() {
         ></CircularProgress>
       )}
       <FilterParams
-        name
+        sortOptions={[
+          {
+            label: t("filterParams.orderByOptions.createdAt"),
+            value: "createdAt",
+          },
+          {
+            label: t("filterParams.orderByOptions.updatedAt"),
+            value: "updatedAt",
+          },
+        ]}
         callback={function(e) {
           getTickets(TicketTime.FUTURE, e);
         }}
       ></FilterParams>
+      {!isFetching && mapped && mapped.length === 0 && (
+        <Typography>{t("myProfile.tickets.noEntries")}</Typography>
+      )}
+
       <TableContainer>
-          {!isFetching && mapped && mapped.length === 0 && (
-            <Typography>{t("myProfile.tickets.noEntries")}</Typography>
-          )}
         <Table>
           {!isFetching && mapped && mapped.length > 0 && (
             <>
@@ -149,7 +159,7 @@ export default function FormerTickers() {
         </Table>
       </TableContainer>
       <TicketModal
-        getTickets={function () {
+        getTickets={function() {
           getTickets(TicketTime.PAST);
         }}
         open={!!chosenId}

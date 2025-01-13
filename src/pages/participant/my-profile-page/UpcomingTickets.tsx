@@ -70,6 +70,21 @@ export default function UpcomingTickets() {
 
   return (
     <StyledContainer inner sx={{ paddingY: "1rem" }}>
+      <FilterParams
+        callback={function(e) {
+          getTickets(TicketTime.FUTURE, e);
+        }}
+        sortOptions={[
+          {
+            label: t("filterParams.orderByOptions.createdAt"),
+            value: "createdAt",
+          },
+          {
+            label: t("filterParams.orderByOptions.updatedAt"),
+            value: "updatedAt",
+          },
+        ]}
+      ></FilterParams>
       {isFetching && (
         <CircularProgress
           size="3rem"
@@ -78,15 +93,10 @@ export default function UpcomingTickets() {
           }}
         ></CircularProgress>
       )}
-      <FilterParams
-        callback={function(e) {
-          getTickets(TicketTime.FUTURE, e);
-        }}
-      ></FilterParams>
       <TableContainer>
-          {!isFetching && mapped && mapped.length === 0 && (
-            <Typography>{t("myProfile.tickets.noEntries")}</Typography>
-          )}
+        {!isFetching && mapped && mapped.length === 0 && (
+          <Typography>{t("myProfile.tickets.noEntries")}</Typography>
+        )}
         <Table>
           {!isFetching && mapped && mapped.length > 0 && (
             <>
@@ -148,7 +158,7 @@ export default function UpcomingTickets() {
         </Table>
       </TableContainer>
       <TicketModal
-        getTickets={function () {
+        getTickets={function() {
           getTickets(TicketTime.FUTURE);
         }}
         open={!!chosenId}

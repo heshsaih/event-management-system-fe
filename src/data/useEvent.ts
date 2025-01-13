@@ -63,7 +63,7 @@ export type Event = Entity & {
 export type CreateSessionWithEventDto = {
   sessionName: string;
   descriptionPl: string;
-  descriptionEn?: string;
+  descriptionEn: string | null;
   startDate: string;
   endDate: string;
   speakerId: string;
@@ -81,7 +81,7 @@ export type CreateEventDto = {
   };
   name: string;
   descriptionPl: string;
-  descriptionEn?: string;
+  descriptionEn: string | null;
   eventBlocksNames: string[];
   startDate: string;
   endDate: string;
@@ -115,7 +115,7 @@ export type UpdateEventDto = {
   };
   name: string;
   descriptionPl: string;
-  descriptionEn?: string;
+  descriptionEn: string | null;
   startDate: string;
   endDate: string;
   registrationStartDate: string;

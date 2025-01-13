@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Person } from "@mui/icons-material";
-import useAccountStore from "../data/useAccountStore";
+import useAccountStore, { Role } from "../data/useAccountStore";
 
 const breakpoints: Grid2Props["size"] = {
   xs: 12,
@@ -44,16 +44,8 @@ const publicLinks = function(t: TFunction): LinkType[] {
       uri: "/login",
     },
     {
-      name: t("sidePanel.publicLinks.register"),
-      uri: "/register",
-    },
-    {
       name: t("sidePanel.publicLinks.events"),
       uri: "/events",
-    },
-    {
-      name: t("sidePanel.publicLinks.forgotPassword"),
-      uri: "/forgot-password",
     },
   ];
 };
@@ -110,41 +102,17 @@ export default function SidePanel() {
   const state = useAccountStore(function(state) {
     return state;
   });
-  //const parsedToken = useAccountStore(function (state) {
-  //return state.parsedToken;
-  //});
+  const parsedToken = useAccountStore(function(state) {
+    return state.parsedToken;
+  });
 
-  // const foo = parsedToken?.role.flatMap(function (e) {
-  // return e.authority;
-  // });
-
-  // const isAuthenticated = !!parsedToken;
-  // const isParticipant =
-  //   isAuthenticated &&
-  //   parsedToken.role
-  //     .flatMap(function (e) {
-  //       return e.authority;
-  //     })
-  //     .includes(Role.PARTICIPANT);
-  // const isManager =
-  //   isAuthenticated &&
-  //   parsedToken.role
-  //     .flatMap(function (e) {
-  //       return e.authority;
-  //     })
-  //     .includes(Role.MANAGER);
-  // const isAdmin =
-  //   isAuthenticated &&
-  //   parsedToken.role
-  //     .flatMap(function (e) {
-  //       return e.authority;
-  //     })
-  //     .includes(Role.ADMIN);
-
-  const isAuthenticated = true;
-  const isParticipant = isAuthenticated && true;
-  const isManager = isAuthenticated && true;
-  const isAdmin = isAuthenticated && true;
+  const isAuthenticated = !!parsedToken;
+  const isParticipant =
+    isAuthenticated && parsedToken.authorities.includes(Role.PARTICIPANT);
+  const isManager =
+    isAuthenticated && parsedToken.authorities.includes(Role.MANAGER);
+  const isAdmin =
+    isAuthenticated && parsedToken.authorities.includes(Role.ADMIN);
 
   const [open, setOpen] = useState<boolean>(false);
   const { t } = useTranslation();

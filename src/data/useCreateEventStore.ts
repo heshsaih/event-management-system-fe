@@ -7,6 +7,13 @@ import getRandomColor from "../util/randomColor";
 import { DEFAULT_SESSION_BLOCK } from "../constants/session";
 import { MailNotifications } from "../pages/manager/create-event-page/MailNotifications";
 import { AutocompleteOption } from "../components/ControlledAutocomplete";
+import toast from "react-hot-toast";
+import i18next from "i18next";
+
+function handleError(e: unknown) {
+  console.error(e);
+  toast.error(i18next.t("zustandHooks.createEvent.setErrorBody"));
+}
 
 export type SessionBlock = {
   name: string;
@@ -23,21 +30,21 @@ export type CreateEventStore = CreateEventForm & {
     name: string;
     data: string;
   };
-  updateMailNotifications: (data: MailNotifications) => void;
-  addSessionBlock: (newSessionBlock: string) => void;
-  setSessionBlocks: (sessionBlocks: string[]) => void;
-  updateSession: (session: CreateSessionForm) => void;
-  createSession: (newSession: CreateSessionForm) => void;
+  updateMailNotifications: (data: MailNotifications) => void | unknown;
+  addSessionBlock: (newSessionBlock: string) => void | unknown;
+  setSessionBlocks: (sessionBlocks: string[]) => void | unknown;
+  updateSession: (session: CreateSessionForm) => void | unknown;
+  createSession: (newSession: CreateSessionForm) => void | unknown;
   removeSession: (sessionId: string) => void;
-  updateEvent: (event: CreateEventForm) => void;
-  setSessions: (sessions: CreateSessionForm[]) => void;
-  setImage: (name: string, value: string) => void;
+  updateEvent: (event: CreateEventForm) => void | unknown;
+  setSessions: (sessions: CreateSessionForm[]) => void | unknown;
+  setImage: (name: string, value: string) => void | unknown;
   clearStore: () => void;
 };
 
 const useCreateEventStore = create<CreateEventStore>()(
   persist(
-    function (set, get) {
+    function(set, get) {
       return {
         name: "",
         descriptionPL: "",
@@ -62,66 +69,109 @@ const useCreateEventStore = create<CreateEventStore>()(
           label: "",
           value: "",
         },
-        updateSession: function (session: CreateSessionForm) {
-          set({
-            sessions: get().sessions.map(function (e) {
-              return e.id === session.id ? session : e;
-            }),
-          });
+        updateSession: function(session: CreateSessionForm): void | unknown {
+          const backup = get().sessions;
+          try {
+            set({
+              sessions: get().sessions.map(function(e) {
+                return e.id === session.id ? session : e;
+              }),
+            });
+          } catch (e) {
+            handleError(e);
+            set({
+              sessions: backup,
+            });
+            return e;
+          }
         },
-        updateMailNotifications: function (data: MailNotifications) {
+        updateMailNotifications: function(data: MailNotifications) {
           set({
             sessionSignUpManagerEmailTemplateId: data.signUp,
             surveyManagerEmailTemplateId: data.survey,
             sessionReminderManagerEmailTemplateId: data.reminder,
           });
         },
-        createSession: function (newSession: CreateSessionForm) {
-          set({
-            sessions: [...get().sessions, newSession],
-          });
+        createSession: function(
+          newSession: CreateSessionForm,
+        ): void | unknown {
+          const backup = get().sessions;
+          try {
+            set({
+              sessions: [...get().sessions, newSession],
+            });
+          } catch (e) {
+            handleError(e);
+            set({
+              sessions: backup,
+            });
+            return e;
+          }
         },
-        removeSession: function (sessionId: string) {
+        removeSession: function(sessionId: string) {
           set({
-            sessions: get().sessions.filter(function (e) {
+            sessions: get().sessions.filter(function(e) {
               return e.id !== sessionId;
             }),
           });
         },
-        setImage: function (name: string, value: string) {
-          set({
-            image: {
-              name: name,
-              data: value,
-            },
-          });
+        setImage: function(name: string, value: string): void | unknown {
+          const backup = get().image;
+          try {
+            set({
+              image: {
+                name: name,
+                data: value,
+              },
+            });
+          } catch (e) {
+            handleError(e);
+            set({
+              image: backup,
+            });
+            return e;
+          }
         },
-        updateEvent: function (event: CreateEventForm) {
-          set({
-            ...event,
-            startDate: event.startDate
-              .hour(0)
-              .minute(0)
-              .second(0)
-              .millisecond(0),
-            endDate: event.endDate
-              .hour(23)
-              .minute(59)
-              .second(59)
-              .millisecond(999),
-            registrationStartDate: event.registrationStartDate
-              .hour(23)
-              .minute(59)
-              .second(59)
-              .millisecond(999),
-          });
+        updateEvent: function(event: CreateEventForm): void | unknown {
+          try {
+            set({
+              ...event,
+              startDate: event.startDate
+                .hour(0)
+                .minute(0)
+                .second(0)
+                .millisecond(0),
+              endDate: event.endDate
+                .hour(23)
+                .minute(59)
+                .second(59)
+                .millisecond(999),
+              registrationStartDate: event.registrationStartDate
+                .hour(23)
+                .minute(59)
+                .second(59)
+                .millisecond(999),
+            });
+          } catch (e) {
+            handleError(e);
+            return e;
+          }
         },
-        setSessions: function (sessions: CreateSessionForm[]) {
-          set({
-            sessions: sessions,
-          });
+        setSessions: function(sessions: CreateSessionForm[]): void | unknown {
+          const backup = get().sessions;
+          try {
+            set({
+              sessions: sessions,
+            });
+          } catch (e) {
+            set({
+              sessions: backup,
+            });
+            handleError(e);
+            return e;
+          }
         },
-        clearStore: function () {
+        clearStore: function() {
           set({
             name: "",
             descriptionEN: "",
@@ -148,48 +198,66 @@ const useCreateEventStore = create<CreateEventStore>()(
             minutesBetweenSessions: 1,
           });
         },
-        setSessionBlocks: function (sessionBlocks: string[]) {
-          if (sessionBlocks.length === 0) {
+        setSessionBlocks: function(sessionBlocks: string[]) {
+          const backup = get().sessionBlocks;
+          try {
+            if (sessionBlocks.length === 0) {
+              set({
+                sessionBlocks: [DEFAULT_SESSION_BLOCK],
+              });
+            } else {
+              set({
+                sessionBlocks: sessionBlocks.map(function(e) {
+                  const color =
+                    e === DEFAULT_SESSION_BLOCK.name
+                      ? DEFAULT_SESSION_BLOCK.color
+                      : getRandomColor();
+                  return {
+                    name: e,
+                    color: color,
+                  };
+                }),
+              });
+            }
+          } catch (e) {
             set({
-              sessionBlocks: [DEFAULT_SESSION_BLOCK],
+              sessionBlocks: backup,
             });
-          } else {
-            set({
-              sessionBlocks: sessionBlocks.map(function (e) {
-                const color =
-                  e === DEFAULT_SESSION_BLOCK.name
-                    ? DEFAULT_SESSION_BLOCK.color
-                    : getRandomColor();
-                return {
-                  name: e,
-                  color: color,
-                };
-              }),
-            });
+            handleError(e);
+            return e;
           }
         },
-        addSessionBlock: function (newSessionBlock: string) {
-          set({
-            sessionBlocks: [
-              ...get().sessionBlocks,
-              { name: newSessionBlock, color: getRandomColor() },
-            ],
-          });
+        addSessionBlock: function(newSessionBlock: string) {
+          const backup = get().sessionBlocks;
+          try {
+            set({
+              sessionBlocks: [
+                ...get().sessionBlocks,
+                { name: newSessionBlock, color: getRandomColor() },
+              ],
+            });
+          } catch (e) {
+            set({
+              sessionBlocks: backup,
+            });
+            handleError(e);
+            return e;
+          }
         },
       };
     },
     {
       name: "createEventStore",
       storage: createJSONStorage(
-        function () {
+        function() {
           return localStorage;
         },
         {
-          replacer: function (key, value) {
+          replacer: function(key, value) {
             if (key === "imageFile") return JSON.stringify(value);
             return value;
           },
-          reviver: function (key, value) {
+          reviver: function(key, value) {
             if (
               key === "startDate" ||
               key === "endDate" ||
@@ -200,7 +268,7 @@ const useCreateEventStore = create<CreateEventStore>()(
 
             if (key === "imageFile") return JSON.parse(value as string);
             if (key === "sessions") {
-              return (value as CreateSessionForm[]).map(function (e) {
+              return (value as CreateSessionForm[]).map(function(e) {
                 return {
                   ...e,
                   startTime: dayjs(e.startTime),

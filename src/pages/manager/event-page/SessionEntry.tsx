@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Button,
   Table,
   TableBody,
@@ -15,18 +16,19 @@ import * as SessionsPageManager from "./SessionsPageManager";
 import { Colors, Styling } from "../../../constants/styling";
 import { useRef, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import StyledContainer from "../../../components/StyledContainer";
 import { useTranslation } from "react-i18next";
 
 type SessionEntryProps = {
   entry: SessionsPageManager.SessionEntry;
   openUpdate: () => void;
+  showParticipants: () => void;
 };
+
 
 export default function SessionEntry(props: SessionEntryProps) {
   const [open, setOpen] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const openAccordion = function() {
     setOpen(true);
@@ -66,7 +68,13 @@ export default function SessionEntry(props: SessionEntryProps) {
       <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
         <Typography variant="h5">{props.entry.Nazwa}</Typography>
         <Typography flexGrow={1}></Typography>
-        <Typography variant="h5" marginRight={3}>{props.entry[t("eventPageManager.sessionsPage.sessionDataColumns.eventBlock")]}</Typography>
+        <Typography variant="h5" marginRight={3}>
+          {
+            props.entry[
+            t("eventPageManager.sessionsPage.sessionDataColumns.eventBlock")
+            ]
+          }
+        </Typography>
       </AccordionSummary>
       <AccordionDetails>
         <TableContainer>
@@ -77,10 +85,12 @@ export default function SessionEntry(props: SessionEntryProps) {
                 return (
                   <TableRow>
                     <TableCell>{e}</TableCell>
-                    <TableCell sx={{
-                      whiteSpace: "pre",
-                      textWrap: "wrap"
-                    }}>
+                    <TableCell
+                      sx={{
+                        whiteSpace: "pre",
+                        textWrap: "wrap",
+                      }}
+                    >
                       {props.entry[e as keyof typeof props.entry]}
                     </TableCell>
                   </TableRow>
@@ -89,16 +99,16 @@ export default function SessionEntry(props: SessionEntryProps) {
             </TableBody>
           </Table>
         </TableContainer>
-        <StyledContainer
-          inner
-          sx={{
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          <Tooltip title={t("eventPageManager.sessionEntry.updateSessionButtonTooltip")}>
+        <Box width={"100%"} display={"flex"} justifyContent={"center"}>
+          <Tooltip
+            title={t(
+              "eventPageManager.sessionEntry.updateSessionButtonTooltip",
+            )}
+          >
             <Button
-              aria-label={t("eventPageManager.sessionEntry.ariaLabels.updateSessionButton")}
+              aria-label={t(
+                "eventPageManager.sessionEntry.ariaLabels.updateSessionButton",
+              )}
               onClick={function() {
                 closeAccordion();
                 props.openUpdate();
@@ -107,7 +117,24 @@ export default function SessionEntry(props: SessionEntryProps) {
               {t("eventPageManager.sessionEntry.updateSessionButtonText")}
             </Button>
           </Tooltip>
-        </StyledContainer>
+          <Tooltip
+            title={t(
+              "eventPageManager.sessionEntry.showParticipantsButtonTootlip",
+            )}
+          >
+            <Button
+              aria-label={t(
+                "eventPageManager.sessionEntry.ariaLabels.showParticipantsButton",
+              )}
+              onClick={function() {
+                closeAccordion();
+                props.showParticipants();
+              }}
+            >
+              {t("eventPageManager.sessionEntry.showParticipantsButtonText")}
+            </Button>
+          </Tooltip>
+        </Box>
       </AccordionDetails>
     </Accordion>
   );

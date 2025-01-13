@@ -1,15 +1,35 @@
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { SpeakerBrief, SpeakerBriefDto } from "./useSpeaker";
 import { useState } from "react";
 import { apiWithEtag, apiWithToken } from "../api/config";
-import { mapSessionDtoToSession } from "../util/converters";
+import { mapFilterParamsToUri, mapSessionDtoToSession } from "../util/converters";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { SessionType, SessionTypeDto } from "./useSessionType";
 import { EventBlock, EventBlockDto } from "./useEvent";
-import { Entity, EntityDto } from "../types";
+import { Entity, EntityDto, Pageable } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
 import i18next from "i18next";
+import { FilterOptions } from "../components/FilterParams";
+
+export type ManagerTicketEntryDto = {
+  id: string;
+  accountId: string;
+  accountEmail: string;
+  accountFirstName: string;
+  accountLastName: string;
+  externalId: string;
+  sessionId: string;
+  eventId: string;
+  sessionName: string;
+  reserve: boolean;
+  active: boolean;
+  createdAt: string;
+};
+
+export type ManagerTicketEntry = Omit<ManagerTicketEntryDto, "createdAt"> & {
+  createdAt: Dayjs;
+};
 
 export type RoomInfo = {
   roomId: string;
@@ -87,7 +107,7 @@ export type CreateSessionDto = {
   eventBlockId: string;
   sessionName: string;
   descriptionPl: string;
-  descriptionEn?: string;
+  descriptionEn: string | null;
   startDate: string;
   endDate: string;
   maxSeats: number;
@@ -101,7 +121,7 @@ export type UpdateSessionDto = {
   roomId: string;
   eventBlockId: string;
   descriptionPl: string;
-  descriptionEn?: string;
+  descriptionEn: string | null;
   startDate: string;
   endDate: string;
   maxSeats: number;
@@ -113,6 +133,9 @@ export default function useSession() {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [session, setSession] = useState<Session>();
+  const [tickets, setTickets] = useState<Pageable<ManagerTicketEntry>>();
+  const [params, setParams] = useState<FilterOptions>();
+  const [isSending, setIsSending] = useState<boolean>(false)
 
   const createSession = async function(data: CreateSessionDto[]) {
     try {
@@ -177,6 +200,48 @@ export default function useSession() {
     }
   };
 
+  const getParticipants = async function(sessionId: string, filterOptions?: FilterOptions) {
+    const newFilterOptions = {
+      ...params,
+      ...filterOptions
+    };
+    const uri = mapFilterParamsToUri(newFilterOptions);
+    try {
+      setIsFetching(true);
+      const response = await apiWithToken.get<Pageable<ManagerTicketEntryDto>>(
+        `/manager/sessions/${sessionId}/tickets?${uri}`,
+      );
+      setTickets({
+        ...response.data,
+        content: response.data.content.map(function(e) {
+          return {
+            ...e,
+            createdAt: dayjs(e.createdAt),
+          };
+        }),
+      });
+      setParams(newFilterOptions);
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError | undefined>);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const sendParticipantListToSpeaker = async function(sessionId: string): Promise<boolean> {
+    try {
+      setIsSending(true);
+      await apiWithEtag.post(`/manager/sessions/${sessionId}/send-participant-list-to-speaker`);
+      toast.success(i18next.t("dataHooks.session.sendParticipantListSuccess"));
+      return true;
+    } catch (e) {
+      handleBackendError(e as AxiosError<BackendError>);
+      return false;
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   return {
     isFetching,
     session,
@@ -186,5 +251,11 @@ export default function useSession() {
     updateSession,
     isUpdating,
     setSessionActive,
+    getParticipants,
+    tickets,
+    setTickets,
+    params,
+    isSending,
+    sendParticipantListToSpeaker
   };
 }

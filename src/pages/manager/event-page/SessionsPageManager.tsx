@@ -13,6 +13,7 @@ import AddSessionForm from "../../../components/AddSessionForm";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_SESSION_BLOCK } from "../../../constants/session";
+import SessionParticipantsModal from "./SessionParticipantsModal";
 
 function mapSessionData(data: Session | undefined, t: TFunction<"pl">) {
   return {
@@ -31,22 +32,22 @@ function mapSessionData(data: Session | undefined, t: TFunction<"pl">) {
     [t("eventPageManager.sessionsPage.sessionDataColumns.startDate")]:
       data?.startDate.isValid()
         ? data.startDate.toDate().toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : t("eventPageManager.sessionsPage.sessionDataColumns.noStartDate"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.endDate")]:
       data?.endDate.isValid()
         ? data.endDate.toDate().toLocaleString("pl-PL", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : t("eventPageManager.sessionsPage.sessionDataColumns.noEndDate"),
     [t("eventPageManager.sessionsPage.sessionDataColumns.maxSeats")]:
       data?.maxSeats,
@@ -87,11 +88,13 @@ export default function SessionsPageManager({
   const [sessionId, setSessionId] = useState<string>();
   const [openCreateSessionForm, setOpenCreateSessionForm] =
     useState<boolean>(false);
+  const [chosenSessionIdForParticipants, setChosenSessionIdForParticipants] =
+    useState<string>();
 
-  const mappedSessions = event?.sessions.map(function (e) {
+  const mappedSessions = event?.sessions.map(function(e) {
     return mapSessionData(e, t);
   });
-  const colors = event?.eventBlocks.map(function (e) {
+  const colors = event?.eventBlocks.map(function(e) {
     if (e.name === DEFAULT_SESSION_BLOCK.name) {
       return {
         id: e.id,
@@ -117,7 +120,7 @@ export default function SessionsPageManager({
             aria-label={t(
               "eventPageManager.sessionsPage.ariaLabels.createSessionButton",
             )}
-            onClick={function () {
+            onClick={function() {
               setOpenCreateSessionForm(true);
             }}
           >
@@ -137,10 +140,13 @@ export default function SessionsPageManager({
         )}
         {!isFetching && mappedSessions && mappedSessions.length > 0 && (
           <StyledContainer inner sx={{ paddingY: 0 }}>
-            {mappedSessions.map(function (e) {
+            {mappedSessions.map(function(e) {
               return (
                 <SessionEntry
-                  openUpdate={function () {
+                  showParticipants={function() {
+                    setChosenSessionIdForParticipants(e.id);
+                  }}
+                  openUpdate={function() {
                     setSessionId(e.id);
                   }}
                   entry={e}
@@ -162,22 +168,22 @@ export default function SessionsPageManager({
                 initialState={true}
                 selectedDate={event?.startDate.toDate() as Date}
                 events={(event as Event).sessions
-                  .filter(function (e) {
+                  .filter(function(e) {
                     return e.active;
                   })
-                  .map(function (e) {
+                  .map(function(e) {
                     return {
                       event_id: e.id,
                       title: e.sessionName,
                       start: e.startDate.toDate(),
                       end: e.endDate.toDate(),
                       subtitle: e.eventBlock.name,
-                      color: colors?.find(function (val) {
+                      color: colors?.find(function(val) {
                         return e.eventBlock.id === val.id;
                       })?.color,
                     };
                   })}
-                scrollOnClose={function () {
+                scrollOnClose={function() {
                   window.scrollTo({
                     top: 0,
                     behavior: "smooth",
@@ -192,7 +198,7 @@ export default function SessionsPageManager({
         <UpdateSessionForm
           eventId={event?.id ?? ""}
           eventBlocks={
-            event?.eventBlocks.map(function (e) {
+            event?.eventBlocks.map(function(e) {
               return {
                 label: e.name,
                 value: e.id,
@@ -202,7 +208,7 @@ export default function SessionsPageManager({
           eventStartDate={event?.startDate ?? dayjs()}
           eventEndDate={event?.endDate ?? dayjs()}
           open={!!sessionId}
-          onClose={function () {
+          onClose={function() {
             setSessionId(undefined);
           }}
           sessionId={sessionId ?? ""}
@@ -214,13 +220,20 @@ export default function SessionsPageManager({
           eventStartDate={event?.startDate ?? dayjs()}
           eventEndDate={event?.endDate ?? dayjs()}
           open={openCreateSessionForm}
-          onClose={function () {
+          onClose={function() {
             setOpenCreateSessionForm(false);
           }}
           eventId={event?.id ?? ""}
           refresh={getEvent}
         ></AddSessionForm>
       )}
+      <SessionParticipantsModal
+        open={!!chosenSessionIdForParticipants}
+        onClose={function () {
+          setChosenSessionIdForParticipants(undefined);
+        }}
+        sessionId={chosenSessionIdForParticipants!}
+      ></SessionParticipantsModal>
     </>
   );
 }

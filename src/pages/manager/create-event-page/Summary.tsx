@@ -160,10 +160,18 @@ export default function Summary({ previousStep }: SummaryProps) {
               return (
                 <TableRow key={e.id}>
                   <TableCell>{e.name}</TableCell>
-                  <TableCell align={"right"} sx={{ whiteSpace: "pre" }}>
+                  <TableCell
+                    width={"100px"}
+                    align={"right"}
+                    sx={{ whiteSpace: "pre" }}
+                  >
                     {e.descriptionPL}
                   </TableCell>
-                  <TableCell align={"right"} sx={{ whiteSpace: "pre" }}>
+                  <TableCell
+                    width={"100px"}
+                    align={"right"}
+                    sx={{ whiteSpace: "pre" }}
+                  >
                     {e.descriptionEN}
                   </TableCell>
                   <TableCell align="right">{e.sessionType.label}</TableCell>
@@ -286,7 +294,7 @@ export default function Summary({ previousStep }: SummaryProps) {
           const id = await createEvent(mappedData);
 
           if (id) {
-            setTimeout(function () {
+            setTimeout(function() {
               state.clearStore();
             }, 100);
             navigate(`/manager/events/${id}`);

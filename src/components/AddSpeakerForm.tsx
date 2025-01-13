@@ -35,21 +35,19 @@ const addSpeakerSchema = z.object({
     .string()
     .min(2, "addSpeakerForm.validation.lastNameTooShort")
     .max(64, "addSpeakerForm.validation.lastNameTooLong"),
-  speakerTitle: z.object({
-    label: z.string(),
-    value: z
-      .string()
-      .min(1, "addSpeakerForm.validation.speakerTitleRequired"),
-  }),
+  speakerTitle: z
+    .object({
+      label: z.string(),
+      value: z
+        .string()
+        .min(1, "addSpeakerForm.validation.speakerTitleRequired"),
+    })
+    .optional(),
   organization: z.object({
     label: z.string(),
-    value: z
-      .string()
-      .min(1, "addSpeakerForm.validation.organizaitonRequired"),
-  }),
-  email: z
-    .string()
-    .email("addSpeakerForm.validation.emailWrongFormat"),
+    value: z.string().min(1, "addSpeakerForm.validation.organizaitonRequired"),
+  }).optional(),
+  email: z.string().email("addSpeakerForm.validation.emailWrongFormat"),
   backupEmail: z.string().optional(),
 });
 

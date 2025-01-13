@@ -59,7 +59,7 @@ const sessionSchema = z
         ),
       )
       .max(
-        1024,
+        2000,
         i18next.t(
           "createEventPage.sessionForm.validation.descriptionPlTooLong",
         ),

@@ -48,7 +48,7 @@ type FilterParamsType = z.infer<typeof filterSchema>;
 
 type FilterParamsProps = {
   callback: (options: FilterOptions) => void;
-  name?: boolean;
+  sortOptions?: AutocompleteOption[];
 };
 
 const directionOptions = function(t: TFunction): AutocompleteOption[] {
@@ -91,7 +91,7 @@ export default function FilterParams(props: FilterParamsProps) {
       phrase: "",
       direction: directionOptions(t)[0],
       showInactive: true,
-      orderBy: orderByOptions(t)[0],
+      orderBy: props.sortOptions ? props.sortOptions[0] : orderByOptions(t)[0],
     },
   });
 
@@ -145,7 +145,9 @@ export default function FilterParams(props: FilterParamsProps) {
             <ControlledAutocomplete
               createable={false}
               async={false}
-              options={orderByOptions(t)}
+              options={
+                props.sortOptions ? props.sortOptions : orderByOptions(t)
+              }
               name="orderBy"
               aria-label={t("filterParams.ariaLabels.orderBy")}
               label={t("filterParams.labels.orderBy")}

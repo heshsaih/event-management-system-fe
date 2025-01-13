@@ -1,5 +1,15 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import useAccountStore, { Role } from "../data/useAccountStore";
 
 export default function AdminGuard() {
-  return <Outlet></Outlet>;
+  const parsedToken = useAccountStore(function(state) {
+    return state.parsedToken;
+  });
+
+  if (parsedToken && parsedToken.authorities.includes(Role.ADMIN)) {
+    return <Outlet></Outlet>;
+  } else {
+    return <Navigate to="/not-found"></Navigate>
+  }
+
 }

@@ -225,10 +225,16 @@ export function mapEventDtoToEvent(dto: EventDto): Event {
 export function mapCreateSessionFormToCreateSessionWithEventDto(
   data: CreateSessionForm,
 ): CreateSessionWithEventDto {
+  let desc: string | null = null;
+  
+  if (data.descriptionEN && data.descriptionEN.length > 0) {
+    desc = data.descriptionEN;
+  }
+
   return {
     sessionName: data.name,
     descriptionPl: data.descriptionPL,
-    descriptionEn: data.descriptionEN,
+    descriptionEn: desc,
     startDate: data.startTime
       .set("seconds", 0)
       .set("milliseconds", 0)
@@ -249,6 +255,12 @@ export function mapCreateSessionFormToCreateSessionWithEventDto(
 export function mapEventDataToCreateEventDto(
   data: CreateEventStore,
 ): CreateEventDto {
+  let desc: string | null = null;
+  
+  if (data.descriptionEN && data.descriptionEN.length > 0) {
+    desc = data.descriptionEN;
+  }
+
   return {
     image: {
       imageName: data.image?.name as string,
@@ -256,7 +268,7 @@ export function mapEventDataToCreateEventDto(
     },
     name: data.name,
     descriptionPl: data.descriptionPL,
-    descriptionEn: data.descriptionEN,
+    descriptionEn: desc,
     eventBlocksNames: Array.from(
       new Set(
         data.sessions.map(function(e) {
@@ -316,10 +328,16 @@ export function mapEventBriefDtoToEventBrief(dto: EventBriefDto): EventBrief {
 export function mapUpdateEventSchemaToUpdateEventDto(
   data: UpdateEventSchema,
 ): UpdateEventDto {
+  let desc: string | null = null;
+
+  if (data.descriptionEn && data.descriptionEn.length > 0) {
+    desc = data.descriptionEn;
+  }
+
   return {
     name: data.name,
     descriptionPl: data.descriptionPl,
-    descriptionEn: data.descriptionEn,
+    descriptionEn: desc,
     startDate: data.startDate
       .set("hour", 1)
       .set("minute", 0)
@@ -371,6 +389,12 @@ export function mapEventToUpdateEventDtoForMailTemplateUpdate(
 export function mapAddSessionSchemaToCreateSessionDto(
   data: AddSessionSchema & { eventId: string },
 ): CreateSessionDto {
+  let desc: string | null = null;
+
+  if (data.descriptionEn && data.descriptionEn.length > 0) {
+    desc = data.descriptionEn;
+  }
+
   return {
     eventId: data.eventId,
     sessionTypeId: data.sessionType.value,
@@ -379,7 +403,7 @@ export function mapAddSessionSchemaToCreateSessionDto(
     eventBlockId: data.eventBlock.value,
     sessionName: data.sessionName,
     descriptionPl: data.descriptionPl,
-    descriptionEn: data.descriptionEn,
+    descriptionEn: desc,
     startDate: data.startDate
       .set("seconds", 0)
       .set("milliseconds", 0)
@@ -410,6 +434,12 @@ export function mapUpdateSpeakerFormTypeToUpdateSpeakerDto(
 export function mapUpdateSessionSchemaToUpdateSessionDto(
   data: UpdateSessionSchema,
 ): UpdateSessionDto {
+  let desc: string | null = null;
+
+  if (data.descriptionEn && data.descriptionEn.length > 0) {
+    desc = data.descriptionEn;
+  }
+
   return {
     sessionName: data.sessionName,
     sessionTypeId: data.sessionType.value,
@@ -417,7 +447,7 @@ export function mapUpdateSessionSchemaToUpdateSessionDto(
     roomId: data.room.value,
     eventBlockId: data.eventBlock.value,
     descriptionPl: data.descriptionPl,
-    descriptionEn: data.descriptionEn,
+    descriptionEn: desc,
     startDate: data.startDate
       .set("seconds", 0)
       .set("milliseconds", 0)
