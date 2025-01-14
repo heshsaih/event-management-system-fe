@@ -218,12 +218,7 @@ describe("create event page ui tests", function() {
   });
 
   test("check if step 2 is rendered properly", async function() {
-    await page.addInitScript(function() {
-      window.localStorage.setItem(
-        "createEventStore",
-        JSON.stringify(stateAfterStep0),
-      );
-    });
+    await page.addInitScript(function() { });
     await page.goto("http://localhost:5173/manager/events/create?step=1");
     await expect(page.locator("ol")).toContainText(
       "Strona główna/Wydarzenia/Stwórz wydarzenie",
@@ -734,6 +729,5 @@ describe("create event page ui tests", function() {
     await expect(page.locator("#root")).toContainText("Domyślne powiadomienie");
     await expect(page.getByLabel("Przycisk do powrotu do")).toBeVisible();
     await expect(page.getByLabel("Przycisk do utworzenia")).toBeVisible();
-
   });
 });

@@ -12,9 +12,9 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  timeout: 1_000_000,
+  timeout: 100_000,
   expect: {
-    timeout: 1_000_000
+    timeout: 100_000
   },
   globalTimeout: 1_000_000,
   testDir: './test/ui',
@@ -31,7 +31,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    //baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://127.0.0.1:5173',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

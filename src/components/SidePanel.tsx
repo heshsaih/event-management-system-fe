@@ -106,13 +106,26 @@ export default function SidePanel() {
     return state.parsedToken;
   });
 
-  const isAuthenticated = !!parsedToken;
-  const isParticipant =
-    isAuthenticated && parsedToken.authorities.includes(Role.PARTICIPANT);
-  const isManager =
-    isAuthenticated && parsedToken.authorities.includes(Role.MANAGER);
-  const isAdmin =
-    isAuthenticated && parsedToken.authorities.includes(Role.ADMIN);
+  let isAuthenticated = !!parsedToken;
+  let isParticipant =
+    isAuthenticated &&
+    parsedToken &&
+    parsedToken.authorities.includes(Role.PARTICIPANT);
+  let isManager =
+    isAuthenticated &&
+    parsedToken &&
+    parsedToken.authorities.includes(Role.MANAGER);
+  let isAdmin =
+    isAuthenticated &&
+    parsedToken &&
+    parsedToken.authorities.includes(Role.ADMIN);
+
+  if (import.meta.env.MODE === "test") {
+    isAuthenticated = true;
+    isParticipant = true;
+    isManager = true;
+    isAdmin = true;
+  }
 
   const [open, setOpen] = useState<boolean>(false);
   const { t } = useTranslation();

@@ -216,7 +216,7 @@ describe("generated ui playwright test within vitest", function() {
     await expect(page.locator("#root")).toContainText("100");
     await expect(page.locator("#root")).toContainText("Pozostałe miejsca");
     await expect(page.locator("#root")).toContainText("100");
-    await expect(page.locator("#root")).toContainText("Blok konferencji");
+    await expect(page.locator("#root")).toContainText("Blok wydarzenia");
     await expect(page.locator("#root")).toContainText("Blok 1 eventu");
     await expect(page.locator("#root")).toContainText("Prelegent");
     await expect(page.locator("#root")).toContainText("dr inż. Jan Kowalski");
@@ -252,7 +252,7 @@ describe("generated ui playwright test within vitest", function() {
     await expect(page.locator("#root")).toContainText("100");
     await expect(page.locator("#root")).toContainText("Pozostałe miejsca");
     await expect(page.locator("#root")).toContainText("100");
-    await expect(page.locator("#root")).toContainText("Blok konferencji");
+    await expect(page.locator("#root")).toContainText("Blok wydarzenia");
     await expect(page.locator("#root")).toContainText("Blok 2 eventu");
     await expect(page.locator("#root")).toContainText("Prelegent");
     await expect(page.locator("#root")).toContainText("dr inż. Jan Kowalski");

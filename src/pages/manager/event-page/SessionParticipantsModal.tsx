@@ -169,6 +169,7 @@ export default function SessionParticipantsModal(
                                 )}
                               >
                                 <Button
+                                  sx={{ margin: 0 }}
                                   aria-label={t(
                                     "sessionParticipantsModal.ariaLabels.signOutButton",
                                   )}

@@ -9,12 +9,13 @@ export default defineConfig({
     globals: true,
     setupFiles: "playwright.config.ts",
     testTimeout: 1_000_000,
+    hookTimeout: 100_000,
     minWorkers: 1,
     maxWorkers: 1,
     expect: {
       poll: {
-        timeout: 1_000_000
+        timeout: 100_000
       } 
-    }
+    },
   },
 });
