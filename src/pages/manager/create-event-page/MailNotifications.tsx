@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  FormLabel,
   Radio,
   RadioGroup,
   Tooltip,
@@ -17,6 +18,7 @@ import ControlledAutocomplete from "../../../components/ControlledAutocomplete";
 import useAsyncEmailTemplate from "../../../data/useAsyncEmailTemplate";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
+import { Styling } from "../../../constants/styling";
 
 type MailNotificationsProps = {
   previousStep: () => void;
@@ -41,7 +43,7 @@ const mailNotificationsSchema = z.object({
 export type MailNotifications = z.infer<typeof mailNotificationsSchema>;
 
 export default function MailNotifications(props: MailNotificationsProps) {
-  const state = useCreateEventStore(function(state) {
+  const state = useCreateEventStore(function (state) {
     return state;
   });
 
@@ -51,15 +53,15 @@ export default function MailNotifications(props: MailNotificationsProps) {
 
   const signUpTemplates = useAsyncEmailTemplate(
     state.sessionSignUpManagerEmailTemplateId,
-    "SESSION_SIGN_UP"
+    "SESSION_SIGN_UP",
   );
   const reminderTemplates = useAsyncEmailTemplate(
     state.sessionReminderManagerEmailTemplateId,
-    "SESSION_REMINDER"
+    "SESSION_REMINDER",
   );
   const surveyTemplates = useAsyncEmailTemplate(
     state.surveyManagerEmailTemplateId,
-    "SURVEY"
+    "SURVEY",
   );
 
   const [signUpChecked, setSignUpChecked] = useState<boolean>(
@@ -82,26 +84,26 @@ export default function MailNotifications(props: MailNotificationsProps) {
     },
   });
 
-  const submit = a.handleSubmit(function(data) {
+  const submit = a.handleSubmit(function (data) {
     const result: MailNotifications = {
       signUp: signUpChecked
         ? data.signUp
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       survey: surveyChecked
         ? data.survey
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       reminder: reminderChecked
         ? data.reminder
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
     };
     state.updateMailNotifications(result);
     props.nextStep();
@@ -123,31 +125,35 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 alignItems: "center",
               }}
             >
-              <Typography variant="h5">
+              <Typography fontSize={Styling.HEADING_SIZE}>
                 {t("createEventPage.mailTemplates.signUpHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    id="signUpEmailTemplateDefault"
+                    name="signUpEmailTemplateDefault"
                     checked={!signUpChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setSignUpChecked(false);
                     }}
                   ></Radio>
-                  <Typography>
+                  <FormLabel htmlFor="signUpEmailTemplateDefault">
                     {t("createEventPage.mailTemplates.defaultTemplate")}
-                  </Typography>
+                  </FormLabel>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    id="signUpEmailTemplateChosen"
+                    name="signUpEmailTemplateChosen"
                     checked={signUpChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setSignUpChecked(true);
                     }}
                   ></Radio>
-                  <Typography>
+                  <FormLabel htmlFor="signUpEmailTemplateChosen">
                     {t("createEventPage.mailTemplates.chosenTemplate")}
-                  </Typography>
+                  </FormLabel>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete
@@ -177,31 +183,37 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 alignItems: "center",
               }}
             >
-              <Typography variant="h5">
+              <Typography fontSize={Styling.HEADING_SIZE}>
                 {t("createEventPage.mailTemplates.surveyHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    name="surveyEmailTemplateDefault"
+                    id="surveyEmailTemplateDefault"
                     checked={!surveyChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setSurveyChecked(false);
                     }}
                   ></Radio>
                   <Typography>
-                    {t("createEventPage.mailTemplates.noTemplate")}
+                    <FormLabel htmlFor="surveyEmailTemplateDefault">
+                      {t("createEventPage.mailTemplates.noTemplate")}
+                    </FormLabel>
                   </Typography>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    id="surveyEmailTemplateChosen"
+                    name="surveyEmailTemplateChosen"
                     checked={surveyChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setSurveyChecked(true);
                     }}
                   ></Radio>
-                  <Typography>
+                  <FormLabel htmlFor="surveyEmailTemplateChosen">
                     {t("createEventPage.mailTemplates.chosenTemplate")}
-                  </Typography>
+                  </FormLabel>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete
@@ -231,31 +243,35 @@ export default function MailNotifications(props: MailNotificationsProps) {
                 alignItems: "center",
               }}
             >
-              <Typography variant="h5">
+              <Typography fontSize={Styling.HEADING_SIZE}>
                 {t("createEventPage.mailTemplates.reminderHeading")}
               </Typography>
               <RadioGroup>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    id="reminderTemplateDefault"
+                    name="reminderTemplateDefault"
                     checked={!reminderChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setReminderChecked(false);
                     }}
                   ></Radio>
-                  <Typography>
+                  <FormLabel htmlFor="reminderTemplateDefault">
                     {t("createEventPage.mailTemplates.defaultTemplate")}
-                  </Typography>
+                  </FormLabel>
                 </Box>
                 <Box display={"flex"} alignItems={"center"}>
                   <Radio
+                    id="reminderTemplateChosen"
+                    name="reminderTemplateChosen"
                     checked={reminderChecked}
-                    onChange={function() {
+                    onChange={function () {
                       setReminderChecked(true);
                     }}
                   ></Radio>
-                  <Typography>
+                  <FormLabel htmlFor="reminderTemplateChosen">
                     {t("createEventPage.mailTemplates.chosenTemplate")}
-                  </Typography>
+                  </FormLabel>
                 </Box>
               </RadioGroup>
               <ControlledAutocomplete

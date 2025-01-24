@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import Breadcrumb from "../../../components/Breadcrumb";
 import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
 
-function mapToColums(location: LocationBrief, t: TFunction) {
+function mapDataToTable(location: LocationBrief, t: TFunction) {
   return {
     id: location.id,
     [t("locationsPage.locationDataColumns.name")]: location.name,
@@ -58,7 +58,7 @@ export default function LocationsPage() {
   const mappedLocations =
     locations &&
     locations.content.map(function(e) {
-      return mapToColums(e, t);
+      return mapDataToTable(e, t);
     });
 
   return (

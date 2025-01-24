@@ -282,7 +282,6 @@ export default function AccountPage() {
               </Typography>
               <StyledSwitch
                 disabled={isUpdating}
-                aria-label={t("updateLocationForm.ariaLabels.active")}
                 checked={account.active}
                 onChange={function() {
                   setConfirmAction(function() {

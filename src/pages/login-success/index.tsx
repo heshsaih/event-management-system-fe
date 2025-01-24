@@ -20,6 +20,8 @@ export default function LoginSuccessPage() {
       state.setToken(undefined, undefined);
       navigate("/login");
     }
+  } else {
+    navigate("/login");
   }
 
   return <></>;

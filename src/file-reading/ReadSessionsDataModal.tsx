@@ -90,21 +90,21 @@ function mapResultToTableRows(data: ParsedSessionData, t: TFunction) {
     [t("readFileModal.sessionsData.tableKeys.startTime")]:
       data.startTime.isValid()
         ? data.startTime.toDate().toLocaleString("pl-Pl", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : t("readFileModal.sessionsData.tableKeys.wrongDateFormat"),
+    [t("readFileModal.sessionsData.tableKeys.endTime")]: data.endTime.isValid()
+      ? data.endTime.toDate().toLocaleString("pl-PL", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
         })
-        : t("readFileModal.sessionsData.tableKeys.wrongDateFormat"),
-    [t("readFileModal.sessionsData.tableKeys.endTime")]: data.endTime.isValid()
-      ? data.endTime.toDate().toLocaleString("pl-PL", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
       : t("readFileModal.sessionsData.tableKeys.wrongDateFormat"),
   };
 }
@@ -117,7 +117,7 @@ export default function ReadSessionsDataModal(
   const [confirmAction, setConfirmAction] = useState<() => void>();
   const [result, setResult] = useState<ParsedSessionData[]>();
   const { t } = useTranslation();
-  const state = useCreateEventStore(function(state) {
+  const state = useCreateEventStore(function (state) {
     return state;
   });
   const { findRoomForCSVParsing } = useRoom();
@@ -127,7 +127,7 @@ export default function ReadSessionsDataModal(
 
   const mappedResult =
     result &&
-    result.map(function(e) {
+    result.map(function (e) {
       return mapResultToTableRows(e, t);
     });
 
@@ -219,7 +219,7 @@ export default function ReadSessionsDataModal(
                     "readFileModal.eventData.ariaLabels.downloadExampleButton",
                   )}
                   endIcon={<CloudDownloadIcon></CloudDownloadIcon>}
-                  onClick={function() {
+                  onClick={function () {
                     downloadExampleCSVFile(
                       sessionDataExample,
                       "przyklad_konferencje.csv",
@@ -231,7 +231,7 @@ export default function ReadSessionsDataModal(
               </Tooltip>
             </StyledContainer>
             <FileButton
-              callback={function(file) {
+              callback={function (file) {
                 const result = validateFile(file);
                 if (result) {
                   parseSessionsData({
@@ -255,26 +255,31 @@ export default function ReadSessionsDataModal(
             <Typography variant="h5">
               {t("readFileModal.eventData.readDataHeading")}
             </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  {Object.keys(mappedResult[0]).map(function(e) {
-                    return <TableCell>{e}</TableCell>;
-                  })}
-                </TableHead>
-                <TableBody>
-                  {mappedResult.map(function(e) {
-                    return (
-                      <TableRow>
-                        {Object.values(e).map(function(val) {
-                          return <TableCell>{val}</TableCell>;
-                        })}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {mappedResult.length > 0 && (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    {Object.keys(mappedResult[0]).map(function (e) {
+                      return <TableCell>{e}</TableCell>;
+                    })}
+                  </TableHead>
+                  <TableBody>
+                    {mappedResult.map(function (e) {
+                      return (
+                        <TableRow>
+                          {Object.values(e).map(function (val) {
+                            return <TableCell>{val}</TableCell>;
+                          })}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            {mappedResult.length === 0 && (
+              <Typography marginY={3}>{t("readFileModal.sessionsData.noSessionsLoaded")}</Typography>
+            )}
             <Typography>
               {t("readFileModal.eventData.isDataCorrect")}
             </Typography>
@@ -284,12 +289,12 @@ export default function ReadSessionsDataModal(
                   aria-label={t(
                     "readFileModal.eventData.ariaLabels.submitButton",
                   )}
-                  onClick={function() {
-                    setConfirmAction(function() {
-                      return function() {
+                  onClick={function () {
+                    setConfirmAction(function () {
+                      return function () {
                         setOpenConfirm(false);
                         const mappedResultForPersisting: CreateSessionForm[] =
-                          result.map(function(e) {
+                          result.map(function (e) {
                             return {
                               minutesBeforeSignUpCloses: Number.isNaN(
                                 e.minutesBeforeSignUpCloses,
@@ -323,7 +328,7 @@ export default function ReadSessionsDataModal(
                         state.setSessionBlocks(
                           Array.from(
                             new Set([
-                              ...mappedResultForPersisting.map(function(e) {
+                              ...mappedResultForPersisting.map(function (e) {
                                 return e.sessionBlock;
                               }),
                               DEFAULT_SESSION_BLOCK.name,
@@ -345,7 +350,7 @@ export default function ReadSessionsDataModal(
                   aria-label={t(
                     "readFileModal.eventData.ariaLabels.cancelButton",
                   )}
-                  onClick={function() {
+                  onClick={function () {
                     setResult(undefined);
                   }}
                 >
@@ -355,7 +360,7 @@ export default function ReadSessionsDataModal(
             </Box>
             <ConfirmActionModal
               open={openConfirm}
-              onClose={function() {
+              onClose={function () {
                 setOpenConfirm(false);
               }}
               confirmAction={confirmAction as () => void}

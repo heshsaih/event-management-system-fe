@@ -9,18 +9,17 @@ import {
   Button,
   CircularProgress,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { useOrganization } from "../../../data/useOrganization";
 import { useSpeakerTitle } from "../../../data/useSpeakerTitle";
 import { useState } from "react";
 import ControlledAutocomplete from "../../../components/ControlledAutocomplete";
-import StyledSwitch from "../../../components/StyledSwitch";
 import useAsyncSpeakerTitle from "../../../data/useAsyncSpeakerTitle";
 import useAsyncOrganization from "../../../data/useAsyncOrganization";
 import { mapUpdateSpeakerFormTypeToUpdateSpeakerDto } from "../../../util/converters";
 import { useTranslation } from "react-i18next";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import ChangeActiveSwitch from "../../../components/ChangeActiveSwitch";
 
 type UpdateSpeakerFormProps = {
   speaker: Speaker | undefined;
@@ -198,12 +197,9 @@ export default function UpdateSpeakerForm(props: UpdateSpeakerFormProps) {
             </Button>
           </Tooltip>
         </Box>
-        <Typography variant="h4">
-          {t("updateSpeakerForm.activeHeading")}
-        </Typography>
-        <StyledSwitch
-          disabled={isUpdating}
-          checked={props.speaker?.active ?? true}
+        <ChangeActiveSwitch
+          heading={t("updateSpeakerForm.activeHeading")}
+          value={props.speaker?.active ?? true}
           onChange={function() {
             setConfirmAction(function() {
               return async function() {
@@ -219,7 +215,7 @@ export default function UpdateSpeakerForm(props: UpdateSpeakerFormProps) {
             });
             setOpenConfirm(true);
           }}
-        ></StyledSwitch>
+        ></ChangeActiveSwitch>
       </Form>
       <ConfirmActionModal
         open={openConfirm}

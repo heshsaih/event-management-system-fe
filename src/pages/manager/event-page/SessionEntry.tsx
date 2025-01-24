@@ -66,9 +66,9 @@ export default function SessionEntry(props: SessionEntryProps) {
       }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
-        <Typography variant="h5">{props.entry.Nazwa}</Typography>
+        <Typography fontSize={Styling.HEADING_SIZE}>{props.entry.Nazwa}</Typography>
         <Typography flexGrow={1}></Typography>
-        <Typography variant="h5" marginRight={3}>
+        <Typography fontSize={Styling.HEADING_SIZE} marginRight={3}>
           {
             props.entry[
             t("eventPageManager.sessionsPage.sessionDataColumns.eventBlock")

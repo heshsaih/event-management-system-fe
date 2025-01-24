@@ -15,12 +15,12 @@ import {
 import TextInput from "../../../components/TextInput";
 import { useEffect, useState } from "react";
 import { Colors } from "../../../constants/styling";
-import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
 import { OtherParam, UpdateOtherParamDto } from "../../../types";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
 import StyledContainer from "../../../components/StyledContainer";
 import toast from "react-hot-toast";
+import ChangeActiveSwitch from "../../../components/ChangeActiveSwitch";
 
 const updateOtherParamForm = z.object({
   name: z
@@ -159,11 +159,9 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
                 </Tooltip>
               </Form>
             </FormProvider>
-            <Typography variant="h5">
-              {t("updateOtherParamForm.activeHeading")}
-            </Typography>
-            <StyledSwitch
-              checked={param?.active ?? true}
+            <ChangeActiveSwitch
+              heading={t("updateOtherParamForm.activeHeading")}
+              value={param?.active ?? true}
               onChange={function() {
                 setConfirmAction(function() {
                   setOpenConfirm(false);
@@ -179,7 +177,8 @@ export default function UpdateOtherParamForm(props: UpdateOtherParamFormProps) {
                 });
                 setOpenConfirm(true);
               }}
-            ></StyledSwitch>
+            >
+            </ChangeActiveSwitch>
           </>
         )}
         <ConfirmActionModal

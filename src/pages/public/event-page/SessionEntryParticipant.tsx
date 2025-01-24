@@ -113,9 +113,9 @@ export default function SessionEntryParticipant(
           color: props.session.availableSeats === 0 ? Colors.RED : "black",
         }}
       >
-        <Typography variant="h5">{`${props.session.sessionName} - ${props.session.sessionType}`}</Typography>
+        <Typography fontSize={25}>{`${props.session.sessionName} - ${props.session.sessionType}`}</Typography>
         <Typography flexGrow={1}></Typography>
-        <Typography variant="h6">{`${t("eventPageParticipant.sessionAvailableSeats")}: ${props.session.availableSeats}`}</Typography>
+        <Typography fontSize={20}>{`${t("eventPageParticipant.sessionAvailableSeats")}: ${props.session.availableSeats}`}</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <TableContainer>

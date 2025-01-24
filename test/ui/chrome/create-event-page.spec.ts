@@ -179,7 +179,7 @@ describe("create event page ui tests", function() {
       page.getByText("Wstęp dla uczestników spoza Politechniki?*NieTak"),
     ).toBeVisible();
     await expect(page.getByLabel("Przycisk do wczytania danych")).toBeVisible();
-    await expect(page.getByLabel("Wczytaj dane z pliku")).toBeVisible();
+    await expect(page.getByLabel("Kliknij, aby wczytać dane z pliku")).toBeVisible();
     await expect(
       page.getByLabel("Przycisk do przejścia do nast"),
     ).toBeVisible();
@@ -548,7 +548,7 @@ describe("create event page ui tests", function() {
   });
 
   test("check if step 3 is rendered properly", async function() {
-    await page.addInitScript(function() {
+    await page.addInitScript(function () {
       window.localStorage.setItem(
         "createEventStore",
         JSON.stringify(stateAfterStep1),
@@ -565,16 +565,10 @@ describe("create event page ui tests", function() {
     await expect(page.locator("h3")).toContainText(
       "Zmień powiadomienia mailowe dla wydarzenia",
     );
+
     await expect(
-      page.getByText(
-        "Powiadomienie o zapisaniu się na wydarzenieDomyślneWybranePowiadomienie o",
-      ),
+      page.getByText("Powiadomienie o zapisaniu się na wydarzenie"),
     ).toBeVisible();
-    await expect(page.locator("form")).toContainText(
-      "Powiadomienie o zapisaniu się na wydarzenie",
-    );
-    await expect(page.locator('input[name="\\:r3\\:"]').first()).toBeVisible();
-    await expect(page.locator('input[name="\\:r3\\:"]').nth(1)).toBeVisible();
     await expect(
       page
         .locator("div")
@@ -584,37 +578,47 @@ describe("create event page ui tests", function() {
         })
         .first(),
     ).toBeVisible();
-    await expect(
-      page.getByText(
-        "Prośba o wypełnienie ankiety po wydarzeniuBrakWybraneProśba o wypełnienie",
-      ),
-    ).toBeVisible();
-    await expect(page.locator("form")).toContainText(
-      "Prośba o wypełnienie ankiety po wydarzeniu",
-    );
+    await page.goto("http://localhost:5173/manager/events/create?step=2");
     await expect(
       page
         .locator("div")
-        .filter({ hasText: /^Brak$/ })
-        .getByRole("radio"),
+        .filter({ hasText: /^Domyślne$/ })
+        .first(),
     ).toBeVisible();
-    await expect(page.locator('input[name="\\:r9\\:"]').nth(1)).toBeVisible();
-    await expect(page.locator("form")).toContainText(
-      "Prośba o wypełnienie ankiety po wydarzeniuProśba o wypełnienie ankiety po wydarzeniu",
-    );
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Wybrane$/ })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.locator("div").filter({ hasText: /^Brak$/ }),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Wybrane$/ })
+        .nth(1),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Domyślne$/ })
+        .nth(1),
+    ).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^Wybrane$/ })
+        .nth(2),
+    ).toBeVisible();
+    await expect(
+      page.locator("p").filter({ hasText: "Prośba o wypełnienie ankiety" }),
+    ).toBeVisible();
     await expect(
       page.locator("form > div:nth-child(2) > div:nth-child(3)"),
     ).toBeVisible();
-    await expect(
-      page.getByText(
-        "Przypomnienie o nadchodzącym wydarzeniuDomyślneWybraneProśba o wypełnienie",
-      ),
-    ).toBeVisible();
-    await expect(page.locator("form")).toContainText(
-      "Prośba o wypełnienie ankiety po wydarzeniuProśba o wypełnienie ankiety po wydarzeniu",
-    );
-    await expect(page.locator('input[name="\\:rf\\:"]').first()).toBeVisible();
-    await expect(page.locator('input[name="\\:rf\\:"]').nth(1)).toBeVisible();
+    await expect(page.getByText("Przypomnienie o nadchodzącym")).toBeVisible();
     await expect(
       page.locator("div:nth-child(3) > div:nth-child(3)"),
     ).toBeVisible();

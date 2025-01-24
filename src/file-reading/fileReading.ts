@@ -6,6 +6,7 @@ import { LocationDto } from "../data/useLocation";
 import { RoomDto } from "../data/useRoom";
 import { SpeakerDto } from "../data/useSpeaker";
 import { SessionTypeDto } from "../data/useSessionType";
+import i18next from "i18next";
 
 type ExpectedCSVFormatForEventData = {
   nazwa_wydarzenia: string | undefined;
@@ -130,9 +131,7 @@ export const emailTemplatesExample: ExpectedCSVFormatForEmailTemplates = {
 
 export function validateFile(file: File): File | undefined {
   if (file.type !== "text/csv") {
-    toast.error(
-      "Niepoprawny format pliku (akceptowalne są tylko pliku o rozszerzeniu .csv)",
-    );
+    toast.error(i18next.t("readFileModal.sessionsData.wrongFileType"));
     return;
   }
 
@@ -148,25 +147,40 @@ export function parseEventData(
   Papaparse.parse<ExpectedCSVFormatForEventData>(file, {
     header: true,
     worker: true,
-    complete: function(result) {
-      let parsedResult: ParsedEventData = {
-        name: result.data[0].nazwa_wydarzenia ?? "",
-        descriptionPl: result.data[0].opis_pl ?? "",
-        descriptionEn: result.data[0].opis_en ?? "",
-        startDate: result.data[0].data_rozpoczecia
-          ? dayjs(result.data[0].data_rozpoczecia)
-          : dayjs("a"),
-        endDate: result.data[0].data_zakonczenia
-          ? dayjs(result.data[0].data_zakonczenia)
-          : dayjs("a"),
-        registrationStartDate: result.data[0].data_rozpoczecia
-          ? dayjs(result.data[0].data_rozpoczecia_zapisow)
-          : dayjs("a"),
-        outsidersAllowed: Boolean(result.data[0].wstep_spoza_politechniki),
-        minutesBetweenSessions: Number(
-          result.data[0].przerwa_pomiedzy_konferencjami,
-        ),
-      };
+    complete: function (result) {
+      let parsedResult: ParsedEventData;
+      if (result.data.length === 0) {
+        parsedResult = {
+          name: "",
+          descriptionPl: "",
+          descriptionEn: "",
+          startDate: dayjs("a"),
+          endDate: dayjs("a"),
+          registrationStartDate: dayjs("a"),
+          outsidersAllowed: false,
+          minutesBetweenSessions: 0,
+        };
+      } else {
+        parsedResult = {
+          name: result.data[0].nazwa_wydarzenia ?? "",
+          descriptionPl: result.data[0].opis_pl ?? "",
+          descriptionEn: result.data[0].opis_en ?? "",
+          startDate: result.data[0].data_rozpoczecia
+            ? dayjs(result.data[0].data_rozpoczecia)
+            : dayjs("a"),
+          endDate: result.data[0].data_zakonczenia
+            ? dayjs(result.data[0].data_zakonczenia)
+            : dayjs("a"),
+          registrationStartDate: result.data[0].data_rozpoczecia
+            ? dayjs(result.data[0].data_rozpoczecia_zapisow)
+            : dayjs("a"),
+          outsidersAllowed:
+            result.data[0].wstep_spoza_politechniki === "1" ? true : false,
+          minutesBetweenSessions: Number(
+            result.data[0].przerwa_pomiedzy_konferencjami,
+          ),
+        };
+      }
       setResult(parsedResult);
       setIsReading(false);
     },
@@ -178,18 +192,21 @@ export function parseSessionsData(params: ParseSessionsDataParams) {
   Papaparse.parse<ExpectedCSVFormatForSessionData>(params.file, {
     header: true,
     worker: true,
-    complete: async function(result) {
-      const mapped = await Promise.all(
-        result.data.map(async function(e) {
-          return parseLoadedSession({
-            data: e,
-            findLocation: params.findLocation,
-            findSessionType: params.findSessionType,
-            findRoom: params.findRoom,
-            findSpeaker: params.findSpeaker,
-          });
-        }),
-      );
+    complete: async function (result) {
+      let mapped: ParsedSessionData[] = [];
+      if (result.data.length > 0) {
+        mapped = await Promise.all(
+          result.data.map(async function (e) {
+            return parseLoadedSession({
+              data: e,
+              findLocation: params.findLocation,
+              findSessionType: params.findSessionType,
+              findRoom: params.findRoom,
+              findSpeaker: params.findSpeaker,
+            });
+          }),
+        );
+      } 
       params.setResult(mapped);
       params.setIsLoading(false);
     },
@@ -237,45 +254,45 @@ async function parseLoadedSession(
     params.findRoom(params.data.pomieszczenie ?? ""),
     params.findSpeaker(params.data.prelegent ?? ""),
     params.findSessionType(params.data.typ_konferencji ?? ""),
-  ]).then(async function([room, speaker, sessionType]) {
+  ]).then(async function ([room, speaker, sessionType]) {
     const location = room ? await params.findLocation(room.locationId) : null;
     return {
       room: room
         ? {
-          label: room.roomNumber,
-          value: room.id,
-        }
+            label: room.roomNumber,
+            value: room.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       location: location
         ? {
-          label: location.name,
-          value: location.id,
-        }
+            label: location.name,
+            value: location.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       speaker: speaker
         ? {
-          label: `${speaker.speakerTitle?.name} ${speaker.firstName} ${speaker.lastName}`,
-          value: speaker.id,
-        }
+            label: `${speaker.speakerTitle?.name} ${speaker.firstName} ${speaker.lastName}`,
+            value: speaker.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       sessionType: sessionType
         ? {
-          label: sessionType.name,
-          value: sessionType.id,
-        }
+            label: sessionType.name,
+            value: sessionType.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
     };
   });
 

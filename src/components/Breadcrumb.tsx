@@ -15,7 +15,7 @@ export default function Breadcrumb(props: BreadcrumbProps) {
       style={{
         textDecoration: hover ? "underline" : "none",
         pointerEvents: props.disabled ? "none" : "auto",
-        color: props.disabled ? "grey" : Colors.RED,
+        color: props.disabled ? "rgb(100, 100, 100)" : Colors.RED,
         fontWeight: props.current ? "bold" : "normal"
       }}
       to={props.navigateTo}

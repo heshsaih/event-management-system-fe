@@ -46,7 +46,21 @@ export function handleBackendError(e: AxiosError<BackendError | undefined>) {
           </div>
         );
       });
-    } else if (e.response) {
+    } else if (e.status === HttpStatusCode.Unauthorized) {
+      toast.error(function() {
+        return (
+          <div>
+            <Typography variant="body1">
+              {i18next.t(`backendErrors.titles.Unauthorized`)}
+            </Typography>
+            <Typography variant="body2">
+              {i18next.t(`backendErrors.messages.unauthorized`)}
+            </Typography>
+          </div>
+        );
+      });
+
+    }else if (e.response) {
       toast.error(function() {
         return (
           <div>

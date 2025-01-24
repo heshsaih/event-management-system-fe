@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import Breadcrumb from "../../../components/Breadcrumb";
 const SessionViewer = lazy(() => import("../../../components/SessionViewer"));
 import {
+  Box,
   CircularProgress,
   Table,
   TableBody,
@@ -17,7 +18,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Colors } from "../../../constants/styling";
+import { Colors, Styling } from "../../../constants/styling";
 import { TFunction } from "i18next";
 import SessionEntryParticipant from "./SessionEntryParticipant";
 import getRandomColor from "../../../util/randomColor";
@@ -33,24 +34,24 @@ function mapEventDataToColumn(data: EventForParticipant, t: TFunction) {
     [t("eventPageParticipant.eventTable.descriptionEn")]: data.descriptionEn,
     [t("eventPageParticipant.eventTable.startDate")]: data.startDate.isValid()
       ? data.startDate.toDate().toLocaleString("pl-PL", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
       : t("eventPageParticipant.eventTable.noDate"),
     [t("eventPageParticipant.eventTable.endDate")]: data.endDate.isValid()
       ? data.endDate.toDate().toLocaleString("pl-PL", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
       : t("eventPageParticipant.eventTable.noDate"),
   };
 }
 
 export default function EventPage() {
   const { id } = useParams();
-  const parsedToken = useAccountStore(function(store) {
+  const parsedToken = useAccountStore(function (store) {
     return store.parsedToken;
   });
   const {
@@ -67,7 +68,7 @@ export default function EventPage() {
   const [chosenSessionSignInId, setChosenSessionSignInId] = useState<string>();
 
   useEffect(
-    function() {
+    function () {
       if (id) {
         getEvent(id);
       }
@@ -79,15 +80,15 @@ export default function EventPage() {
   const eventBlocks = Array.from(
     new Set(
       sessions &&
-      sessions.map(function(e) {
-        return {
-          id: e.id,
-          block: e.eventBlock,
-        };
-      }),
+        sessions.map(function (e) {
+          return {
+            id: e.id,
+            block: e.eventBlock,
+          };
+        }),
     ),
   );
-  const colors: SessionBlock[] = eventBlocks.map(function(e) {
+  const colors: SessionBlock[] = eventBlocks.map(function (e) {
     if (e.block === DEFAULT_SESSION_BLOCK.name) {
       return DEFAULT_SESSION_BLOCK;
     }
@@ -115,35 +116,47 @@ export default function EventPage() {
           {t("breadcrumbsLabels.event")}
         </Breadcrumb>
       </StyledBreadcrumbs>
-      <Typography variant="h3">Podgląd wydarzenia</Typography>
-      {isFetching && (
-        <CircularProgress
-          size="3rem"
-          sx={{ color: Colors.RED }}
-        ></CircularProgress>
-      )}
-      <StyledContainer inner>
-        {!isFetching && event && mappedEvent && (
-          <>
-            <Typography variant="h4">Informacje o wydarzeniu</Typography>
-            <TableContainer>
-              <Table>
-                <TableBody>
-                  {Object.keys(mappedEvent).map(function(e) {
-                    return (
-                      <TableRow>
-                        <TableCell>{e}</TableCell>
-                        <TableCell>
-                          {[mappedEvent[e as keyof typeof mappedEvent]]}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </>
+      <StyledContainer inner sx={{ 
+      }}>
+      <Box
+        sx={{
+          backgroundColor: "white",
+          paddingTop: "2rem",
+          border: "1px solid lightgrey",
+          borderRadius: Styling.BORDER_RADIUS,
+        }}
+      >
+        <Typography variant="h3">Podgląd wydarzenia</Typography>
+        {isFetching && (
+          <CircularProgress
+            size="3rem"
+            sx={{ color: Colors.RED }}
+          ></CircularProgress>
         )}
+        <StyledContainer inner>
+          {!isFetching && event && mappedEvent && (
+            <>
+              <Typography variant="h4">Informacje o wydarzeniu</Typography>
+              <TableContainer>
+                <Table>
+                  <TableBody>
+                    {Object.keys(mappedEvent).map(function (e) {
+                      return (
+                        <TableRow>
+                          <TableCell>{e}</TableCell>
+                          <TableCell>
+                            {[mappedEvent[e as keyof typeof mappedEvent]]}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+        </StyledContainer>
+      </Box>
       </StyledContainer>
       {isFetchingSessions && (
         <CircularProgress
@@ -157,7 +170,7 @@ export default function EventPage() {
             <Typography variant="h4">
               {t("eventPageParticipant.sessionsDataHeading")}
             </Typography>
-            {sessions.map(function(e) {
+            {sessions.map(function (e) {
               return (
                 <SessionEntryParticipant
                   setChosenSessionSignInId={setChosenSessionSignInId}
@@ -191,19 +204,19 @@ export default function EventPage() {
           <SessionViewer
             initialState={true}
             selectedDate={event?.startDate.toDate() as Date}
-            events={sessions.map(function(e) {
+            events={sessions.map(function (e) {
               return {
                 event_id: e.id,
                 title: e.sessionName,
                 start: e.startDate.toDate(),
                 end: e.endDate.toDate(),
                 subtitle: e.eventBlock,
-                color: colors.find(function(val) {
+                color: colors.find(function (val) {
                   return e.eventBlock === val.name;
                 })?.color,
               };
             })}
-            scrollOnClose={function() {
+            scrollOnClose={function () {
               window.scrollTo({
                 top: 0,
                 behavior: "smooth",
@@ -215,7 +228,7 @@ export default function EventPage() {
       <SignInModal
         getSessions={getSessions}
         open={!!chosenSessionSignInId}
-        onClose={function() {
+        onClose={function () {
           setChosenSessionSignInId(undefined);
         }}
         sessionId={chosenSessionSignInId!}

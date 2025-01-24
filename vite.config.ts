@@ -6,8 +6,6 @@ import react from '@vitejs/plugin-react-swc'
 export default defineConfig({
   plugins: [react()],
   test: {
-    globals: true,
-    setupFiles: "playwright.config.ts",
     testTimeout: 1_000_000,
     hookTimeout: 100_000,
     minWorkers: 1,

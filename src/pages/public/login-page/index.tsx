@@ -4,6 +4,8 @@ import useLogin from "../../../data/useLogin";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import StyledBreadcrumbs from "../../../components/StyledBreadcrumbs";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,8 +14,14 @@ export default function LoginPage() {
 
   return (
     <>
-      <StyledContainer>
-        <Typography variant="h3">{t("loginPage.pageHeading")}</Typography>
+      <StyledContainer sx={{ paddingTop: 0 }}>
+        <StyledBreadcrumbs>
+          <Breadcrumb navigateTo="/">{t("breadcrumbsLabels.home")}</Breadcrumb>
+          <Breadcrumb current navigateTo="#">
+            {t("breadcrumbsLabels.login")}
+          </Breadcrumb>
+        </StyledBreadcrumbs>
+        <Typography marginBottom={4} variant="h3">{t("loginPage.pageHeading")}</Typography>
         <StyledContainer inner>
           <Typography>{t("loginPage.pageBody")}</Typography>
           <Tooltip title={t("loginPage.loginButtonTooltip")}>

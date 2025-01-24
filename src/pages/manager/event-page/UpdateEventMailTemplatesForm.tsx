@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  FormLabel,
   Radio,
   RadioGroup,
   Tooltip,
@@ -52,21 +53,21 @@ export default function UpdateEventMailTemplateForm(
       label: props.signUpTemplate.name,
       value: props.signUpTemplate.id,
     },
-    "SESSION_SIGN_UP"
+    "SESSION_SIGN_UP",
   );
   const reminderTemplates = useAsyncEmailTemplate(
     props.reminderTemplate && {
       label: props.reminderTemplate.name,
       value: props.reminderTemplate.id,
     },
-    "SESSION_REMINDER"
+    "SESSION_REMINDER",
   );
   const surveyTemplates = useAsyncEmailTemplate(
     props.surveyTemplate && {
       label: props.surveyTemplate.name,
       value: props.surveyTemplate.id,
     },
-    "SURVEY"
+    "SURVEY",
   );
 
   const [signUpChecked, setSignUpChecked] = useState<boolean>(
@@ -86,35 +87,35 @@ export default function UpdateEventMailTemplateForm(
     values: {
       signUp: props.signUpTemplate
         ? {
-          label: props.signUpTemplate.name,
-          value: props.signUpTemplate.id,
-        }
+            label: props.signUpTemplate.name,
+            value: props.signUpTemplate.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       reminder: props.reminderTemplate
         ? {
-          label: props.reminderTemplate.name,
-          value: props.reminderTemplate.id,
-        }
+            label: props.reminderTemplate.name,
+            value: props.reminderTemplate.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
       survey: props.surveyTemplate
         ? {
-          label: props.surveyTemplate.name,
-          value: props.surveyTemplate.id,
-        }
+            label: props.surveyTemplate.name,
+            value: props.surveyTemplate.id,
+          }
         : {
-          label: "",
-          value: "",
-        },
+            label: "",
+            value: "",
+          },
     },
   });
 
-  const submit = a.handleSubmit(function() {
+  const submit = a.handleSubmit(function () {
     setOpenConfirm(true);
   });
 
@@ -138,25 +139,30 @@ export default function UpdateEventMailTemplateForm(
           <RadioGroup>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                id="signUpEmailTemplateDefault"
+                name="signUpEmailTemplateDefault"
                 checked={!signUpChecked}
-                onChange={function() {
+                onChange={function () {
                   setSignUpChecked(false);
                 }}
               ></Radio>
-              <Typography>
+              <FormLabel htmlFor="signUpEmailTemplateDefault">
                 {t("eventPageManager.updateEventTemplates.defaultTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                id="signUpEmailTemplateChosen"
+                name="signUpEmailTemplateChosen"
                 checked={signUpChecked}
-                onChange={function() {
+                onChange={function () {
                   setSignUpChecked(true);
                 }}
               ></Radio>
-              <Typography>
+              <Typography></Typography>
+              <FormLabel htmlFor="signUpEmailTemplateChosen">
                 {t("eventPageManager.updateEventTemplates.chosenTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
           </RadioGroup>
           <ControlledAutocomplete
@@ -192,25 +198,30 @@ export default function UpdateEventMailTemplateForm(
           <RadioGroup>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                name="surveyEmailTemplateDefault"
+                id="surveyEmailTemplateDefault"
                 checked={!surveyChecked}
-                onChange={function() {
+                onChange={function () {
                   setSurveyChecked(false);
                 }}
               ></Radio>
-              <Typography>
+              <Typography></Typography>
+              <FormLabel htmlFor="surveyEmailTemplateDefault">
                 {t("eventPageManager.updateEventTemplates.noTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                id="surveyEmailTemplateChosen"
+                name="surveyEmailTemplateChosen"
                 checked={surveyChecked}
-                onChange={function() {
+                onChange={function () {
                   setSurveyChecked(true);
                 }}
               ></Radio>
-              <Typography>
+              <FormLabel htmlFor="surveyEmailTemplateChosen">
                 {t("eventPageManager.updateEventTemplates.chosenTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
           </RadioGroup>
           <ControlledAutocomplete
@@ -246,25 +257,29 @@ export default function UpdateEventMailTemplateForm(
           <RadioGroup>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                id="reminderTemplateDefault"
+                name="reminderTemplateDefault"
                 checked={!reminderChecked}
-                onChange={function() {
+                onChange={function () {
                   setReminderChecked(false);
                 }}
               ></Radio>
-              <Typography>
+              <FormLabel htmlFor="reminderTemplateDefault">
                 {t("eventPageManager.updateEventTemplates.defaultTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
             <Box display={"flex"} alignItems={"center"}>
               <Radio
+                id="reminderTemplateChosen"
+                name="reminderTemplateChosen"
                 checked={reminderChecked}
-                onChange={function() {
+                onChange={function () {
                   setReminderChecked(true);
                 }}
               ></Radio>
-              <Typography>
+              <FormLabel htmlFor="reminderTemplateChosen">
                 {t("eventPageManager.updateEventTemplates.chosenTemplate")}
-              </Typography>
+              </FormLabel>
             </Box>
           </RadioGroup>
           <ControlledAutocomplete
@@ -319,10 +334,10 @@ export default function UpdateEventMailTemplateForm(
       </Form>
       <ConfirmActionModal
         open={openConfirm}
-        onClose={function() {
+        onClose={function () {
           setOpenConfirm(false);
         }}
-        confirmAction={async function() {
+        confirmAction={async function () {
           if (props.state.event) {
             const ids = a.getValues();
             const result = await props.state.updateEvent(

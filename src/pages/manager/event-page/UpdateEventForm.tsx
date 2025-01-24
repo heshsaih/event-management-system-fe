@@ -23,9 +23,9 @@ import FileButton from "../../../components/FileButton";
 import { readFile } from "../create-event-page/fileReader";
 import { mapUpdateEventSchemaToUpdateEventDto } from "../../../util/converters";
 import ControlledSwitch from "../../../components/ControlledSwitch";
-import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import ChangeActiveSwitch from "../../../components/ChangeActiveSwitch";
 
 const breakpoints: GridBaseProps["columns"] = {
   xs: 12,
@@ -201,206 +201,202 @@ export default function UpdateEventForm({
       <Typography variant="h5">
         {t("eventPageManager.updateEventForm.eventDataHeading")}
       </Typography>
-      <FormProvider {...a}>
-        <Form onSubmit={submit}>
-          {isFetching && (
-            <CircularProgress
-              size={"3rem"}
-              sx={{ color: Colors.RED }}
-            ></CircularProgress>
-          )}
-          {!isFetching && event && (
-            <>
-              <TextInput
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.name",
-                )}
-                name="name"
-                label={t("eventPageManager.updateEventForm.labels.name")}
-              ></TextInput>
-              <TextInput
-                multiline
-                minRows={6}
-                maxRows={8}
-                name="descriptionPl"
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.descriptionPl",
-                )}
-                label={t(
-                  "eventPageManager.updateEventForm.labels.descriptionPl",
-                )}
-              ></TextInput>
-              <TextInput
-                multiline
-                minRows={6}
-                maxRows={8}
-                name="descriptionEn"
-                label={t(
-                  "eventPageManager.updateEventForm.labels.descriptionEn",
-                )}
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.descriptionEn",
-                )}
-              ></TextInput>
-              <TextInput
-                type="number"
-                name="minutesBetweenSessions"
-                label={t(
-                  "eventPageManager.updateEventForm.labels.minutesBetweenSessions",
-                )}
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.minutesBetweenSessions",
-                )}
-              ></TextInput>
-              <Grid2 container>
-                <Grid2
-                  size={breakpoints}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "start",
-                    alignItems: "center",
-                  }}
-                >
-                  <ControlledDatePicker
-                    aria-label={t(
-                      "eventPageManager.updateEventForm.ariaLabels.startDate",
-                    )}
-                    label={t(
-                      "eventPageManager.updateEventForm.labels.startDate",
-                    )}
-                    name="startDate"
-                    triggerCallback={function () {
-                      a.trigger("endDate");
-                      a.trigger("registrationStartDate");
+      {!isFetching && event && (
+        <>
+          <FormProvider {...a}>
+            <Form onSubmit={submit}>
+              {isFetching && (
+                <CircularProgress
+                  size={"3rem"}
+                  sx={{ color: Colors.RED }}
+                ></CircularProgress>
+              )}
+              <>
+                <TextInput
+                  aria-label={t(
+                    "eventPageManager.updateEventForm.ariaLabels.name",
+                  )}
+                  name="name"
+                  label={t("eventPageManager.updateEventForm.labels.name")}
+                ></TextInput>
+                <TextInput
+                  multiline
+                  minRows={6}
+                  maxRows={8}
+                  name="descriptionPl"
+                  aria-label={t(
+                    "eventPageManager.updateEventForm.ariaLabels.descriptionPl",
+                  )}
+                  label={t(
+                    "eventPageManager.updateEventForm.labels.descriptionPl",
+                  )}
+                ></TextInput>
+                <TextInput
+                  multiline
+                  minRows={6}
+                  maxRows={8}
+                  name="descriptionEn"
+                  label={t(
+                    "eventPageManager.updateEventForm.labels.descriptionEn",
+                  )}
+                  aria-label={t(
+                    "eventPageManager.updateEventForm.ariaLabels.descriptionEn",
+                  )}
+                ></TextInput>
+                <TextInput
+                  type="number"
+                  name="minutesBetweenSessions"
+                  label={t(
+                    "eventPageManager.updateEventForm.labels.minutesBetweenSessions",
+                  )}
+                  aria-label={t(
+                    "eventPageManager.updateEventForm.ariaLabels.minutesBetweenSessions",
+                  )}
+                ></TextInput>
+                <Grid2 container>
+                  <Grid2
+                    size={breakpoints}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "start",
+                      alignItems: "center",
                     }}
-                  ></ControlledDatePicker>
-                </Grid2>
-                <Grid2
-                  size={breakpoints}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "start",
-                    alignItems: "center",
-                  }}
-                >
-                  <ControlledDatePicker
-                    aria-label={t(
-                      "eventPageManager.updateEventForm.ariaLabels.endDate",
-                    )}
-                    name="endDate"
-                    label={t("eventPageManager.updateEventForm.labels.endDate")}
-                    minDate={a.getValues().startDate.add(1, "day")}
-                    triggerCallback={function () {
-                      a.trigger("startDate");
-                      a.trigger("registrationStartDate");
+                  >
+                    <ControlledDatePicker
+                      aria-label={t(
+                        "eventPageManager.updateEventForm.ariaLabels.startDate",
+                      )}
+                      label={t(
+                        "eventPageManager.updateEventForm.labels.startDate",
+                      )}
+                      name="startDate"
+                      triggerCallback={function () {
+                        a.trigger("endDate");
+                        a.trigger("registrationStartDate");
+                      }}
+                    ></ControlledDatePicker>
+                  </Grid2>
+                  <Grid2
+                    size={breakpoints}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "start",
+                      alignItems: "center",
                     }}
-                  ></ControlledDatePicker>
+                  >
+                    <ControlledDatePicker
+                      aria-label={t(
+                        "eventPageManager.updateEventForm.ariaLabels.endDate",
+                      )}
+                      name="endDate"
+                      label={t(
+                        "eventPageManager.updateEventForm.labels.endDate",
+                      )}
+                      minDate={a.getValues().startDate.add(1, "day")}
+                      triggerCallback={function () {
+                        a.trigger("startDate");
+                        a.trigger("registrationStartDate");
+                      }}
+                    ></ControlledDatePicker>
+                  </Grid2>
                 </Grid2>
-              </Grid2>
-              <ControlledDatePicker
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.registrationStartDate",
-                )}
-                label={t(
-                  "eventPageManager.updateEventForm.labels.registrationStartDate",
-                )}
-                name="registrationStartDate"
-                maxDate={a.getValues().startDate.subtract(1, "day")}
-                triggerCallback={function () {
-                  a.trigger("endDate");
-                  a.trigger("registrationStartDate");
-                }}
-              ></ControlledDatePicker>
-              <ControlledSwitch
-                name="outsidersAllowed"
-                label={t(
-                  "eventPageManager.updateEventForm.labels.outsidersAllowed",
-                )}
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.outsidersAllowed",
-                )}
-              ></ControlledSwitch>
-              <Typography variant="h5" marginTop={3}>
-                {t("eventPageManager.updateEventForm.eventImageHeading")}
-              </Typography>
-              <EventImage data={image.data}></EventImage>
-              <Typography variant="body1">{image.imageName}</Typography>
-              <FileButton
-                aria-label={t(
-                  "eventPageManager.updateEventForm.ariaLabels.uploadImageButton",
-                )}
-                callback={function (e) {
-                  readFile(e, function (name, data) {
-                    setImage({
-                      imageName: name,
-                      data: data,
+                <ControlledDatePicker
+                  aria-label={t(
+                    "eventPageManager.updateEventForm.ariaLabels.registrationStartDate",
+                  )}
+                  label={t(
+                    "eventPageManager.updateEventForm.labels.registrationStartDate",
+                  )}
+                  name="registrationStartDate"
+                  maxDate={a.getValues().startDate.subtract(1, "day")}
+                  triggerCallback={function () {
+                    a.trigger("endDate");
+                    a.trigger("registrationStartDate");
+                  }}
+                ></ControlledDatePicker>
+                <ControlledSwitch
+                  label={t(
+                    "eventPageManager.updateEventForm.labels.outsidersAllowed",
+                  )}
+                  name="outsidersAllowed"
+                ></ControlledSwitch>
+                <Typography variant="h5" marginTop={3}>
+                  {t("eventPageManager.updateEventForm.eventImageHeading")}
+                </Typography>
+                <EventImage data={image.data}></EventImage>
+                <Typography variant="body1">{image.imageName}</Typography>
+                <FileButton
+                  callback={function (e) {
+                    readFile(e, function (name, data) {
+                      setImage({
+                        imageName: name,
+                        data: data,
+                      });
                     });
-                  });
-                }}
-              >
-                {t("eventPageManager.updateEventForm.uploadImageButtonText")}
-              </FileButton>
-              <Box>
-                <Tooltip
-                  title={t(
-                    "eventPageManager.updateEventForm.uploadImageButtonTooltip",
-                  )}
+                  }}
                 >
-                  <Button
-                    aria-label={t(
-                      "eventPageManager.updateEventForm.ariaLabels.submitButton",
-                    )}
-                    type="submit"
-                    disabled={Object.keys(a.formState.errors).length > 0}
-                  >
-                    {isUpdating ? (
-                      <CircularProgress></CircularProgress>
-                    ) : (
-                      t("eventPageManager.updateEventForm.submitButtonText")
-                    )}
-                  </Button>
-                </Tooltip>
-                <Tooltip
-                  title={t(
-                    "eventPageManager.updateEventForm.cancelButtonTooltip",
-                  )}
-                >
-                  <Button
-                    onClick={closeForm}
-                    aria-label={t(
-                      "eventPageManager.updateEventForm.ariaLabels.cancelButton",
+                  {t("eventPageManager.updateEventForm.uploadImageButtonText")}
+                </FileButton>
+                <Box>
+                  <Tooltip
+                    title={t(
+                      "eventPageManager.updateEventForm.uploadImageButtonTooltip",
                     )}
                   >
-                    {t("eventPageManager.updateEventForm.cancelButtonText")}
-                  </Button>
-                </Tooltip>
-              </Box>
-              <Typography variant="h4" marginTop={3}>
-                {t("eventPageManager.updateEventForm.activeHeading")}
-              </Typography>
-              <StyledSwitch
-                checked={event.active}
-                onChange={function () {
-                  setConfirmAction(function () {
-                    return async function () {
-                      const response = await changeEventActive(
-                        event.id,
-                        !event.active,
-                      );
-                      if (response) {
-                        refresh();
-                      }
-                    };
-                  });
-                  setOpenConfirm(true);
-                }}
-              ></StyledSwitch>
-            </>
-          )}
-        </Form>
-      </FormProvider>
+                    <Button
+                      aria-label={t(
+                        "eventPageManager.updateEventForm.ariaLabels.submitButton",
+                      )}
+                      type="submit"
+                      disabled={Object.keys(a.formState.errors).length > 0}
+                    >
+                      {isUpdating ? (
+                        <CircularProgress></CircularProgress>
+                      ) : (
+                        t("eventPageManager.updateEventForm.submitButtonText")
+                      )}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip
+                    title={t(
+                      "eventPageManager.updateEventForm.cancelButtonTooltip",
+                    )}
+                  >
+                    <Button
+                      onClick={closeForm}
+                      aria-label={t(
+                        "eventPageManager.updateEventForm.ariaLabels.cancelButton",
+                      )}
+                    >
+                      {t("eventPageManager.updateEventForm.cancelButtonText")}
+                    </Button>
+                  </Tooltip>
+                </Box>
+              </>
+            </Form>
+          </FormProvider>
+          <ChangeActiveSwitch
+            value={event.active}
+            onChange={async function () {
+              setConfirmAction(function () {
+                return async function () {
+                  const response = await changeEventActive(
+                    event.id,
+                    !event.active,
+                  );
+                  if (response) {
+                    refresh();
+                  }
+                };
+              });
+              setOpenConfirm(true);
+            }}
+            heading={t("eventPageManager.updateEventForm.activeHeading")}
+          ></ChangeActiveSwitch>
+        </>
+      )}
       <ConfirmActionModal
         open={openConfirm}
         onClose={function () {

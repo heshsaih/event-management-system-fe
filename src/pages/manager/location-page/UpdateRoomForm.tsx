@@ -7,9 +7,9 @@ import StyledModal from "../../../components/StyledModal";
 import { Button, CircularProgress, Tooltip, Typography } from "@mui/material";
 import Form from "../../../components/Form";
 import TextInput from "../../../components/TextInput";
-import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import ChangeActiveSwitch from "../../../components/ChangeActiveSwitch";
 
 const updateRoomSchema = z.object({
   roomNumber: z
@@ -40,9 +40,9 @@ export default function UpdateRoomForm(props: UpdateRoomFormProps) {
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<() => void>();
 
-  const submit = a.handleSubmit(function() {
-    setConfirmAction(function() {
-      return async function() {
+  const submit = a.handleSubmit(function () {
+    setConfirmAction(function () {
+      return async function () {
         setOpenConfirm(false);
         await updateRoom(props.id ?? "", a.getValues());
       };
@@ -51,7 +51,7 @@ export default function UpdateRoomForm(props: UpdateRoomFormProps) {
   });
 
   useEffect(
-    function() {
+    function () {
       if (props.open) {
         getRoom(props.id ?? "");
       }
@@ -93,15 +93,13 @@ export default function UpdateRoomForm(props: UpdateRoomFormProps) {
             </Tooltip>
           </Form>
         </FormProvider>
-        <Typography variant="h5">
-          {t("updateRoomForm.activeHeading")}
-        </Typography>
-        <StyledSwitch
-          aria-label={t("updateRoomForm.ariaLabels.active")}
-          checked={room?.active ?? true}
-          onChange={function() {
-            setConfirmAction(function() {
-              return async function() {
+        <Typography variant="h5"></Typography>
+        <ChangeActiveSwitch
+          heading={t("updateRoomForm.activeHeading")}
+          value={room?.active ?? true}
+          onChange={function () {
+            setConfirmAction(function () {
+              return async function () {
                 setOpenConfirm(false);
                 const result = await changeRoomActive(
                   props?.id ?? "",
@@ -114,10 +112,10 @@ export default function UpdateRoomForm(props: UpdateRoomFormProps) {
             });
             setOpenConfirm(true);
           }}
-        ></StyledSwitch>
+        ></ChangeActiveSwitch>
         <ConfirmActionModal
           open={openConfirm}
-          onClose={function() {
+          onClose={function () {
             setOpenConfirm(false);
           }}
           confirmAction={confirmAction as () => void}

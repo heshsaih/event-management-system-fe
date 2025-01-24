@@ -13,9 +13,9 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Colors } from "../../../constants/styling";
-import StyledSwitch from "../../../components/StyledSwitch";
 import { useTranslation } from "react-i18next";
 import ConfirmActionModal from "../../../components/ConfirmActionModal";
+import ChangeActiveSwitch from "../../../components/ChangeActiveSwitch";
 
 const updateLocationSchema = z.object({
   name: z
@@ -66,13 +66,13 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<() => void>();
 
-  useEffect(function() {
+  useEffect(function () {
     props.getLocation(props.location?.id ?? "");
   }, []);
 
-  const submit = a.handleSubmit(function() {
-    setConfirmAction(function() {
-      return async function() {
+  const submit = a.handleSubmit(function () {
+    setConfirmAction(function () {
+      return async function () {
         setOpenConfirm(false);
         const result = await updateLocation(
           props.location?.id ?? "",
@@ -152,34 +152,29 @@ export default function UpdateLocationForm(props: UpdateLocationFormProps) {
         </FormProvider>
       )}
       {!isFetching && (
-        <>
-          <Typography variant="h5">
-            {t("updateLocationForm.activeHeading")}
-          </Typography>
-          <StyledSwitch
-            aria-label={t("updateLocationForm.ariaLabels.active")}
-            checked={props.location?.active ?? true}
-            onChange={function() {
-              setConfirmAction(function() {
-                return async function() {
-                  setOpenConfirm(false);
-                  const result = await changeLocationActive(
-                    props.location?.id ?? "",
-                    props.location?.active ? false : true,
-                  );
-                  if (result) {
-                    props.getLocation(props.location?.id ?? "");
-                  }
-                };
-              });
-              setOpenConfirm(true);
-            }}
-          ></StyledSwitch>
-        </>
+        <ChangeActiveSwitch
+          heading={t("updateLocationForm.activeHeading")}
+          value={props.location?.active ?? true}
+          onChange={function () {
+            setConfirmAction(function () {
+              return async function () {
+                setOpenConfirm(false);
+                const result = await changeLocationActive(
+                  props.location?.id ?? "",
+                  props.location?.active ? false : true,
+                );
+                if (result) {
+                  props.getLocation(props.location?.id ?? "");
+                }
+              };
+            });
+            setOpenConfirm(true);
+          }}
+        ></ChangeActiveSwitch>
       )}
       <ConfirmActionModal
         open={openConfirm}
-        onClose={function() {
+        onClose={function () {
           setOpenConfirm(false);
         }}
         confirmAction={confirmAction as () => void}

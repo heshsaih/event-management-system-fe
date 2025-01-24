@@ -88,11 +88,11 @@ export default function EventEntry(props: EventEntryProps) {
       }}
     >
       <AccordionSummary expandIcon={<ExpandMore></ExpandMore>}>
-        <Typography variant="h5">{props.event.name}</Typography>
+        <Typography fontSize={Styling.HEADING_SIZE}>{props.event.name}</Typography>
       </AccordionSummary>
       <AccordionDetails
         sx={{
-          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1)) ,url('data:image/&;base64,${props.event.image.data}')`,
+          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 1)) ,url('data:image/&;base64,${props.event.image.data}')`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center center",

@@ -6,4 +6,6 @@ export enum Colors {
 
 export enum Styling {
   BORDER_RADIUS = "0.5rem",
+  HEADING_SIZE = 25,
+  SUBHEADINHG_SIZE = 20
 }

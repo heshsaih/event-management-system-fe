@@ -8,9 +8,6 @@ i18next.use(initReactI18next).init({
       translation: pl,
     },
   },
-  lng: "pl",
+  lng: new Intl.Locale(navigator.language).language,
   fallbackLng: "pl",
-  interpolation: {
-    escapeValue: false,
-  },
 });

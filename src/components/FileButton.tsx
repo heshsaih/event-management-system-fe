@@ -1,6 +1,7 @@
 import { Button, styled, Tooltip } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ChangeEvent, PropsWithChildren } from "react";
+import { useTranslation } from "react-i18next";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -28,9 +29,11 @@ function loadFileAndCallCallback(
   }
 }
 
-export default function FileButton({ callback, children, ...rest }: FileButtonProps) {
+export default function FileButton({ callback, children }: FileButtonProps) {
+  const {t} = useTranslation();
+
   return (
-    <Tooltip title="Wczytaj dane z pliku">
+    <Tooltip title={t("fileButton.tooltipText")}>
       <Button
         component="label"
         tabIndex={-1}
@@ -39,7 +42,6 @@ export default function FileButton({ callback, children, ...rest }: FileButtonPr
         <>
           {children || <CloudUploadIcon></CloudUploadIcon>}
           <VisuallyHiddenInput
-            aria-label={rest["aria-label"]}
             type="file"
             onChange={function (e) {
               loadFileAndCallCallback(e, callback);

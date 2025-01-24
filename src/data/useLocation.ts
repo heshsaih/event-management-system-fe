@@ -130,11 +130,11 @@ export default function useLocation() {
       ...params,
       ...filterParams,
     };
-    const uri = mapFilterParamsToUri(newParams);
+    const searchParams = mapFilterParamsToUri(newParams);
     try {
       setIsFetching(true);
       const response = await apiWithToken.get<Pageable<LocationDto>>(
-        `/manager/locations?${uri}`,
+        `/manager/locations?${searchParams}`,
       );
       setLocations({
         ...response.data,

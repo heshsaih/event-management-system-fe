@@ -1,4 +1,4 @@
-import { 
+import {
   Box,
   Container,
   Divider,
@@ -64,7 +64,7 @@ export default function Footer() {
       <Grid2 container spacing={1} width={"100%"}>
         <Grid2 size={breakpoints}>
           <FooterElement>
-            <Typography variant="h6" marginBottom="2rem">
+            <Typography fontSize={20} marginBottom="2rem">
               Politechnika Łódzka
             </Typography>
             <Typography>
@@ -78,7 +78,7 @@ export default function Footer() {
         </Grid2>
         <Grid2 size={breakpoints}>
           <FooterElement>
-            <Typography variant="h5">Centrum E-Learningu</Typography>
+            <Typography fontSize={25}>Centrum E-Learningu</Typography>
             <List
               sx={{
                 width: "60%",
@@ -99,13 +99,26 @@ export default function Footer() {
                 icon={<AccessTimeIcon></AccessTimeIcon>}
                 text="Godziny pracy"
               ></ListLink>
+            </List>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                width: "60%",
+                alignItems: "center",
+              }}
+            >
               <Divider
                 sx={{
                   backgroundColor: "white",
                   margin: "1rem 0",
+                  width: "100%",
                 }}
               ></Divider>
-              <Typography>Pomoc techniczna WIKAMP</Typography>
+              <Typography marginLeft={2}>Pomoc techniczna WIKAMP</Typography>
+            </div>
+            <List sx={{ width: "60%" }}>
               <ListLink
                 href="mailto:bok@edu.p.lodz.pl"
                 icon={<EmailIcon></EmailIcon>}
@@ -121,7 +134,7 @@ export default function Footer() {
         </Grid2>
         <Grid2 size={breakpoints}>
           <FooterElement>
-            <Typography variant="h5">Przydatne linki</Typography>
+            <Typography fontSize={25}>Przydatne linki</Typography>
             <List
               sx={{
                 width: "60%",
@@ -137,12 +150,25 @@ export default function Footer() {
                 icon={<AutoStoriesIcon></AutoStoriesIcon>}
                 text="Biblioteka PŁ"
               ></ListLink>
+            </List>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                width: "60%",
+                alignItems: "center",
+              }}
+            >
               <Divider
                 sx={{
                   backgroundColor: "white",
                   margin: "1rem 0",
+                  width: "100%",
                 }}
               ></Divider>
+            </div>
+            <List sx={{ width: "60%" }}>
               <ListLink
                 href="https://poczta.p.lodz.pl"
                 icon={<EmailIcon></EmailIcon>}

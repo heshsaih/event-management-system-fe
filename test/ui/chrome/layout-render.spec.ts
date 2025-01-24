@@ -39,21 +39,15 @@ describe("layout render test", function() {
         .filter({ hasText: "Politechnika Łódzkaul. Ż" })
         .nth(1),
     ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Politechnika Łódzka" }),
-    ).toBeVisible();
+    await expect(page.getByText('Politechnika Łódzka')).toBeVisible();
     await expect(page.getByText("ul. Żeromskiego 11690-924 Łód")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Centrum E-Learningu" }),
-    ).toBeVisible();
+    await expect(page.getByText('Centrum E-Learningu')).toBeVisible();
     await expect(
       page.getByText(
         "Strona główna CEL PŁLokalizacjaGodziny pracyPomoc techniczna WIKAMPbok@edu.p.",
       ),
     ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Przydatne linki" }),
-    ).toBeVisible();
+    await expect(page.getByText('Przydatne linki')).toBeVisible();
     await expect(page.getByText("Strona główna PŁBiblioteka PŁ")).toBeVisible();
   });
 

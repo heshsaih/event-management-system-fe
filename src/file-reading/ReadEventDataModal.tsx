@@ -52,25 +52,25 @@ function mapResultToTableRows(data: ParsedEventData, t: TFunction) {
         : t("readFileModal.eventData.tableKeys.emptyValue"),
     [t("readFileModal.eventData.tableKeys.startDate")]: data.startDate.isValid()
       ? data.startDate.toDate().toLocaleString("pl-PL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      : t("readFileModal.eventData.tableKeys.wrongDateFormat"),
-    [t("readFileModal.eventData.tableKeys.endDate")]: data.endDate.isValid()
-      ? data.endDate.toDate().toLocaleString("pl-PL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      : t("readFileModal.eventData.tableKeys.wrongDateFormat"),
-    [t("readFileModal.eventData.tableKeys.registrationStartDate")]:
-      data.registrationStartDate.isValid()
-        ? data.registrationStartDate.toDate().toLocaleString("pl-PL", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         })
+      : t("readFileModal.eventData.tableKeys.wrongDateFormat"),
+    [t("readFileModal.eventData.tableKeys.endDate")]: data.endDate.isValid()
+      ? data.endDate.toDate().toLocaleString("pl-PL", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : t("readFileModal.eventData.tableKeys.wrongDateFormat"),
+    [t("readFileModal.eventData.tableKeys.registrationStartDate")]:
+      data.registrationStartDate.isValid()
+        ? data.registrationStartDate.toDate().toLocaleString("pl-PL", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
         : t("readFileModal.eventData.tableKeys.wrongDateFormat"),
     [t("readFileModal.eventData.tableKeys.outsidersAllowed")]:
       data.outsidersAllowed
@@ -89,7 +89,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
   const [confirmAction, setConfirmAction] = useState<() => void>();
   const [result, setResult] = useState<ParsedEventData>();
   const { t } = useTranslation();
-  const updateEvent = useCreateEventStore(function(state) {
+  const updateEvent = useCreateEventStore(function (state) {
     return state.updateEvent;
   });
 
@@ -170,8 +170,11 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
                     "readFileModal.eventData.ariaLabels.downloadExampleButton",
                   )}
                   endIcon={<CloudDownloadIcon></CloudDownloadIcon>}
-                  onClick={function() {
-                    downloadExampleCSVFile([eventDataExample], "przyklad_wydarzenie.csv");
+                  onClick={function () {
+                    downloadExampleCSVFile(
+                      [eventDataExample],
+                      "przyklad_wydarzenie.csv",
+                    );
                   }}
                 >
                   {t("readFileModal.eventData.downloadExampleButtonText")}
@@ -179,7 +182,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
               </Tooltip>
             </StyledContainer>
             <FileButton
-              callback={function(file) {
+              callback={function (file) {
                 const result = validateFile(file);
                 if (result) {
                   parseEventData(result, setIsReading, setResult);
@@ -198,7 +201,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
             <TableContainer>
               <Table>
                 {mappedResult &&
-                  Object.keys(mappedResult).map(function(e) {
+                  Object.keys(mappedResult).map(function (e) {
                     return (
                       <TableRow>
                         <TableCell>{e}</TableCell>
@@ -219,9 +222,9 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
                   aria-label={t(
                     "readFileModal.eventData.ariaLabels.submitButton",
                   )}
-                  onClick={function() {
-                    setConfirmAction(function() {
-                      return function() {
+                  onClick={function () {
+                    setConfirmAction(function () {
+                      return function () {
                         setOpenConfirm(false);
                         updateEvent({
                           ...result,
@@ -257,7 +260,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
                   aria-label={t(
                     "readFileModal.eventData.ariaLabels.cancelButton",
                   )}
-                  onClick={function() {
+                  onClick={function () {
                     setResult(undefined);
                   }}
                 >
@@ -267,7 +270,7 @@ export default function ReadEventDataModal(props: ReadEventDataModalProps) {
             </Box>
             <ConfirmActionModal
               open={openConfirm}
-              onClose={function() {
+              onClose={function () {
                 setOpenConfirm(false);
               }}
               confirmAction={confirmAction as () => void}

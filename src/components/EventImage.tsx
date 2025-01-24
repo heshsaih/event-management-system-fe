@@ -8,7 +8,6 @@ export default function EventImage({ data }: EventImageProps) {
   const { t } = useTranslation();
   return (
     <Box
-      aria-label={t("eventImage.ariaLabel")}
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -22,6 +21,7 @@ export default function EventImage({ data }: EventImageProps) {
           verticalAlign: "center",
         }}
         src={`data:image/&;base64,${data}`}
+        alt={t("eventImage.alt")}
       />
     </Box>
   );

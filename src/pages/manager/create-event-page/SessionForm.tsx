@@ -337,7 +337,7 @@ export default function SessionForm({
           </>
         }
       >
-        <Typography variant="h5">
+        <Typography fontSize={Styling.HEADING_SIZE}>
           {session.name
             ? session.name
             : t("createEventPage.sessionForm.sessionNamePlaceholder")}

@@ -8,13 +8,13 @@ import {
   mapOtherParamDtoToOtherParam,
 } from "../util/converters";
 import { apiWithEtag, apiWithToken } from "../api/config";
-import { Entity, EntityDto, Pageable, UpdateOtherParamDto } from "../types";
+import { OtherParam, OtherParamDto, Pageable, UpdateOtherParamDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
 import i18next from "i18next";
 
-export type SessionTypeDto = EntityDto;
+export type SessionTypeDto = OtherParamDto;
 
-export type SessionType = Entity;
+export type SessionType = OtherParam;
 
 export function useSessionType() {
   const [isFetching, setIsFetching] = useState<boolean>(false);

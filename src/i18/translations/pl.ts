@@ -1,3 +1,7 @@
+const fileButton = {
+  tooltipText: "Kliknij, aby wczytać dane z pliku"
+};
+
 const sessionParticipantsModal = {
   pageHeading: "Uczestnicy konferencji",
   noEntries: "Ta konferencja nie ma jeszcze żadnych uczestników",
@@ -407,6 +411,10 @@ const readFileModal = {
     cancelButtonTooltip: "Kliknij, aby odrzucić dane",
     cancelButtonText: "Nie",
     loadFileButtonText: "Wczytaj plik",
+    wrongFileType:
+      "Niepoprawny format pliku (akceptowalne są tylko pliku o rozszerzeniu .csv)",
+    noSessionsLoaded:
+      "Wczytany plik jest w niepoprawnym formacie, lub nie posiada żadnych konferencji",
   },
   eventData: {
     pageHeading: "Wczytaj dane wydarzenia",
@@ -467,6 +475,7 @@ const readFileModal = {
 };
 
 const breadcrumbsLabels = {
+  login: "Zaloguj się",
   home: "Strona główna",
   events: "Wydarzenia",
   event: "Wydarzenie",
@@ -612,8 +621,10 @@ const backendErrors = {
       "Nie udało połączyć się z serwerem, spróbuj ponownie później",
     "Email template contains forbidden keyword: default":
       "Podane dane posiadają zabrionione słowo kluczowe: default",
+    "unauthorized": "Aktualna sesja użytkownika wygasła, zaloguj się ponownie"
   },
   titles: {
+    "Unauthorized": "Brak dostępu",
     "Not Found": "Nie znaleziono",
     "Bad Request": "Błędne żądanie",
     Conflict: "Konflikt",
@@ -657,7 +668,7 @@ const filterParams = {
 };
 
 const eventImage = {
-  ariaLabel: "Zdjęcie tematyczne wydarzenia",
+  alt: "Zdjęcie tematyczne wydarzenia"
 };
 
 const styledSwitch = {
@@ -1891,7 +1902,7 @@ const sidePanel = {
   managerLinksHeading: "Zarządca",
   adminLinksHeading: "Administrator",
   closeSidePanelTooltip: "Kliknij, aby zamknąć panel",
-  openSidePanelButtonTooltip: "Uczestnik",
+  openSidePanelButtonTooltip: "Kliknij, aby otworzyć panel boczny",
 };
 
 export default {
@@ -1940,4 +1951,5 @@ export default {
   myProfile,
   zustandHooks,
   sessionParticipantsModal,
+  fileButton
 } as const;

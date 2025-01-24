@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { z } from "zod";
 import { Styling } from "../constants/styling";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,7 +51,7 @@ type FilterParamsProps = {
   sortOptions?: AutocompleteOption[];
 };
 
-const directionOptions = function(t: TFunction): AutocompleteOption[] {
+const directionOptions = function (t: TFunction): AutocompleteOption[] {
   return [
     {
       label: t("filterParams.directionOptions.asc"),
@@ -64,7 +64,7 @@ const directionOptions = function(t: TFunction): AutocompleteOption[] {
   ];
 };
 
-const orderByOptions = function(t: TFunction): AutocompleteOption[] {
+const orderByOptions = function (t: TFunction): AutocompleteOption[] {
   let options = [
     {
       label: t("filterParams.orderByOptions.createdAt"),
@@ -85,6 +85,7 @@ const orderByOptions = function(t: TFunction): AutocompleteOption[] {
 export default function FilterParams(props: FilterParamsProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<boolean>(false);
+  const ref = useRef<HTMLDivElement>(null);
   const a = useForm<FilterParamsType>({
     resolver: zodResolver(filterSchema),
     values: {
@@ -95,15 +96,25 @@ export default function FilterParams(props: FilterParamsProps) {
     },
   });
 
-  const openAccordion = function() {
+  const openAccordion = function () {
     setOpen(true);
+    const currentRect = ref.current?.getBoundingClientRect() as DOMRect;
+    const scrollValue = currentRect.top + window.scrollY - 200;
+    window.scrollTo({
+      top: scrollValue,
+      behavior: "smooth",
+    });
   };
 
-  const closeAccordion = function() {
+  const closeAccordion = function () {
     setOpen(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
-  const filter = function(data: FilterParamsType) {
+  const filter = function (data: FilterParamsType) {
     props.callback({
       ...data,
       orderBy: data.orderBy.value as unknown as FilterOptions["orderBy"],
@@ -112,12 +123,13 @@ export default function FilterParams(props: FilterParamsProps) {
     closeAccordion();
   };
 
-  const submit = a.handleSubmit(function(data) {
+  const submit = a.handleSubmit(function (data) {
     filter(data);
   });
 
   return (
     <Accordion
+      ref={ref}
       sx={{
         boxShadow: 0,
         "&:before": { display: "none" },
@@ -129,7 +141,7 @@ export default function FilterParams(props: FilterParamsProps) {
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
         <Tooltip title={t("filterParams.componentHeadingTooltip")}>
-          <Typography variant="h5">
+          <Typography fontSize={20}>
             {t("filterParams.componentHeadingText")}
           </Typography>
         </Tooltip>
@@ -176,7 +188,7 @@ export default function FilterParams(props: FilterParamsProps) {
               </Tooltip>
               <Tooltip title={t("filterParams.clearbuttonTooltip")}>
                 <Button
-                  onClick={function() {
+                  onClick={function () {
                     a.reset();
                     filter(a.getValues());
                   }}

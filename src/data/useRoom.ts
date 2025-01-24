@@ -1,11 +1,11 @@
 import { AxiosError } from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import dayjs from "dayjs";
 import { apiWithEtag, apiWithToken } from "../api/config";
 import { Entity, EntityDto } from "../types";
 import { BackendError, handleBackendError } from "../util/parsingErrors";
 import i18next from "i18next";
+import { mapRoomDtoToRoom } from "../util/converters";
 
 export type RoomDto = Omit<EntityDto, "name"> & {
   roomNumber: string;
@@ -51,11 +51,7 @@ export default function useRoom() {
     try {
       setIsFetching(true);
       const response = await apiWithEtag.get<RoomDto>(`/manager/rooms/${id}`);
-      setRoom({
-        ...response.data,
-        createdAt: dayjs(response.data.createdAt),
-        updatedAt: dayjs(response.data.updatedAt),
-      });
+      setRoom(mapRoomDtoToRoom(response.data));
     } catch (e) {
       handleBackendError(e as AxiosError<BackendError | undefined>);
     } finally {
